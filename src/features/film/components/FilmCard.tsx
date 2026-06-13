@@ -1,8 +1,8 @@
-import type { Film } from "../types/film";
+import type { FilmBasic } from "../types/filmBasic.ts";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-    readonly film: Film;
+    readonly film: FilmBasic;
 };
 
 function FilmCard({ film }: Props) {
