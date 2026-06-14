@@ -19,36 +19,59 @@ function FilmListPage() {
         <div>
             <h1>Films</h1>
             <div>
-                <button onClick={() => setViewMode("list")}>
-                    List
-                </button>
+                <div style={{
+                    display: "flex",
+                    gap: "8px",
+                    margin: "20px auto",
+                    width: "70%",
+                    justifyContent: "flex-end" }}
+                >
+                    <button
+                        onClick={() => setViewMode("list")}
+                        title="List view"
+                        style={{
+                            fontSize: "22px",
+                            cursor: "pointer",
+                            opacity: viewMode === "list" ? 1 : 0.3,
+                            width: "4%",
+                            textAlign: "center",
+                            color: "var(--text-color)",
+                        }}
+                    >
+                        ☰
+                    </button>
 
-                <button onClick={() => setViewMode("grid")}>
-                    Grid
-                </button>
+                    <button
+                        onClick={() => setViewMode("grid")}
+                        title="Grid view"
+                        style={{
+                            fontSize: "22px",
+                            cursor: "pointer",
+                            opacity: viewMode === "grid" ? 1 : 0.5,
+                            width: "4%",
+                            textAlign: "center",
+                            color: "var(--text-color)",
+                        }}
+                    >
+                        ▦
+                    </button>
+                </div>
             </div>
             {viewMode === "list" ? (
-                <div style={{ textAlign: "left" }}>
-                    {data?.content.map((film, index) => (
-                        <FilmListItem
-                            key={film.id}
-                            film={film}
-                            index={index}
-                        />
-                    ))}
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <div className="item-list">
+                        {data?.content.map((film, index) => (
+                            <FilmListItem key={film.id} film={film} index={index}/>
+                        ))}
+                    </div>
                 </div>
             ) : (
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(4, 1fr)",
-                        gap: "20px"
-                    }}
-                >
-                    {data?.content.map((film) => (
+                <div className="card-grid">
+                    {data?.content.map((film, index) => (
                         <FilmCard
                             key={film.id}
                             film={film}
+                            index={index}
                         />
                     ))}
                 </div>

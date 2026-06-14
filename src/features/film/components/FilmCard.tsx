@@ -3,31 +3,75 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
     readonly film: FilmBasic;
+    readonly index: number;
 };
 
-function FilmCard({ film }: Props) {
+function FilmCard({ film, index }: Props) {
     const navigate = useNavigate();
     return (
         <button
             onClick={() => navigate(`/films/${film.id}`)}
             style={{
-                all: "unset",
-                cursor: "pointer",
-                display: "block",
-                border: "1px solid gray",
-                padding: "12px",
-                borderRadius: "8px"
+                display: "grid",
+                gridTemplateRows: "20px 1fr 55px 35px",
+                overflow: "hidden",
+                boxSizing: "border-box",
             }}
         >
+            {/* 1. NUMBER */}
+            <div
+                style={{
+                    fontSize: "var(--font-s)",
+                    color: "var(--text-color-f)",
+                    lineHeight: 1,
+                    padding: "3px 10px"
+                }}
+            >
+                {index + 1}
+            </div>
+
+            {/* POSTER AREA */}
             <img
                 src={film.posterUrl}
                 alt={film.title}
-                width={150}
+                style={{
+                    aspectRatio: "2 / 3",
+                    background: "var(--accent)",
+                    borderRadius: "5px",
+                    width: "100%",
+                    justifySelf: "stretch"
+                }}
             />
 
-            <h3>{film.title}</h3>
+            {/* 3. TITLE */}
+            <div
+                style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    padding: "3px 10px",
+                    fontWeight: 500,
+                    fontSize: "16px",
+                    lineHeight: "1.22",
+                    alignSelf: "flex-start"
+                }}
+            >
+                {film.title}
+            </div>
 
-            <p>{film.releaseYear}</p>
+            {/* 4. YEAR */}
+            <div
+                style={{
+                    fontSize: "var(--font-s)",
+                    color: "var(--text-color-f)",
+                    alignSelf: "end",
+                    padding: "5px 8px",
+                }}
+            >
+                {film.releaseYear}
+            </div>
         </button>
     );
 }

@@ -3,25 +3,22 @@ import { useFilmQuery } from "../queries/useFilmQuery.ts";
 
 function FilmPage() {
     const { id } = useParams();
-
     const { data, isLoading, error } = useFilmQuery(id);
+    const formatGenre = (g: string) => g.charAt(0) + g.slice(1).toLowerCase();
 
     if (isLoading) return <h1>Loading...</h1>;
     if (error) return <h1>Error loading film</h1>;
 
     return (
-        <div style={{ padding: 20 }}>
+        <div>
             {/* TITLE */}
-            <h1 style={{ textAlign: "center" }}>
-                {data?.title} ({data?.releaseYear})
-            </h1>
+            <h1>{data?.title} ({data?.releaseYear})</h1>
 
             <hr />
 
             {/* MAIN GRID */}
             <div
                 style={{
-                    textAlign: "left",
                     display: "grid",
                     gridTemplateColumns: "300px 1fr 170px",
                     gap: "20px",
@@ -35,7 +32,7 @@ function FilmPage() {
                         alt={data?.title}
                         style={{
                             width: "100%",
-                            borderRadius: "8px"
+                            borderRadius: "8px",
                         }}
                     />
                 </div>
@@ -43,33 +40,45 @@ function FilmPage() {
                 {/* DETAILS */}
                 <div>
                     {/* description */}
-                    <p style={{ lineHeight: 1.6, marginTop: 10 }}>
+                    <p>
                         {data?.description}
                     </p>
 
-                    <div style={{ height: 20 }} />
 
                     {/* DETAILS BLOCK */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        <div><b>Year:</b> {data?.releaseYear}</div>
-                        <div><b>Country:</b> {data?.country}</div>
-                        <div><b>Genre:</b> {data?.genres?.join(", ")}</div>
-                        <div>
-                            <b>Director:</b>{" "}
-                            {data?.directors?.map(d => d.name).join(", ")}
+                    <div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            <div style={{ display: "flex" }}>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Year:</span>
+                                <span>{data?.releaseYear}</span>
+                            </div>
+                            <div style={{ display: "flex" }}>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Country:</span>
+                                <span>{data?.country}</span>
+                            </div>
+                            <div style={{ display: "flex" }}>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Genre:</span>
+                                <span>{data?.genres?.map(g => formatGenre(g)).join(", ")}</span>
+                            </div>
+                            <div style={{ display: "flex" }}>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Director:</span>
+                                <span>
+                                    {data?.directors?.map(d => d.name).join(", ")}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* CAST */}
                 <div>
-                    <h3 style={{ margin: 0 }}>Cast</h3>
-
+                    <p style={{  color: "var(--text-color-f)" }}>
+                        Cast
+                    </p>
                     <div style={{
-                        marginTop: 10,
                         display: "flex",
                         flexDirection: "column",
-                        fontSize: "15px" }}>
+                        fontSize: "var(--font-s)" }}>
                         {data?.actors?.map(actor => (
                             <div key={actor.id}>
                                 {actor.name}
