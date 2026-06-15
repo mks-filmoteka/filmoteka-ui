@@ -16,6 +16,7 @@ function FilmCard({ film, index }: Props) {
                 gridTemplateRows: "20px 1fr 55px 35px",
                 overflow: "hidden",
                 boxSizing: "border-box",
+                maxWidth: "266px"
             }}
         >
             {/* 1. NUMBER */}

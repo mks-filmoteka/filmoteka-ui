@@ -1,19 +1,38 @@
 import { useFilmsQuery } from "../queries/useFilmsQuery.ts";
-import { useState } from "react";
 import  FilmCard  from "../components/FilmCard.tsx";
 import FilmListItem from "../components/FilmListItem";
 import {usePagination} from "../queries/usePagination.ts";
+import { useSearchParams } from "react-router-dom";
+import {useEffect} from "react";
 
 function FilmListPage() {
-    const [page, setPage] = useState(0);
-    const { data, isLoading, error } = useFilmsQuery(page);
-    const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pageRaw = Number(searchParams.get("page") ?? 1);
+    const { data, isLoading, error } = useFilmsQuery(pageRaw-1);
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
+    const page = Math.min(Math.max(pageRaw-1, 0), Math.max(totalPages - 1, 0));
+    const setPage = (newPage: number) => {
+        setSearchParams({page: String(newPage+1), view});
+    };
+    const view = searchParams.get("view") ?? "list";
+    const setView = (newView: string) => {
+        setSearchParams({page: "1", view: newView,});
+    };
     const {pages, firstPage, previousPage, nextPage, lastPage, canGoBack, canGoForward} =
         usePagination({page, totalPages, onPageChange: setPage});
 
     console.log("films:", data);
+
+    useEffect(() => {
+        if (!data) return;
+        if (pageRaw > totalPages) {
+            setSearchParams({page: String(totalPages), view,});
+        }
+        if (pageRaw < 1) {
+            setSearchParams({page: "1", view,});
+        }
+    }, [data, pageRaw, setSearchParams, totalPages, view]);
 
     if (isLoading) {
         return <h1>Loading...</h1>;
@@ -39,18 +58,18 @@ function FilmListPage() {
             {/* VIEW MODE */}
                 <div className="navigation" style={{justifyContent: "flex-end" }}>
                     <button
-                        onClick={() => setViewMode("list")}
+                        onClick={() => setView("list")}
                         title="List view"
-                        className={viewMode === "list" ? "active" : ""}
+                        className={view === "list" ? "active" : ""}
                         style={{fontSize: "22px"}}
                     >
                         ☰
                     </button>
 
                     <button
-                        onClick={() => setViewMode("grid")}
+                        onClick={() => setView("grid")}
                         title="Grid view"
-                        className={viewMode === "grid" ? "active" : ""}
+                        className={view === "grid" ? "active" : ""}
                         style={{fontSize: "22px"}}
                     >
                         ▦
@@ -58,21 +77,21 @@ function FilmListPage() {
                 </div>
 
             {/* MAIN GRID */}
-            {viewMode === "list" ? (
-                <div style={{display: "flex", justifyContent: "center"}}>
+            <div style={{display: "flex", justifyContent: "center"}}>
+                {view === "list" ? (
                     <div className="item-list">
                         {data?.content.map((film, index) => (
-                            <FilmListItem key={film.id} film={film} index={index+page*pageSize}/>
+                            <FilmListItem key={film.id} film={film} index={index + page * pageSize}/>
                         ))}
                     </div>
-                </div>
-            ) : (
-                <div className="card-grid">
-                    {data?.content.map((film, index) => (
-                        <FilmCard key={film.id} film={film} index={index+page*pageSize}/>
-                    ))}
-                </div>
-            )}
+                ) : (
+                    <div className="card-grid">
+                        {data?.content.map((film, index) => (
+                            <FilmCard key={film.id} film={film} index={index + page * pageSize}/>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* PAGINATION */}
             <div className="navigation">

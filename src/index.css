@@ -40,7 +40,7 @@
 }
 
 #root {
-  width: 1126px;
+  width: 1124px;
   max-width: 100%;
   margin: 0 auto;
   text-align: left;
@@ -97,17 +97,27 @@ button:hover {
   .card-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+  .item-list {
+    width: 80%;
+  }
 }
 
 @media (max-width: 490px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .item-list {
+    width: 90%;
+  }
 }
 
 @media (max-width: 320px) {
   .card-grid {
+    max-width: 200px;
     grid-template-columns: repeat(1, 1fr);
+  }
+  .item-list {
+    width: 100%;
   }
 }
 
