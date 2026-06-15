@@ -4,8 +4,9 @@ import type { FilmBasic } from "../types/filmBasic.ts";
 import type { Film } from "../types/film";
 
 
-export async function getFilms() {
-    const response = await apiClient.get<Page<FilmBasic>>("/films");
+export async function getFilms(page: number) {
+    const response =
+        await apiClient.get<Page<FilmBasic>>("/films", {params: {page}});
     return response.data;
 }
 

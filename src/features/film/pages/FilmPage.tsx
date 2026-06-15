@@ -6,6 +6,18 @@ function FilmPage() {
     const { data, isLoading, error } = useFilmQuery(id);
     const formatGenre = (g: string) => g.charAt(0) + g.slice(1).toLowerCase();
 
+    if (isLoading) {return <h1>Loading...</h1>;}
+    if (!data) {return <h1>Film not found</h1>}
+    if (error) {
+        return (
+            <div>
+                <h1>
+                    Error loading film
+                </h1>
+                {error.message}
+            </div>
+        );
+    }
     if (isLoading) return <h1>Loading...</h1>;
     if (error) return <h1>Error loading film</h1>;
 
@@ -49,19 +61,19 @@ function FilmPage() {
                     <div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                             <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Year:</span>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Year</span>
                                 <span>{data?.releaseYear}</span>
                             </div>
                             <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Country:</span>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Country</span>
                                 <span>{data?.country}</span>
                             </div>
                             <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Genre:</span>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Genre</span>
                                 <span>{data?.genres?.map(g => formatGenre(g)).join(", ")}</span>
                             </div>
                             <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Director:</span>
+                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Director</span>
                                 <span>
                                     {data?.directors?.map(d => d.name).join(", ")}
                                 </span>
