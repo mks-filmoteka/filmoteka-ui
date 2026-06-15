@@ -12,17 +12,12 @@ function FilmListItem({film, index}: Props) {
     return (
         <button
             onClick={() => navigate(`/films/${film.id}`)}
-            style={{
-                display: "flex",
-                gap: "20px",
-                padding: "4px 10px",
-                boxSizing: "border-box",
-            }}
+            className="list-item-button"
         >
             {/* NUMBER COLUMN */}
             <span
                 style={{
-                    width: "20px",
+                    minWidth: "30px",
                     textAlign: "right",
                     color: "var(--text-color-f)"
                 }}
@@ -31,7 +26,7 @@ function FilmListItem({film, index}: Props) {
             </span>
 
             {/* TITLE */}
-            <span style={{ textAlign: "left" }}>
+            <span>
                 {film.title} ({film.releaseYear})
             </span>
         </button>

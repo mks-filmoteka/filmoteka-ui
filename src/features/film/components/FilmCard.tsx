@@ -11,66 +11,22 @@ function FilmCard({ film, index }: Props) {
     return (
         <button
             onClick={() => navigate(`/films/${film.id}`)}
-            style={{
-                display: "grid",
-                gridTemplateRows: "20px 1fr 55px 35px",
-                overflow: "hidden",
-                boxSizing: "border-box",
-                maxWidth: "266px"
-            }}
+            className="card-button"
         >
-            {/* 1. NUMBER */}
-            <div
-                style={{
-                    fontSize: "var(--font-s)",
-                    color: "var(--text-color-f)",
-                    lineHeight: 1,
-                    padding: "3px 10px"
-                }}
-            >
+            <div className="card-number">
                 {index + 1}
             </div>
-
-            {/* POSTER AREA */}
             <img
                 src={film.posterUrl}
                 alt={film.title}
-                style={{
-                    aspectRatio: "2 / 3",
-                    background: "var(--accent)",
-                    borderRadius: "5px",
-                    width: "100%",
-                    justifySelf: "stretch"
-                }}
+                className="card-poster"
             />
-
-            {/* 3. TITLE */}
-            <div
-                style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 3,
-                    WebkitBoxOrient: "vertical",
-                    padding: "3px 10px",
-                    fontWeight: 500,
-                    fontSize: "16px",
-                    lineHeight: "1.22",
-                    alignSelf: "flex-start"
-                }}
-            >
+            <div>
+            <div className="card-title">
                 {film.title}
             </div>
-
-            {/* 4. YEAR */}
-            <div
-                style={{
-                    fontSize: "var(--font-s)",
-                    color: "var(--text-color-f)",
-                    alignSelf: "end",
-                    padding: "5px 8px",
-                }}
-            >
+            </div>
+            <div className="card-number">
                 {film.releaseYear}
             </div>
         </button>
