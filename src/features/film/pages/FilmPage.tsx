@@ -1,5 +1,6 @@
 import {useParams} from "react-router-dom";
 import {useFilmQuery} from "../queries/useFilmQuery.ts";
+import Poster from "../components/Poster.tsx";
 
 function FilmPage() {
     const {id} = useParams();
@@ -43,13 +44,9 @@ function FilmPage() {
             >
                 {/* POSTER */}
                 <div>
-                    <img
+                    <Poster
                         src={data?.posterUrl}
                         alt={data?.title}
-                        style={{
-                            width: "100%",
-                            borderRadius: "8px",
-                        }}
                     />
                 </div>
 

@@ -1,5 +1,6 @@
 import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router-dom";
+import Poster from "./Poster.tsx";
 
 type Props = {
     readonly film: FilmBasic;
@@ -16,10 +17,9 @@ function FilmCard({film, index}: Props) {
             <div className="card-number">
                 {index + 1}
             </div>
-            <img
+            <Poster
                 src={film.posterUrl}
                 alt={film.title}
-                className="card-poster"
             />
             <div>
                 <div className="card-title">
