@@ -1,50 +1,36 @@
-import {Outlet, useSearchParams} from "react-router-dom";
+import {Outlet} from "react-router-dom";
 import {useState} from "react";
+import {useFilmSearchParams} from "../features/film/queries/useFilmSearchParams.ts";
+
 
 export function AppLayout() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const {title, setTitle} = useFilmSearchParams();
     const [search, setSearch] = useState("");
-    const hasSearch = !!searchParams.get("title");
-    const clearSearch = () => {
-        setSearchParams(prev => {
-            const params = new URLSearchParams(prev);
-            params.delete("title");
-            params.set("page", "1");
-            return params;
-        });
-    };
+    const hasSearch = !!title;
     return (
         <div>
             <header>
                 <div className="header-left">
                     {hasSearch && (
-                        <button onClick={clearSearch} title="Clear search">
+                        <button onClick={() => setTitle("")} title="Clear search">
                             ↺
                         </button>
                     )}
                 </div>
 
                 <div className="header-center">
-                <input
-                    className="search-input"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search films..."
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            const params = new URLSearchParams(searchParams);
-                            params.set("page", "1");
-                            params.set("view", "grid")
-                            if (search.trim()) {
-                                params.set("title", search.trim());
-                            } else {
-                                params.delete("title");
+                    <input
+                        className="search-input"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search films..."
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                setTitle(search);
+                                setSearch("");
                             }
-                            setSearchParams(params);
-                            setSearch("");
-                        }
-                    }}
-                />
+                        }}
+                    />
                 </div>
                 <div className="header-right">
                     {/*  */}
@@ -52,7 +38,7 @@ export function AppLayout() {
             </header>
 
             <main>
-                <Outlet />
+                <Outlet/>
             </main>
         </div>
     );

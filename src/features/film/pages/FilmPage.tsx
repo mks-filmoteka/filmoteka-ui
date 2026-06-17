@@ -1,13 +1,17 @@
-import { useParams } from "react-router-dom";
-import { useFilmQuery } from "../queries/useFilmQuery.ts";
+import {useParams} from "react-router-dom";
+import {useFilmQuery} from "../queries/useFilmQuery.ts";
 
 function FilmPage() {
-    const { id } = useParams();
-    const { data, isLoading, error } = useFilmQuery(id);
+    const {id} = useParams();
+    const {data, isLoading, error} = useFilmQuery(id);
     const formatGenre = (g: string) => g.charAt(0) + g.slice(1).toLowerCase();
 
-    if (isLoading) {return <h1>Loading...</h1>;}
-    if (!data) {return <h1>Film not found</h1>}
+    if (isLoading) {
+        return <h1>Loading...</h1>;
+    }
+    if (!data) {
+        return <h1>Film not found</h1>
+    }
     if (error) {
         return (
             <div>
@@ -26,7 +30,7 @@ function FilmPage() {
             {/* TITLE */}
             <h1>{data?.title} ({data?.releaseYear})</h1>
 
-            <hr />
+            <hr/>
 
             {/* MAIN GRID */}
             <div
@@ -59,21 +63,21 @@ function FilmPage() {
 
                     {/* DETAILS BLOCK */}
                     <div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Year</span>
+                        <div style={{display: "flex", flexDirection: "column", gap: 8}}>
+                            <div style={{display: "flex"}}>
+                                <span style={{width: 90, color: "var(--text-color-f)"}}>Year</span>
                                 <span>{data?.releaseYear}</span>
                             </div>
-                            <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Country</span>
+                            <div style={{display: "flex"}}>
+                                <span style={{width: 90, color: "var(--text-color-f)"}}>Country</span>
                                 <span>{data?.country}</span>
                             </div>
-                            <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Genre</span>
+                            <div style={{display: "flex"}}>
+                                <span style={{width: 90, color: "var(--text-color-f)"}}>Genre</span>
                                 <span>{data?.genres?.map(g => formatGenre(g)).join(", ")}</span>
                             </div>
-                            <div style={{ display: "flex" }}>
-                                <span style={{ width: 90, color: "var(--text-color-f)" }}>Director</span>
+                            <div style={{display: "flex"}}>
+                                <span style={{width: 90, color: "var(--text-color-f)"}}>Director</span>
                                 <span>
                                     {data?.directors?.map(d => d.name).join(", ")}
                                 </span>
@@ -84,13 +88,14 @@ function FilmPage() {
 
                 {/* CAST */}
                 <div>
-                    <p style={{  color: "var(--text-color-f)" }}>
+                    <p style={{color: "var(--text-color-f)"}}>
                         Cast
                     </p>
                     <div style={{
                         display: "flex",
                         flexDirection: "column",
-                        fontSize: "var(--font-s)" }}>
+                        fontSize: "var(--font-s)"
+                    }}>
                         {data?.actors?.map(actor => (
                             <div key={actor.id}>
                                 {actor.name}

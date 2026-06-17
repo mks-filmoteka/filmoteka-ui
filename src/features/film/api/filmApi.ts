@@ -1,7 +1,7 @@
 import apiClient from "../../../shared/api/client.ts";
-import type { Page } from "../types/page.ts";
-import type { FilmBasic } from "../types/filmBasic.ts";
-import type { Film } from "../types/film";
+import type {Page} from "../types/page.ts";
+import type {FilmBasic} from "../types/filmBasic.ts";
+import type {Film} from "../types/film";
 
 
 export async function getFilms(page: number, title: string) {

@@ -1,5 +1,5 @@
-import type { FilmBasic } from "../types/filmBasic.ts";
-import { useNavigate } from "react-router-dom";
+import type {FilmBasic} from "../types/filmBasic.ts";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     readonly film: FilmBasic;

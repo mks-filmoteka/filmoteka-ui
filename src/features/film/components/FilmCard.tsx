@@ -1,12 +1,12 @@
-import type { FilmBasic } from "../types/filmBasic.ts";
-import { useNavigate } from "react-router-dom";
+import type {FilmBasic} from "../types/filmBasic.ts";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     readonly film: FilmBasic;
     readonly index: number;
 };
 
-function FilmCard({ film, index }: Props) {
+function FilmCard({film, index}: Props) {
     const navigate = useNavigate();
     return (
         <button
@@ -22,9 +22,9 @@ function FilmCard({ film, index }: Props) {
                 className="card-poster"
             />
             <div>
-            <div className="card-title">
-                {film.title}
-            </div>
+                <div className="card-title">
+                    {film.title}
+                </div>
             </div>
             <div className="card-number">
                 {film.releaseYear}
