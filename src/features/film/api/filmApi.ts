@@ -4,9 +4,19 @@ import type {FilmBasic} from "../types/filmBasic.ts";
 import type {Film} from "../types/film";
 
 
-export async function getFilms(page: number, title: string) {
+export async function getFilms(
+    page: number,
+    title: string | undefined,
+    yearFrom: number | undefined,
+    yearTo: number | undefined,
+    genres: string[] | undefined,
+    country: string[] | undefined
+) {
     const response =
-        await apiClient.get<Page<FilmBasic>>("/films", {params: {page, title}});
+        await apiClient.get<Page<FilmBasic>>("/films", {
+            params: {page, title, yearFrom, yearTo, genres, country},
+            paramsSerializer: {indexes: null}
+        });
     return response.data;
 }
 

@@ -1,11 +1,11 @@
 import {useParams} from "react-router-dom";
 import {useFilmQuery} from "../queries/useFilmQuery.ts";
 import Poster from "../components/Poster.tsx";
+import {formatGenre} from "../utils/format.ts";
 
 function FilmPage() {
     const {id} = useParams();
     const {data, isLoading, error} = useFilmQuery(id);
-    const formatGenre = (g: string) => g.charAt(0) + g.slice(1).toLowerCase();
 
     if (isLoading) {
         return <h1>Loading...</h1>;
