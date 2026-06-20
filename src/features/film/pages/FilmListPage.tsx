@@ -194,7 +194,7 @@ function FilmListPage() {
                                 />
                                 {(yearFrom !== undefined || yearFromInput !== "") && (
                                     <button
-                                        className="filter-year-clear"
+                                        className="input-clear"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setYearFrom();
@@ -251,7 +251,7 @@ function FilmListPage() {
                                 />
                                 {(yearTo !== undefined || yearToInput !== "") && (
                                     <button
-                                        className="filter-year-clear"
+                                        className="input-clear"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setYearTo();

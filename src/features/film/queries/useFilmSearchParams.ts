@@ -36,11 +36,6 @@ export function useFilmSearchParams() {
 
     return {
         title, pageParam, view, genres, yearFrom, yearTo, countries,
-        setTitle: (value: string) =>
-            updateParams({
-                title: value.trim() || undefined,
-                page: "1"
-            }),
         setPage: (value: number) => updateParams({page: String(value)}),
         setView: (value: string) =>
             updateParams({
@@ -71,6 +66,16 @@ export function useFilmSearchParams() {
             updateParams({
                 countries: values?.length ? values.join(",") : undefined,
                 page: "1"
+            }),
+        resetState: () =>
+            updateParams({
+                page: undefined,
+                title: undefined,
+                genres: undefined,
+                countries: undefined,
+                yearFrom: undefined,
+                yearTo: undefined,
+                view: undefined
             })
     };
 }
