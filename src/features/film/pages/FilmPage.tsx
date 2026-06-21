@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import {useFilmQuery} from "../queries/useFilmQuery.ts";
 import Poster from "../components/Poster.tsx";
-import {formatGenre} from "../utils/format.ts";
+import {formatParam} from "../utils/format.ts";
 
 function FilmPage() {
     const {id} = useParams();
@@ -71,7 +71,7 @@ function FilmPage() {
                             </div>
                             <div style={{display: "flex"}}>
                                 <span style={{width: 90, color: "var(--text-color-f)"}}>Genre</span>
-                                <span>{data?.genres?.map(g => formatGenre(g)).join(", ")}</span>
+                                <span>{data?.genres?.map(g => formatParam(g)).join(", ")}</span>
                             </div>
                             <div style={{display: "flex"}}>
                                 <span style={{width: 90, color: "var(--text-color-f)"}}>Director</span>

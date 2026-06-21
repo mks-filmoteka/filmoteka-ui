@@ -1,8 +1,8 @@
-export function formatGenre(genre: string) {
-    return genre
+export function formatParam(param: string) {
+    return param
         .toLowerCase()
         .replaceAll("_", "-")
-        .replace(
+        .replaceAll(
             /\b\w/g,
             char => char.toUpperCase()
         );

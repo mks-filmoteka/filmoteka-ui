@@ -5,7 +5,7 @@ type Props = {
     alt: string;
 };
 
-function Poster({src, alt}: Props) {
+function Poster({src, alt}: Readonly<Props>) {
     const [error, setError] = useState(false);
     const [loaded, setLoaded] = useState(false);
 

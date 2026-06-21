@@ -25,10 +25,13 @@ export function useFilmSearchParams() {
     const pageUrl = Number(searchParams.get("page"));
     const pageParam = Number.isFinite(pageUrl) && pageUrl > 0 ? pageUrl : 1;
     const view = searchParams.get("view") ?? "list";
-    const genres
-        = searchParams.get("genres")?.split(",").filter(g => GENRES.includes(g)) ?? [];
-    const countries
-        = searchParams.get("countries")?.split(",").filter(c => COUNTRIES.includes(c)) ?? [];
+    const genres = searchParams.get("genres")
+        ?.split(",")
+        .map(g => g.toUpperCase())
+        .filter(g => GENRES.includes(g)) ?? [];
+    const countries = searchParams.get("countries")
+        ?.split(",")
+        .filter(c => COUNTRIES.includes(c)) ?? [];
     const yearFromUrl = Number(searchParams.get("yearFrom"));
     const yearToUrl = Number(searchParams.get("yearTo"));
     const yearFrom = Number.isFinite(yearFromUrl) && yearFromUrl >= MIN_YEAR && yearFromUrl <= MAX_YEAR ? yearFromUrl : undefined;
@@ -67,15 +70,5 @@ export function useFilmSearchParams() {
                 countries: values?.length ? values.join(",") : undefined,
                 page: "1"
             }),
-        resetState: () =>
-            updateParams({
-                page: undefined,
-                title: undefined,
-                genres: undefined,
-                countries: undefined,
-                yearFrom: undefined,
-                yearTo: undefined,
-                view: undefined
-            })
     };
 }

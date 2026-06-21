@@ -11,7 +11,7 @@ export function AppLayout() {
                 <div className="header-content">
                     <div className="header-left">
                         <button onClick={() => navigate("/films")} title="Home">
-                            <img src="/favicon.svg" alt="Home" className="home-button-img" />
+                            <img src="/favicon.svg" alt="Home" className="home-button-img"/>
                         </button>
                     </div>
 
