@@ -10,11 +10,12 @@ export async function getFilms(
     yearFrom: number | undefined,
     yearTo: number | undefined,
     genres: string[] | undefined,
-    country: string[] | undefined
+    country: string[] | undefined,
+    sort: string | undefined,
 ) {
     const response =
         await apiClient.get<Page<FilmBasic>>("/films", {
-            params: {page, title, yearFrom, yearTo, genres, country},
+            params: {page, title, yearFrom, yearTo, genres, country, sort},
             paramsSerializer: {indexes: null}
         });
     return response.data;

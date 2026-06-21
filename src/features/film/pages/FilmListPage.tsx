@@ -1,23 +1,25 @@
 import {useFilmsQuery} from "../queries/useFilmsQuery.ts";
 import FilmCard from "../components/FilmCard.tsx";
 import FilmListItem from "../components/FilmListItem";
-import {usePagination} from "../queries/usePagination.ts";
 import {useEffect, useState} from "react";
 import {useFilmSearchParams} from "../queries/useFilmSearchParams";
 import {FilterPopup} from "../components/FilterPopup.tsx";
+import {ListToolbar} from "../components/ListToolbar.tsx";
+import {Pagination} from "../components/Pagination.tsx";
 
 function FilmListPage() {
     /* URL STATE */
     const {
-        title, pageParam, view, yearFrom, yearTo, genres, countries,
-        setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries
+        title, pageParam, view, yearFrom, yearTo, genres, countries, sortBy, sortDir, sort,
+        setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams();
     const [filterOpen, setFilterOpen] = useState(false);
 
     /* FETCH DATA */
     const apiYearFrom = yearFrom && yearTo ? Math.min(yearFrom, yearTo) : yearFrom;
     const apiYearTo = yearFrom && yearTo ? Math.max(yearFrom, yearTo) : yearTo;
-    const {data, isLoading, error} = useFilmsQuery(pageParam - 1, title, apiYearFrom, apiYearTo, genres, countries);
+    const {data, isLoading, error}
+        = useFilmsQuery(pageParam - 1, title, apiYearFrom, apiYearTo, genres, countries, sort);
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));
@@ -42,10 +44,6 @@ function FilmListPage() {
             </div>
         );
     }
-
-    /* ACTIONS*/
-    const {pages, firstPage, previousPage, nextPage, lastPage, canGoBack, canGoForward} =
-        usePagination({page, totalPages, onPageChange: setPage});
 
     /* URL PAGE CORRECTION */
     useEffect(() => {
@@ -89,35 +87,16 @@ function FilmListPage() {
                 resetYears={resetYears}
             />
 
-            <div className="navigation navigation-top">
-
-                {/* FILTRATION */}
-                <button
-                    onClick={() => setFilterOpen(prev => !prev)}
-                    title="Filters"
-                    className={filterOpen ? "active" : ""}
-                    style={{marginRight: "auto"}}
-                >
-                    ⚶
-                </button>
-
-                {/* VIEW */}
-                <button
-                    onClick={() => setView("list")}
-                    title="List view"
-                    className={view === "list" ? "active" : ""}
-                >
-                    ☰
-                </button>
-
-                <button
-                    onClick={() => setView("grid")}
-                    title="Grid view"
-                    className={view === "grid" ? "active" : ""}
-                >
-                    ▦
-                </button>
-            </div>
+            {/* LIST TOOLBAR */}
+            <ListToolbar
+                filterOpen={filterOpen}
+                setFilterOpen={setFilterOpen}
+                sortBy={sortBy}
+                sortDir={sortDir}
+                setSort={setSort}
+                view={view}
+                setView={setView}
+            />
 
             {/* MAIN GRID */}
             <div style={{display: "flex", justifyContent: "center"}}>
@@ -125,27 +104,11 @@ function FilmListPage() {
             </div>
 
             {/* PAGINATION */}
-            {totalPages > 1 && (
-                <div className="navigation">
-                    <button onClick={firstPage} title="First page">
-                        ❚❰
-                    </button>
-                    <button onClick={previousPage} disabled={!canGoBack} style={{marginRight: "10px"}}>
-                        ❰
-                    </button>
-                    {pages.map((p) => (
-                        <button key={p} onClick={() => setPage(p)} className={p === page ? "active" : ""}>
-                            {p}
-                        </button>
-                    ))}
-                    <button onClick={nextPage} disabled={!canGoForward} style={{marginLeft: "10px"}}>
-                        ❱
-                    </button>
-                    <button onClick={lastPage} title={`Last page:  ${totalPages}`}>
-                        ❱❚
-                    </button>
-                </div>
-            )}
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                setPage={setPage}
+            />
         </div>
     );
 }

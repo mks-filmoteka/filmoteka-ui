@@ -12,3 +12,6 @@ export const YEARS =
 export const COUNTRIES = [
     "USA", "United Kingdom", "France", "Germany", "Italy", "Spain", "Japan", "South Korea",
     "China", "India", "Canada", "Australia", "New Zealand"];
+
+export const SORT_BY = ["title", "releaseYear"];
+export const SORT_DIR = ["asc", "desc"];
