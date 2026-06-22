@@ -28,18 +28,6 @@ export function FilterPopup(props: Readonly<Props>) {
 
     if (!filterOpen) return null;
 
-    const toggleItem = (
-        value: string,
-        current: string[],
-        set: (v: string[]) => void
-    ) => {
-        if (current.includes(value)) {
-            set(current.filter(v => v !== value));
-        } else {
-            set([...current, value]);
-        }
-    };
-
     return (
         <div
             className="filter-overlay"
@@ -64,7 +52,7 @@ export function FilterPopup(props: Readonly<Props>) {
                     title="Genres"
                     options={GENRES}
                     selected={genres}
-                    onToggle={(g) => toggleItem(g, genres, setGenres)}
+                    onToggle={setGenres}
                     onReset={() => setGenres([])}
                 />
 
@@ -111,7 +99,7 @@ export function FilterPopup(props: Readonly<Props>) {
                     title="Countries"
                     options={COUNTRIES}
                     selected={countries}
-                    onToggle={(c) => toggleItem(c, countries, setCountries)}
+                    onToggle={setCountries}
                     onReset={() => setCountries([])}
                 />
             </div>
