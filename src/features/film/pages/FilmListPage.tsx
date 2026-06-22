@@ -10,7 +10,15 @@ import {Pagination} from "../components/Pagination.tsx";
 function FilmListPage() {
     /* URL STATE */
     const {
-        title, pageParam, view, yearFrom, yearTo, genres, countries, sortBy, sortDir, sort,
+        title,
+        pageParam,
+        view,
+        yearFrom,
+        yearTo,
+        genres,
+        countries,
+        sort,
+        sortParams,
         setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams();
     const [filterOpen, setFilterOpen] = useState(false);
@@ -91,8 +99,7 @@ function FilmListPage() {
             <ListToolbar
                 filterOpen={filterOpen}
                 setFilterOpen={setFilterOpen}
-                sortBy={sortBy}
-                sortDir={sortDir}
+                sortParams={sortParams}
                 setSort={setSort}
                 view={view}
                 setView={setView}

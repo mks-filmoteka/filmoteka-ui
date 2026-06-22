@@ -10,10 +10,19 @@ export function useFilmsQuery(
     yearTo?: number,
     genres?: string[],
     countries?: string[],
-    sort?: string
+    sort?: string[]
 ) {
     return useQuery<Page<FilmBasic>>({
-        queryKey: ["films", page, title, yearFrom, yearTo, genres?.join(","), countries?.join(","), sort],
+        queryKey: [
+            "films",
+            page,
+            title,
+            yearFrom,
+            yearTo,
+            genres?.join(","),
+            countries?.join(","),
+            sort
+        ],
         queryFn: () => getFilms(page, title, yearFrom, yearTo, genres, countries, sort),
         placeholderData: (previousData) => previousData
     });

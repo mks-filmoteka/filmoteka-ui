@@ -2,19 +2,23 @@ import {useSearchParams} from "react-router-dom";
 import {useCallback} from "react";
 import {COUNTRIES, GENRES, MAX_YEAR, MIN_YEAR, SORT_BY, SORT_DIR} from "../constants/constants.ts";
 
-
 export function useFilmSearchParams() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const applyParam = (params: URLSearchParams, key: string, value: string | string[] | undefined) => {
+        params.delete(key);
+        if (value === undefined) return;
+        if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, v));
+            return;
+        }
+        params.set(key, value);
+    };
     const updateParams = useCallback(
-        (changes: Record<string, string | undefined>) => {
+        (changes: Record<string, string | string[] | undefined>) => {
             setSearchParams(prev => {
                 const params = new URLSearchParams(prev);
                 Object.entries(changes).forEach(([key, value]) => {
-                    if (value) {
-                        params.set(key, value);
-                    } else {
-                        params.delete(key);
-                    }
+                    applyParam(params, key, value);
                 });
                 return params;
             });
@@ -42,14 +46,14 @@ export function useFilmSearchParams() {
         Number.isFinite(yearToUrl) && yearToUrl >= MIN_YEAR && yearToUrl <= MAX_YEAR
             ? yearToUrl
             : undefined;
-    const sortUrl = searchParams.get("sort");
-    const [sortByUrl, sortDirUrl] = sortUrl?.split(",") ?? [];
-    const sortBy = SORT_BY.includes(sortByUrl) ? sortByUrl : undefined;
-    const sortDir = SORT_DIR.includes(sortDirUrl) ? sortDirUrl : undefined;
-    const sort = sortBy && sortDir ? `${sortBy},${sortDir}` : undefined;
+    const sortParams = searchParams.getAll("sort")
+        .map(s => s.split(","))
+        .filter(([by, dir]) => SORT_BY.includes(by) && SORT_DIR.includes(dir))
+        .map(([by, dir]) => ({by, dir}));
+    const sort = sortParams.map(s => `${s.by},${s.dir}`);
 
     return {
-        title, pageParam, view, genres, yearFrom, yearTo, countries, sortBy, sortDir, sort,
+        title, pageParam, view, genres, yearFrom, yearTo, countries, sortParams, sort,
         setPage: (value: number) =>
             updateParams({
                 page: String(value)
@@ -84,9 +88,9 @@ export function useFilmSearchParams() {
                 countries: values?.length ? values.join(",") : undefined,
                 page: "1"
             }),
-        setSort: (by?: string, dir?: string) =>
+        setSort: (sort: { by?: string, dir?: string }[]) =>
             updateParams({
-                sort: by && dir ? `${by},${dir}` : undefined,
+                sort: sort.map(s => `${s.by},${s.dir}`),
                 page: "1",
             })
     };

@@ -11,7 +11,7 @@ export async function getFilms(
     yearTo: number | undefined,
     genres: string[] | undefined,
     country: string[] | undefined,
-    sort: string | undefined,
+    sort: string[] | undefined,
 ) {
     const response =
         await apiClient.get<Page<FilmBasic>>("/films", {
