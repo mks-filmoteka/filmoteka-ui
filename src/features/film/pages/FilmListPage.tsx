@@ -78,7 +78,9 @@ function FilmListPage() {
 
     return (
         <div>
-            <h1>Films</h1>
+            <div className="page-title">
+                <h1>Films</h1>
+            </div>
 
             {/* FILTER POPUP */}
             <FilterPopup
@@ -106,7 +108,7 @@ function FilmListPage() {
             />
 
             {/* MAIN GRID */}
-            <div style={{display: "flex", justifyContent: "center"}}>
+            <div className="item-list-wrapper">
                 {filmsContent}
             </div>
 

@@ -7,12 +7,9 @@ function FilmPage() {
     const {id} = useParams();
     const {data, isLoading, error} = useFilmQuery(id);
 
-    if (isLoading) {
-        return <h1>Loading...</h1>;
-    }
-    if (!data) {
-        return <h1>Film not found</h1>
-    }
+    if (!data) return <h1>Film not found</h1>;
+    if (isLoading) return <h1>Loading...</h1>;
+
     if (error) {
         return (
             <div>
@@ -23,13 +20,13 @@ function FilmPage() {
             </div>
         );
     }
-    if (isLoading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error loading film</h1>;
 
     return (
         <div>
             {/* TITLE */}
-            <h1>{data?.title} ({data?.releaseYear})</h1>
+            <div className="page-title">
+                <h1>{data?.title} ({data?.releaseYear})</h1>
+            </div>
 
             <hr/>
 
