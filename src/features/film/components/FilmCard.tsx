@@ -1,6 +1,7 @@
 import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router-dom";
 import Poster from "./Poster.tsx";
+import {formatParam} from "../utils/format.ts";
 
 type Props = {
     readonly film: FilmBasic;
@@ -27,7 +28,12 @@ function FilmCard({film, index}: Props) {
                 </div>
             </div>
             <div className="card-number">
-                {film.releaseYear}
+                <span>
+                    {film.releaseYear}
+                </span>
+                <span>
+                    {formatParam(film.genres[0])}
+                </span>
             </div>
         </button>
     );

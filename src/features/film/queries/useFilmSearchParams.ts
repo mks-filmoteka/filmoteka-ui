@@ -2,7 +2,7 @@ import {useSearchParams} from "react-router-dom";
 import {useCallback} from "react";
 import {COUNTRIES, GENRES, MAX_YEAR, MIN_YEAR, SORT_BY, SORT_DIR} from "../constants/constants.ts";
 
-export function useFilmSearchParams() {
+export function useFilmSearchParams(resetPageOnChange = false) {
     const [searchParams, setSearchParams] = useSearchParams();
     const applyParam = (params: URLSearchParams, key: string, value: string | string[] | undefined) => {
         params.delete(key);
@@ -14,15 +14,18 @@ export function useFilmSearchParams() {
         params.set(key, value);
     };
     const updateParams = useCallback(
-        (changes: Record<string, string | string[] | undefined>) => {
+        (changes: Record<string, string | string[] | undefined>, resetPage = resetPageOnChange) => {
             setSearchParams(prev => {
                 const params = new URLSearchParams(prev);
                 Object.entries(changes).forEach(([key, value]) => {
                     applyParam(params, key, value);
                 });
+                if (resetPage) {
+                    params.set("page", "1");
+                }
                 return params;
             });
-        }, [setSearchParams]
+        }, [resetPageOnChange, setSearchParams]
     );
 
     const title = searchParams.get("title") ?? undefined;
@@ -46,6 +49,8 @@ export function useFilmSearchParams() {
         Number.isFinite(yearToUrl) && yearToUrl >= MIN_YEAR && yearToUrl <= MAX_YEAR
             ? yearToUrl
             : undefined;
+    const minYear = yearFrom && yearTo ? Math.min(yearFrom, yearTo) : yearFrom;
+    const maxYear = yearFrom && yearTo ? Math.max(yearFrom, yearTo) : yearTo;
     const sortParams = searchParams.getAll("sort")
         .map(s => s.split(","))
         .filter(([by, dir]) => SORT_BY.includes(by) && SORT_DIR.includes(dir))
@@ -53,45 +58,17 @@ export function useFilmSearchParams() {
     const sort = sortParams.map(s => `${s.by},${s.dir}`);
 
     return {
-        title, pageParam, view, genres, yearFrom, yearTo, countries, sortParams, sort,
-        setPage: (value: number) =>
-            updateParams({
-                page: String(value)
-            }),
-        setView: (value: string) =>
-            updateParams({
-                view: value
-            }),
+        title, pageParam, view, genres, yearFrom, yearTo, minYear, maxYear, countries, sortParams, sort,
+        setPage: (value: number) => updateParams({page: String(value)}, false),
+        setView: (value: string) => updateParams({view: value}, false),
         setGenres: (values: string[]) =>
-            updateParams({
-                genres: values?.length ? values.join(",") : undefined,
-                page: "1"
-            }),
-        setYearFrom: (from?: number) =>
-            updateParams({
-                yearFrom: from?.toString(),
-                page: "1"
-            }),
-        setYearTo: (to?: number) =>
-            updateParams({
-                yearTo: to?.toString(),
-                page: "1"
-            }),
-        resetYears: () =>
-            updateParams({
-                yearFrom: undefined,
-                yearTo: undefined,
-                page: "1"
-            }),
+            updateParams({genres: values?.length ? values.join(",") : undefined}),
+        setYearFrom: (from?: number) => updateParams({yearFrom: from?.toString()}),
+        setYearTo: (to?: number) => updateParams({yearTo: to?.toString()}),
+        resetYears: () => updateParams({yearFrom: undefined, yearTo: undefined}),
         setCountries: (values: string[]) =>
-            updateParams({
-                countries: values?.length ? values.join(",") : undefined,
-                page: "1"
-            }),
+            updateParams({countries: values?.length ? values.join(",") : undefined}),
         setSort: (sort: { by?: string, dir?: string }[]) =>
-            updateParams({
-                sort: sort.map(s => `${s.by},${s.dir}`),
-                page: "1",
-            })
+            updateParams({sort: sort.map(s => `${s.by},${s.dir}`)})
     };
 }

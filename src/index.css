@@ -82,6 +82,8 @@ h1 {
 }
 
 hr {
+    align-self: center;
+    width: 95%;
     background-color: var(--text-color-f);
     height: 1px;
     border: 0;
@@ -172,9 +174,22 @@ button:disabled {
     gap: 6px;
 }
 
+.list-item-number {
+    min-width: 25px;
+    text-align: right;
+    color: var(--text-color-f);
+    font-size: var(--font-s);
+}
+
+.item-label {
+    padding-right: 10px;
+    color: var(--text-color-f);
+    font-size: var(--font-s);
+}
+
 .list-item-button {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     padding: 5px 0;
 }
 
@@ -200,10 +215,14 @@ button:disabled {
 }
 
 .card-number {
+    box-sizing: border-box;
+    width: 100%;
     font-size: var(--font-s);
     color: var(--text-color-f);
     line-height: 1;
     padding: 5px 8px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .poster {

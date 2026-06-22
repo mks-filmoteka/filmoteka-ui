@@ -1,10 +1,7 @@
+import type {FilmBasic} from "../../film/types/filmBasic.ts";
+
 export interface Person {
     id: number;
     name: string;
-    films: {
-        id: number;
-        title: string;
-        releaseYear: number;
-        posterUrl: string
-    }[];
+    films: FilmBasic[];
 }
