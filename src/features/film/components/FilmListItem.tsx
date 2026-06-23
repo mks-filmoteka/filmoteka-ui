@@ -1,6 +1,7 @@
 import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router-dom";
 import {formatParam} from "../utils/format.ts";
+import "../../../shared/styles/item.css";
 
 type Props = {
     readonly film: FilmBasic;
@@ -15,7 +16,7 @@ function FilmListItem({film, index}: Props) {
             onClick={() => navigate(`/films/${film.id}`)}
             className="list-item-button"
         >
-            <span className="list-item-number">{index + 1}.</span>
+            <span className="list-item-number">{index + 1}</span>
             <span style={{marginRight: "auto"}}>{film.title} ({film.releaseYear})</span>
             <span className="item-label">{formatParam(film.genres[0])}</span>
         </button>

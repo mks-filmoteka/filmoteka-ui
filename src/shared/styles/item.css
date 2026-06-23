@@ -1,0 +1,74 @@
+.list-item-number {
+    min-width: 25px;
+    text-align: right;
+    color: var(--text-color-f);
+    font-size: var(--font-s);
+}
+
+.item-label {
+    padding-right: 10px;
+    color: var(--text-color-f);
+    font-size: var(--font-s);
+}
+
+.list-item-button {
+    display: flex;
+    gap: 15px;
+    padding: 5px 0;
+}
+
+.list-item-button:hover {
+    transform: scaleY(1.1) scaleX(1.02);
+}
+
+.card-button {
+    align-items: flex-start;
+    flex-direction: column;
+    display: flex;
+}
+
+.card-button:hover {
+    transform: scale(1.07);
+}
+
+.card-number {
+    box-sizing: border-box;
+    width: 100%;
+    font-size: var(--font-s);
+    color: var(--text-color-f);
+    line-height: 1;
+    padding: 5px 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.poster-placeholder {
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    background: var(--accent);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+}
+
+.card-title {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    padding: 3px 10px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.22;
+    align-self: flex-start;
+    height: 55px;
+}

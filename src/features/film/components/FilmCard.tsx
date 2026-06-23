@@ -2,6 +2,7 @@ import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router-dom";
 import Poster from "./Poster.tsx";
 import {formatParam} from "../utils/format.ts";
+import "../../../shared/styles/item.css";
 
 type Props = {
     readonly film: FilmBasic;

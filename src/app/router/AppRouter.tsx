@@ -11,7 +11,8 @@ function AppRouter() {
                 <Route element={<AppLayout/>}>
                     <Route path="/films" element={<FilmListPage/>}/>
                     <Route path="/films/:id" element={<FilmPage/>}/>
-                    <Route path="/people/:type/:id" element={<PersonPage />} />
+                    <Route path="/people/actor/:id" element={<PersonPage type="actor"/>}/>
+                    <Route path="/people/director/:id" element={<PersonPage type="director"/>}/>
                 </Route>
             </Routes>
         </BrowserRouter>

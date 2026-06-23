@@ -2,6 +2,7 @@ import {COUNTRIES, GENRES} from "../constants/constants.ts";
 import {MultiToggleFilter} from "./MultiToggleFilter.tsx";
 import {DropdownFilter} from "./DropdownFilter.tsx";
 import {useState} from "react";
+import "../../../shared/styles/filter.css";
 
 type Props = {
     filterOpen: boolean;

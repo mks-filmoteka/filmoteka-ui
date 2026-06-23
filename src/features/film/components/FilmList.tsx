@@ -5,6 +5,7 @@ import {FilterPopup} from "./FilterPopup.tsx";
 import {ListToolbar} from "./ListToolbar.tsx";
 import {Pagination} from "./Pagination.tsx";
 import * as React from "react";
+import "../../../shared/styles/list.css";
 
 type Props = {
     films: FilmBasic[];

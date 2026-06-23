@@ -25,7 +25,12 @@ export function AppLayout() {
                             placeholder="Search films..."
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                    navigate(`/films?title=${search}&page=1`);
+                                    const params = new URLSearchParams();
+                                    if (search.trim()) {
+                                        params.set("page", "1");
+                                        params.set("title", search.trim());
+                                    }
+                                    navigate(`/films?${params}`);
                                     setSearch("");
                                 }
                             }}

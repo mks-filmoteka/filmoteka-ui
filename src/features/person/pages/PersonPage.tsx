@@ -6,11 +6,9 @@ import {FilmList} from "../../film/components/FilmList.tsx";
 import type {FilmBasic} from "../../film/types/filmBasic.ts";
 import {SORT_BY, SORT_DIR} from "../../film/constants/constants.ts";
 
-function PersonPage() {
-    const {type, id} = useParams();
-    const isValidType = type === "actor" || type === "director";
-    const {data, isLoading, error}
-        = usePersonQuery(isValidType ? type : undefined, id);
+function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
+    const {id} = useParams();
+    const {data, isLoading, error} = usePersonQuery(type, id);
 
     /* URL STATE */
     const {
