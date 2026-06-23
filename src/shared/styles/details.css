@@ -1,0 +1,42 @@
+.main-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 170px;
+    gap: 20px;
+    align-items: start;
+}
+
+.main-grid span {
+    width: 90px;
+    color: var(--text-color-f);
+}
+
+.details-column {
+    gap: 8px;
+}
+
+.details-column > div{
+    display: flex;
+}
+
+.people-column {
+    font-size: var(--font-s);
+}
+
+.details-column,
+.people-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.person-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.person-link:hover {
+    text-decoration: underline;
+}
+
+.person-link--line + .person-link--line::before {
+    content: ", ";
+}

@@ -1,7 +1,8 @@
-import {useParams} from "react-router-dom";
+import {useParams, Link} from "react-router-dom";
 import {useFilmQuery} from "../queries/useFilmQuery.ts";
 import Poster from "../components/Poster.tsx";
 import {formatParam} from "../utils/format.ts";
+import "../../../shared/styles/details.css";
 
 function FilmPage() {
     const {id} = useParams();
@@ -30,51 +31,42 @@ function FilmPage() {
 
             <hr/>
 
-            {/* MAIN GRID */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "300px 1fr 170px",
-                    gap: "20px",
-                    alignItems: "start"
-                }}
-            >
-                {/* POSTER */}
+            <div className="main-grid">
                 <div>
                     <Poster
                         src={data?.posterUrl}
                         alt={data?.title}
                     />
                 </div>
-
-                {/* DETAILS */}
                 <div>
-                    {/* description */}
-                    <p>
-                        {data?.description}
-                    </p>
+                    <p>{data?.description}</p>
 
-
-                    {/* DETAILS BLOCK */}
                     <div>
-                        <div style={{display: "flex", flexDirection: "column", gap: 8}}>
-                            <div style={{display: "flex"}}>
-                                <span style={{width: 90, color: "var(--text-color-f)"}}>Year</span>
-                                <span>{data?.releaseYear}</span>
+                        <div className="details-column">
+                            <div>
+                                <span>Year</span>
+                                {data?.releaseYear}
                             </div>
-                            <div style={{display: "flex"}}>
-                                <span style={{width: 90, color: "var(--text-color-f)"}}>Country</span>
-                                <span>{data?.country}</span>
+                            <div>
+                                <span>Country</span>
+                                {data?.country}
                             </div>
-                            <div style={{display: "flex"}}>
-                                <span style={{width: 90, color: "var(--text-color-f)"}}>Genre</span>
-                                <span>{data?.genres?.map(g => formatParam(g)).join(", ")}</span>
+                            <div>
+                                <span>Genre</span>
+                                {data?.genres?.map(g => formatParam(g)).join(", ")}
                             </div>
-                            <div style={{display: "flex"}}>
-                                <span style={{width: 90, color: "var(--text-color-f)"}}>Director</span>
-                                <span>
-                                    {data?.directors?.map(d => d.name).join(", ")}
-                                </span>
+                            <div>
+                                <span>Director</span>
+                                {data?.directors?.map((director) => (
+                                    <Link
+                                        key={director.id}
+                                        to={`/people/director/${director.id}`}
+                                        className="person-link person-link--line"
+                                    >
+                                        {director.name}
+                                    </Link>
+
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -82,18 +74,16 @@ function FilmPage() {
 
                 {/* CAST */}
                 <div>
-                    <p style={{color: "var(--text-color-f)"}}>
-                        Cast
-                    </p>
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        fontSize: "var(--font-s)"
-                    }}>
+                    <p><span>Cast</span></p>
+                    <div className="people-column">
                         {data?.actors?.map(actor => (
-                            <div key={actor.id}>
+                            <Link
+                                key={actor.id}
+                                to={`/people/actor/${actor.id}`}
+                                className="person-link"
+                            >
                                 {actor.name}
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 </div>
