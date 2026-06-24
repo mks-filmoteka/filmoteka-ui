@@ -32,7 +32,6 @@
 }
 
 .card-number {
-    box-sizing: border-box;
     width: 100%;
     font-size: var(--font-s);
     color: var(--text-color-f);

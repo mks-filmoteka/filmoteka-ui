@@ -31,6 +31,7 @@ function FilmListPage() {
     const pageTitle = (
         <div className="page-title">
             <h1>Films</h1>
+            <div></div>
         </div>
     );
 

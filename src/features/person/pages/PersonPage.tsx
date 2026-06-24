@@ -1,14 +1,29 @@
-import {useParams} from "react-router-dom";
 import {usePersonQuery} from "../queries/usePersonQuery.ts";
 import {useState} from "react";
 import {useFilmSearchParams} from "../../film/queries/useFilmSearchParams.ts";
 import {FilmList} from "../../film/components/FilmList.tsx";
 import type {FilmBasic} from "../../film/types/filmBasic.ts";
 import {SORT_BY, SORT_DIR} from "../../film/constants/constants.ts";
+import {useIsAdmin} from "../../../shared/auth/useAuth.ts";
+import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
+import {TextInput} from "../../../shared/components/TextInput.tsx";
+import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
+import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
-    const {id} = useParams();
+    const isAdmin = useIsAdmin();
+    const [isEditing, setIsEditing] = useState(false);
+    const [form, setForm] = useState({name: ""});
+    const id = useRequiredParam("id");
     const {data, isLoading, error} = usePersonQuery(type, id);
+    const updatePerson = useUpdatePerson(type);
+    const isChanged = form.name.trim() !== data?.name.trim();
+    const handleSave = () => {
+        updatePerson.mutate(
+            {id, request: {name: form.name.trim()}},
+            {onSuccess: () => setIsEditing(false)}
+        );
+    };
 
     /* URL STATE */
     const {
@@ -23,7 +38,6 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams();
     const [filterOpen, setFilterOpen] = useState(false);
-
 
     const filtering = (film: FilmBasic) => {
         if (minYear && film.releaseYear < minYear) return false;
@@ -51,8 +65,67 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
 
     const pageTitle = (
         <div className="page-title">
-            <h1>{data?.name}</h1>
-            {type}
+            {isEditing ? (
+                <>
+                    {/*TITLE OR EDIT INPUT*/}
+                    <h1>
+                        <TextInput
+                            id={"name-edit"}
+                            aria-label="edit name"
+                            value={form.name}
+                            maxLength={100}
+                            onChange={(value) =>
+                                setForm(prev => ({
+                                    ...prev,
+                                    name: value
+                                }))
+                            }
+                            regex={INPUT_RULES.name}
+                            placeholder="Edit name"
+                        />
+                    </h1>
+                    <div>
+                        {type}
+
+                        {/*SAVE BUTTON*/}
+                        <div className="page-title-controls">
+                            <button
+                                onClick={handleSave}
+                                disabled={!isChanged || updatePerson.isPending}
+                            >
+                                ✔
+                            </button>
+
+                            {/*CANCEL BUTTON*/}
+                            <button onClick={() => {
+                                setIsEditing(false);
+                                setForm({name: data?.name ?? ""});
+                            }}>
+                                ✖
+                            </button>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <h1>{data?.name}</h1>
+                    <div>
+                        {type}
+                        <div className="page-title-controls">
+
+                            {/*EDIT BUTTON*/}
+                            {isAdmin && data && (
+                                <button onClick={() => {
+                                    setIsEditing(true);
+                                    setForm({name: data.name});
+                                }}>
+                                    ✎
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 

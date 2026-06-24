@@ -27,6 +27,7 @@ function FilmPage() {
             {/* TITLE */}
             <div className="page-title">
                 <h1>{data?.title} ({data?.releaseYear})</h1>
+                <div></div>
             </div>
 
             <hr/>
