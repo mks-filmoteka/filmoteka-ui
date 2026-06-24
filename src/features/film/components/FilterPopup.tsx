@@ -74,7 +74,8 @@ export function FilterPopup(props: Readonly<Props>) {
 
                     {/* YEAR FROM */}
                     <DropdownFilter
-                        title={"From"}
+                        id={"year-from"}
+                        placeholder={"From"}
                         value={yearFrom}
                         inputValue={yearFromInput}
                         setValue={setYearFrom}
@@ -85,7 +86,8 @@ export function FilterPopup(props: Readonly<Props>) {
 
                     {/* YEAR TO */}
                     <DropdownFilter
-                        title={"To"}
+                        id={"year-to"}
+                        placeholder={"To"}
                         value={yearTo}
                         inputValue={yearToInput}
                         setValue={setYearTo}

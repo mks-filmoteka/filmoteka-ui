@@ -10,10 +10,27 @@ type Props = {
     maxLength?: number;
     placeholder?: string;
     disabled?: boolean;
+    required?: boolean;
+    className?: string;
+    onEnter?: () => void;
+    onClick?: React.MouseEventHandler<HTMLInputElement>;
 };
 
 export function TextInput(props: Readonly<Props>) {
-    const {id, ariaLabel, value, onChange, regex, maxLength, placeholder, disabled} = props
+    const {
+        id,
+        ariaLabel,
+        value,
+        onChange,
+        regex,
+        maxLength,
+        placeholder,
+        disabled,
+        required,
+        className,
+        onEnter,
+        onClick
+    } = props
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;
@@ -23,15 +40,25 @@ export function TextInput(props: Readonly<Props>) {
         onChange(newValue);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            onEnter?.();
+        }
+    };
+
     return (
         <input
             id={id}
             aria-label={ariaLabel}
             value={value}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             maxLength={maxLength}
             placeholder={placeholder}
             disabled={disabled}
+            required={required}
+            onClick={onClick}
+            className={className}
         />
     );
 }

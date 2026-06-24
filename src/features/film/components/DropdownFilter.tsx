@@ -1,15 +1,18 @@
 import {MAX_YEAR, MIN_YEAR, YEARS} from "../constants/constants.ts";
 import {useEffect, useRef, useState} from "react";
+import {TextInput} from "../../../shared/components/TextInput.tsx";
+import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 
 type Props = {
+    id?: string;
     value?: number;
-    title: string;
+    placeholder: string;
     inputValue: string;
     setInputValue: (v: string) => void;
     setValue: (v?: number) => void;
 };
 
-export function DropdownFilter({value, title, inputValue, setValue, setInputValue}: Readonly<Props>) {
+export function DropdownFilter({id, value, placeholder, inputValue, setValue, setInputValue}: Readonly<Props>) {
     const [open, setOpen] = useState(false);
     const yearDropdownRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -34,7 +37,6 @@ export function DropdownFilter({value, title, inputValue, setValue, setInputValu
                 setOpen(false);
             }
         };
-
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
@@ -46,26 +48,27 @@ export function DropdownFilter({value, title, inputValue, setValue, setInputValu
             className="filter-year-picker"
             ref={wrapperRef}
         >
-            <input
+            <TextInput
+                id={id}
+                ariaLabel="filter years"
                 value={inputValue}
-                placeholder={title}
+                maxLength={4}
+                onChange={setInputValue}
+                placeholder={placeholder}
+                regex={INPUT_RULES.year}
+                onEnter={() => {
+                    const num = Number(inputValue);
+                    if (Number.isFinite(num) && num >= MIN_YEAR && num <= MAX_YEAR) {
+                        setValue(num);
+                    } else {
+                        setValue();
+                        setInputValue("");
+                    }
+                    setOpen(false);
+                }}
                 onClick={(e) => {
                     e.stopPropagation();
                     setOpen(o => !o);
-                }}
-                onChange={(e) =>
-                    setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                        const num = Number(inputValue);
-                        if (Number.isFinite(num) && num >= MIN_YEAR && num <= MAX_YEAR) {
-                            setValue(num);
-                        } else {
-                            setValue();
-                            setInputValue("");
-                        }
-                        setOpen(false);
-                    }
                 }}
             />
             {(value !== undefined || inputValue !== "") && (

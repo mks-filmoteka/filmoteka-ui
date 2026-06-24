@@ -1,6 +1,7 @@
 import {Outlet, useNavigate} from "react-router-dom";
 import {useState} from "react";
-
+import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
+import {TextInput} from "../shared/components/TextInput.tsx";
 
 export function AppLayout() {
     const navigate = useNavigate();
@@ -16,23 +17,23 @@ export function AppLayout() {
                     </div>
 
                     <div className="header-center">
-                        <input
+                        <TextInput
                             id="title-search"
-                            aria-label="Search films"
+                            ariaLabel="Search films"
                             className="search-input"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            maxLength={100}
+                            onChange={setSearch}
                             placeholder="Search films..."
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    const params = new URLSearchParams();
-                                    if (search.trim()) {
-                                        params.set("page", "1");
-                                        params.set("title", search.trim());
-                                    }
-                                    navigate(`/films?${params}`);
-                                    setSearch("");
+                            regex={INPUT_RULES.title}
+                            onEnter={() => {
+                                const params = new URLSearchParams();
+                                if (search.trim()) {
+                                    params.set("page", "1");
+                                    params.set("title", search.trim());
                                 }
+                                navigate(`/films?${params}`);
+                                setSearch("");
                             }}
                         />
                         {search !== "" && (
