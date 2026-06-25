@@ -1,8 +1,9 @@
-import {COUNTRIES, GENRES} from "../constants/constants.ts";
 import {MultiToggleFilter} from "./MultiToggleFilter.tsx";
 import {DropdownFilter} from "./DropdownFilter.tsx";
 import {useState} from "react";
 import "../../../shared/styles/filter.css";
+import {GENRES} from "../types/genre.ts";
+import {COUNTRIES} from "../types/country.ts";
 
 type Props = {
     filterOpen: boolean;

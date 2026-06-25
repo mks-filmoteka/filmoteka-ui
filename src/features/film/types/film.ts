@@ -1,11 +1,15 @@
+import type {PersonBasic} from "../../person/types/personBasic.ts";
+import type {Genre} from "./genre.ts";
+import type {Country} from "./country.ts";
+
 export interface Film {
     id: number;
     title: string;
     releaseYear: number;
-    country: string;
+    country: Country;
     description: string;
     posterUrl: string;
-    genres: string[];
-    actors: { id: number; name: string }[];
-    directors: { id: number; name: string }[];
+    genres: Genre[];
+    actors: PersonBasic[];
+    directors: PersonBasic[];
 }

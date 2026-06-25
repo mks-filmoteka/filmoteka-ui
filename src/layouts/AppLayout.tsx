@@ -22,7 +22,7 @@ export function AppLayout() {
                             ariaLabel="Search films"
                             className="search-input"
                             value={search}
-                            maxLength={100}
+                            maxLength={255}
                             onChange={setSearch}
                             placeholder="Search films..."
                             regex={INPUT_RULES.title}

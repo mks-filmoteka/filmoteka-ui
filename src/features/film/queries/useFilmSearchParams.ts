@@ -1,6 +1,8 @@
 import {useSearchParams} from "react-router-dom";
 import {useCallback} from "react";
-import {COUNTRIES, GENRES, MAX_YEAR, MIN_YEAR, SORT_BY, SORT_DIR} from "../constants/constants.ts";
+import {MAX_YEAR, MIN_YEAR, SORT_BY, SORT_DIR} from "../constants/constants.ts";
+import {isGenre} from "../types/genre.ts";
+import {isCountry} from "../types/country.ts";
 
 export function useFilmSearchParams(resetPageOnChange = false) {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -35,10 +37,10 @@ export function useFilmSearchParams(resetPageOnChange = false) {
     const genres = searchParams.get("genres")
         ?.split(",")
         .map(g => g.toUpperCase())
-        .filter(g => GENRES.includes(g)) ?? [];
+        .filter(isGenre) ?? [];
     const countries = searchParams.get("countries")
         ?.split(",")
-        .filter(c => COUNTRIES.includes(c)) ?? [];
+        .filter(isCountry) ?? [];
     const yearFromUrl = Number(searchParams.get("yearFrom"));
     const yearToUrl = Number(searchParams.get("yearTo"));
     const yearFrom =
