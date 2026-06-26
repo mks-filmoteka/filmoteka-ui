@@ -1,0 +1,89 @@
+import type {Film} from "../types/film.ts";
+import {formatParam} from "../utils/format.ts";
+import Poster from "./Poster.tsx";
+import {Link} from "react-router-dom";
+
+type Props = {
+    data: Film;
+    isAdmin: boolean;
+    onEdit: () => void;
+    onDelete: () => void;
+};
+
+export function FilmDetails(props: Readonly<Props>) {
+    const { data, isAdmin, onEdit, onDelete } = props;
+    return (
+        <>
+            <div className="page-title">
+                <h1>{data.title} ({data.releaseYear})</h1>
+                <div>
+                    {formatParam(data.genres[0] ?? "")}
+                    <div className="page-title-controls">
+                        {isAdmin && (
+                            <>
+                                <button title="Edit" onClick={onEdit}>
+                                    ✎
+                                </button>
+                                <button title="Delete" onClick={onDelete}>
+                                    🗑
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div className="main-grid">
+                <div><Poster src={data.posterUrl} alt={data.title} /></div>
+                <div>
+                    <p>{data.description}</p>
+                    <div className="details-column">
+                        <div>
+                            <span>Year</span>
+                            {data.releaseYear}
+                        </div>
+
+                        <div>
+                            <span>Country</span>
+                            {data.country}
+                        </div>
+
+                        <div>
+                            <span>Genre</span>
+                            {data.genres.map(formatParam).join(", ")}
+                        </div>
+
+                        <div>
+                            <span>Director</span>
+                            {data.directors.map((director) => (
+                                <Link
+                                    key={director.id}
+                                    to={`/people/director/${director.id}`}
+                                    className="person-link person-link--line"
+                                >
+                                    {director.name}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <p><span>Cast</span></p>
+                    <div className="people-column">
+                        {data.actors.map((actor) => (
+                            <Link
+                                key={actor.id}
+                                to={`/people/actor/${actor.id}`}
+                                className="person-link"
+                            >
+                                {actor.name}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}

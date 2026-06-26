@@ -2,7 +2,7 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    outline: 1px solid rgb(0 74 66);
+    /*outline: 1px solid rgb(0 74 66);*/
 }
 
 :root {
@@ -179,6 +179,7 @@ button:disabled {
     color: var(--accent);
     font-weight: bold;
     background: var(--text-color);
+    width: 100%;
 }
 
 .page-title-controls {
@@ -192,6 +193,19 @@ button:disabled {
     width: 30px;
     text-align: center;
     align-items: center;
+}
+
+.input-clear {
+    position: absolute;
+    background: none;
+    right: 2px;
+    cursor: pointer;
+    padding: 3px 3px;
+    color: var(--text-color-f);
+}
+
+.input-clear:hover {
+    box-shadow: none;
 }
 
 @media (max-width: 660px) {

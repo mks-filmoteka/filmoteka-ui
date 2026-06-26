@@ -6,8 +6,22 @@
 }
 
 .main-grid span {
-    width: 90px;
+    min-width: 90px;
     color: var(--text-color-f);
+}
+
+.main-grid input,
+.main-grid textarea,
+.main-grid select {
+    padding: 0;
+    resize: none;
+    color: var(--accent);
+    background: var(--text-color);
+    flex: 1;
+    width: 100%;
+    font: var(--font-m) var(--sans);
+    overflow: hidden;
+    height: 24px;
 }
 
 .details-column {
@@ -40,3 +54,24 @@
 .person-link--line + .person-link--line::before {
     content: ", ";
 }
+
+.array-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.array-editor-row {
+    display: flex;
+    gap: 3px;
+}
+
+.array-editor button {
+    text-align: center;
+    background: none;
+}
+
+.array-editor button:hover {
+    box-shadow: none;
+}
+

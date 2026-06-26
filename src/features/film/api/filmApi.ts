@@ -2,6 +2,7 @@ import apiClient from "../../../shared/api/client.ts";
 import type {Page} from "../types/page.ts";
 import type {FilmBasic} from "../types/filmBasic.ts";
 import type {Film} from "../types/film";
+import type {FilmRequest} from "../types/filmRequest.ts";
 
 
 export async function getFilms(
@@ -23,5 +24,10 @@ export async function getFilms(
 
 export async function getFilmById(id: string) {
     const response = await apiClient.get<Film>(`/films/${id}`);
+    return response.data;
+}
+
+export async function updateFilm(id: string, request: FilmRequest) {
+    const response = await apiClient.put<FilmRequest>(`/films/${id}`, request);
     return response.data;
 }

@@ -9,11 +9,12 @@ import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
+import type {PersonRequest} from "../types/personRequest.ts";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     const isAdmin = useIsAdmin();
     const [isEditing, setIsEditing] = useState(false);
-    const [form, setForm] = useState({name: ""});
+    const [form, setForm] = useState<PersonRequest>({name: ""});
     const id = useRequiredParam("id");
     const {data, isLoading, error} = usePersonQuery(type, id);
     const updatePerson = useUpdatePerson(type);
@@ -115,10 +116,13 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
 
                             {/*EDIT BUTTON*/}
                             {isAdmin && data && (
-                                <button onClick={() => {
-                                    setIsEditing(true);
-                                    setForm({name: data.name});
-                                }}>
+                                <button
+                                    title={"Edit"}
+                                    onClick={() => {
+                                        setIsEditing(true);
+                                        setForm({name: data.name});
+                                    }}
+                                >
                                     ✎
                                 </button>
                             )}
