@@ -7,6 +7,8 @@ import type {FilmRequest} from "../types/filmRequest.ts";
 import {fillForm, fillRequest} from "../utils/formState.ts";
 import {FilmForm} from "../components/FilmForm.tsx";
 import {useCreateFilm} from "../queries/useCreateFilm.ts";
+import type {AxiosError} from "axios";
+import type {ApiError} from "../../../shared/types/ApiError.ts";
 
 function FilmListPage() {
     /* URL STATE */
@@ -29,11 +31,18 @@ function FilmListPage() {
     const [isCreating, setIsCreating] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const createFilm = useCreateFilm();
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const handleSave = () => {
         createFilm.mutate(
             {request: fillRequest(form)},
-            {onSuccess: () => setIsCreating(false)}
+            {
+                onSuccess: () => setIsCreating(false),
+                onError: (error: Error) => {
+                    const err = error as AxiosError<ApiError>;
+                    setErrorMsg(err.response?.data.message ?? "Unexpected error");
+                }
+            }
         );
     };
 
@@ -101,6 +110,7 @@ function FilmListPage() {
                         setForm(fillForm());
                     }}
                     isPending={createFilm.isPending}
+                    errorMsg={errorMsg ?? undefined}
                 />
             ) : (
                 <FilmList

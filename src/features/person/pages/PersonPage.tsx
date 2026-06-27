@@ -10,19 +10,30 @@ import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
+import type {ApiError} from "../../../shared/types/ApiError.ts";
+import type {AxiosError} from "axios";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
+    const id = useRequiredParam("id");
+    const {data, isLoading, error} = usePersonQuery(type, id);
     const isAdmin = useIsAdmin();
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<PersonRequest>({name: ""});
-    const id = useRequiredParam("id");
-    const {data, isLoading, error} = usePersonQuery(type, id);
     const updatePerson = useUpdatePerson(type);
+    console.log(updatePerson.error)
     const isChanged = form.name.trim() !== data?.name.trim();
+    const isInvalid = !form.name.trim();
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const handleSave = () => {
         updatePerson.mutate(
             {id, request: {name: form.name.trim()}},
-            {onSuccess: () => setIsEditing(false)}
+            {
+                onSuccess: () => setIsEditing(false),
+                onError: (error: Error) => {
+                    const err = error as AxiosError<ApiError>;
+                    setErrorMsg(err.response?.data.message ?? "Unexpected error");
+                }
+            }
         );
     };
 
@@ -85,6 +96,11 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
                             placeholder="Edit name"
                         />
                     </h1>
+                    {errorMsg && (
+                        <div style={{ color: "red", marginTop: "8px" }}>
+                            {errorMsg}
+                        </div>
+                    )}
                     <div>
                         {type}
 
@@ -92,7 +108,7 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
                         <div className="page-title-controls">
                             <button
                                 onClick={handleSave}
-                                disabled={!isChanged || updatePerson.isPending}
+                                disabled={!isChanged || updatePerson.isPending || isInvalid}
                             >
                                 ✔
                             </button>

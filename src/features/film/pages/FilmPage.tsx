@@ -8,6 +8,8 @@ import type {FilmRequest} from "../types/filmRequest.ts";
 import {FilmDetails} from "../components/FilmDetails.tsx";
 import {FilmForm} from "../components/FilmForm.tsx";
 import {fillForm, fillRequest, isFormChanged} from "../utils/formState.ts";
+import type {AxiosError} from "axios";
+import type {ApiError} from "../../../shared/types/ApiError.ts";
 
 function FilmPage() {
     const isAdmin = useIsAdmin();
@@ -16,14 +18,18 @@ function FilmPage() {
     const id = useRequiredParam("id");
     const {data, isLoading, error} = useFilmQuery(id);
     const updateFilm = useUpdateFilm();
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     const handleSave = () => {
         updateFilm.mutate(
+            {id, request: fillRequest(form)},
             {
-                id,
-                request: fillRequest(form)
-            },
-            {onSuccess: () => setIsEditing(false)}
+                onSuccess: () => setIsEditing(false),
+                onError: (error: Error) => {
+                    const err = error as AxiosError<ApiError>;
+                    setErrorMsg(err.response?.data.message ?? "Unexpected error");
+                }
+            }
         );
     };
 
@@ -54,6 +60,7 @@ function FilmPage() {
                     }}
                     isChanged={isFormChanged(form, data)}
                     isPending={updateFilm.isPending}
+                    errorMsg={errorMsg ?? undefined}
                 />
             ) : (
                 <FilmDetails

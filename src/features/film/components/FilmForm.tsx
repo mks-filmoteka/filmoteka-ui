@@ -12,12 +12,13 @@ type Props = {
     setForm: React.Dispatch<React.SetStateAction<FilmRequest>>;
     onCancel: () => void;
     onSave: () => void;
+    errorMsg?: string;
     isPending?: boolean;
     isChanged?: boolean;
 };
 
 export function FilmForm(props: Readonly<Props>) {
-    const {form, setForm, onSave, onCancel, isPending, isChanged} = props;
+    const {form, setForm, onSave, onCancel, errorMsg, isPending, isChanged} = props;
 
     const updateItem =
         (type: "actors" | "directors" | "genres" , index: number, value: string | Genre ) => {
@@ -73,6 +74,11 @@ export function FilmForm(props: Readonly<Props>) {
                         placeholder="Edit title"
                     />({form.releaseYear})
                 </h1>
+                {errorMsg && (
+                    <div style={{ color: "red", marginTop: "8px" }}>
+                        {errorMsg}
+                    </div>
+                )}
 
                 <div>
                     <div>{formatParam(form.genres[0] ?? "")}</div>
