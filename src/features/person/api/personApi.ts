@@ -8,6 +8,6 @@ export async function getPersonById(type: "actor" | "director", id: string) {
 }
 
 export async function updatePerson(type: "actor" | "director", id: string, request: PersonRequest) {
-    const response = await apiClient.put(`/${type}s/${id}`, request);
+    const response = await apiClient.put<Person>(`/${type}s/${id}`, request);
     return response.data;
 }

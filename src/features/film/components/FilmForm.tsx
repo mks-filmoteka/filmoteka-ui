@@ -48,6 +48,9 @@ export function FilmForm(props: Readonly<Props>) {
         };
 
     const isInvalid =
+        !form.country.trim() ||
+        !form.description.trim() ||
+        form.releaseYear < 1888 || form.releaseYear > 2100 ||
         form.actors.some(a => !a.name.trim()) ||
         form.directors.some(d => !d.name.trim());
 
@@ -72,9 +75,9 @@ export function FilmForm(props: Readonly<Props>) {
                 </h1>
 
                 <div>
-                    {formatParam(form.genres[0] ?? "")}
+                    <div>{formatParam(form.genres[0] ?? "")}</div>
                     <div className="page-title-controls">
-                        <button onClick={onSave} disabled={!isChanged || isPending || isInvalid}>
+                        <button onClick={onSave} disabled={!(isChanged ?? true) || isPending || isInvalid}>
                             ✔
                         </button>
 
@@ -129,11 +132,10 @@ export function FilmForm(props: Readonly<Props>) {
                                 <div className="array-editor-row">
                                     <select
                                         value={form.releaseYear}
-
-                                        onChange={(value) =>
+                                        onChange={(e) =>
                                             setForm(prev => ({
                                                 ...prev,
-                                                releaseYear: Number(value)
+                                                releaseYear: Number(e.target.value)
                                             }))
                                         }
                                     >

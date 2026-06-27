@@ -28,6 +28,11 @@ export async function getFilmById(id: string) {
 }
 
 export async function updateFilm(id: string, request: FilmRequest) {
-    const response = await apiClient.put<FilmRequest>(`/films/${id}`, request);
+    const response = await apiClient.put<Film>(`/films/${id}`, request);
+    return response.data;
+}
+
+export async function createFilm(request: FilmRequest) {
+    const response = await apiClient.post<Film>("/films", request);
     return response.data;
 }

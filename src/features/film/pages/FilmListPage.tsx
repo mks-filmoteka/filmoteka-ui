@@ -2,6 +2,11 @@ import {useFilmsQuery} from "../queries/useFilmsQuery.ts";
 import {useEffect, useState} from "react";
 import {useFilmSearchParams} from "../queries/useFilmSearchParams";
 import {FilmList} from "../components/FilmList.tsx";
+import {useIsAdmin} from "../../../shared/auth/useAuth.ts";
+import type {FilmRequest} from "../types/filmRequest.ts";
+import {fillForm, fillRequest} from "../utils/formState.ts";
+import {FilmForm} from "../components/FilmForm.tsx";
+import {useCreateFilm} from "../queries/useCreateFilm.ts";
 
 function FilmListPage() {
     /* URL STATE */
@@ -20,6 +25,17 @@ function FilmListPage() {
         setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams(true);
     const [filterOpen, setFilterOpen] = useState(false);
+    const isAdmin = useIsAdmin();
+    const [isCreating, setIsCreating] = useState(false);
+    const [form, setForm] = useState<FilmRequest>(fillForm());
+    const createFilm = useCreateFilm();
+
+    const handleSave = () => {
+        createFilm.mutate(
+            {request: fillRequest(form)},
+            {onSuccess: () => setIsCreating(false)}
+        );
+    };
 
     /* FETCH DATA */
     const {data, isLoading, error}
@@ -31,7 +47,22 @@ function FilmListPage() {
     const pageTitle = (
         <div className="page-title">
             <h1>Films</h1>
-            <div></div>
+            <div>
+                <div></div>
+                <div className="page-title-controls">
+                    {isAdmin && (
+                        <button
+                            title="Add new film"
+                            onClick={() => {
+                                setIsCreating(true);
+                                setForm(fillForm());
+                            }}
+                        >
+                            ✚
+                        </button>
+                    )}
+                </div>
+            </div>
         </div>
     );
 
@@ -59,29 +90,44 @@ function FilmListPage() {
     }
 
     return (
-        <FilmList
-            films={data?.content ?? []}
-            pageTitle={pageTitle}
-            page={page}
-            pageSize={pageSize}
-            totalPages={data?.totalPages ?? 0}
-            setPage={setPage}
-            view={view}
-            setView={setView}
-            filterOpen={filterOpen}
-            setFilterOpen={setFilterOpen}
-            genres={genres}
-            setGenres={setGenres}
-            countries={countries}
-            setCountries={setCountries}
-            yearFrom={yearFrom}
-            yearTo={yearTo}
-            setYearFrom={setYearFrom}
-            setYearTo={setYearTo}
-            resetYears={resetYears}
-            sortParams={sortParams}
-            setSort={setSort}
-        />
+        <>
+            {isCreating ? (
+                <FilmForm
+                    form={form}
+                    setForm={setForm}
+                    onSave={handleSave}
+                    onCancel={() => {
+                        setIsCreating(false);
+                        setForm(fillForm());
+                    }}
+                    isPending={createFilm.isPending}
+                />
+            ) : (
+                <FilmList
+                    films={data?.content ?? []}
+                    pageTitle={pageTitle}
+                    page={page}
+                    pageSize={pageSize}
+                    totalPages={data?.totalPages ?? 0}
+                    setPage={setPage}
+                    view={view}
+                    setView={setView}
+                    filterOpen={filterOpen}
+                    setFilterOpen={setFilterOpen}
+                    genres={genres}
+                    setGenres={setGenres}
+                    countries={countries}
+                    setCountries={setCountries}
+                    yearFrom={yearFrom}
+                    yearTo={yearTo}
+                    setYearFrom={setYearFrom}
+                    setYearTo={setYearTo}
+                    resetYears={resetYears}
+                    sortParams={sortParams}
+                    setSort={setSort}
+                />
+            )}
+        </>
     );
 }
 
