@@ -31,16 +31,17 @@ function FilmListPage() {
     const [isCreating, setIsCreating] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const createFilm = useCreateFilm();
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [apiError, setApiError] = useState<ApiError | Error>();
 
     const handleSave = () => {
+        if (!confirm("Confirm create film?")) return;
         createFilm.mutate(
             {request: fillRequest(form)},
             {
                 onSuccess: () => setIsCreating(false),
                 onError: (error: Error) => {
                     const err = error as AxiosError<ApiError>;
-                    setErrorMsg(err.response?.data.message ?? "Unexpected error");
+                    setApiError(err.response?.data ?? error);
                 }
             }
         );
@@ -108,9 +109,10 @@ function FilmListPage() {
                     onCancel={() => {
                         setIsCreating(false);
                         setForm(fillForm());
+                        setApiError(undefined);
                     }}
                     isPending={createFilm.isPending}
-                    errorMsg={errorMsg ?? undefined}
+                    apiError={apiError}
                 />
             ) : (
                 <FilmList

@@ -23,15 +23,16 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     console.log(updatePerson.error)
     const isChanged = form.name.trim() !== data?.name.trim();
     const isInvalid = !form.name.trim();
-    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [apiError, setApiError] = useState<ApiError | Error>();
     const handleSave = () => {
+        if (!confirm(`Confirm ${type} update?`)) return;
         updatePerson.mutate(
             {id, request: {name: form.name.trim()}},
             {
                 onSuccess: () => setIsEditing(false),
                 onError: (error: Error) => {
                     const err = error as AxiosError<ApiError>;
-                    setErrorMsg(err.response?.data.message ?? "Unexpected error");
+                    setApiError(err.response?.data ?? error);
                 }
             }
         );
@@ -96,9 +97,14 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
                             placeholder="Edit name"
                         />
                     </h1>
-                    {errorMsg && (
-                        <div style={{ color: "red", marginTop: "8px" }}>
-                            {errorMsg}
+                    {apiError && (
+                        <div style={{ color: "red" }}>
+                            <div>{apiError.message}</div>
+                            <div>
+                                {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
+                                    <div key={detail.field}>{detail.field}: {detail.message}</div>
+                                ))}
+                            </div>
                         </div>
                     )}
                     <div>

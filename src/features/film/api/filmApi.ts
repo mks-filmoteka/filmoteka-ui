@@ -27,12 +27,17 @@ export async function getFilmById(id: string) {
     return response.data;
 }
 
+export async function createFilm(request: FilmRequest) {
+    const response = await apiClient.post<Film>("/films", request);
+    return response.data;
+}
+
 export async function updateFilm(id: string, request: FilmRequest) {
     const response = await apiClient.put<Film>(`/films/${id}`, request);
     return response.data;
 }
 
-export async function createFilm(request: FilmRequest) {
-    const response = await apiClient.post<Film>("/films", request);
+export async function deleteFilm(id: string) {
+    const response = await apiClient.delete(`/films/${id}`);
     return response.data;
 }

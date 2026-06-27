@@ -6,19 +6,20 @@ import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {type Genre, GENRES} from "../types/genre.ts";
 import {YEARS} from "../constants/constants.ts";
 import {COUNTRIES} from "../types/country.ts";
+import type {ApiError} from "../../../shared/types/ApiError.ts";
 
 type Props = {
     form: FilmRequest;
     setForm: React.Dispatch<React.SetStateAction<FilmRequest>>;
     onCancel: () => void;
     onSave: () => void;
-    errorMsg?: string;
+    apiError?: ApiError | Error;
     isPending?: boolean;
     isChanged?: boolean;
 };
 
 export function FilmForm(props: Readonly<Props>) {
-    const {form, setForm, onSave, onCancel, errorMsg, isPending, isChanged} = props;
+    const {form, setForm, onSave, onCancel, apiError, isPending, isChanged} = props;
 
     const updateItem =
         (type: "actors" | "directors" | "genres" , index: number, value: string | Genre ) => {
@@ -49,9 +50,11 @@ export function FilmForm(props: Readonly<Props>) {
         };
 
     const isInvalid =
+        !form.title.trim() ||
         !form.country.trim() ||
         !form.description.trim() ||
         form.releaseYear < 1888 || form.releaseYear > 2100 ||
+        form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
         form.actors.some(a => !a.name.trim()) ||
         form.directors.some(d => !d.name.trim());
 
@@ -71,15 +74,9 @@ export function FilmForm(props: Readonly<Props>) {
                             }))
                         }
                         regex={INPUT_RULES.title}
-                        placeholder="Edit title"
+                        placeholder="title"
                     />({form.releaseYear})
                 </h1>
-                {errorMsg && (
-                    <div style={{ color: "red", marginTop: "8px" }}>
-                        {errorMsg}
-                    </div>
-                )}
-
                 <div>
                     <div>{formatParam(form.genres[0] ?? "")}</div>
                     <div className="page-title-controls">
@@ -108,7 +105,7 @@ export function FilmForm(props: Readonly<Props>) {
                                 posterUrl: value
                             }))
                         }
-                        placeholder="Edit poster"
+                        placeholder="poster url"
                     />
                 </div>
 
@@ -127,7 +124,7 @@ export function FilmForm(props: Readonly<Props>) {
                                     description: e.target.value
                                 }))
                             }}
-                            placeholder="Edit description"
+                            placeholder="description"
                         />
                     </p>
 
@@ -145,6 +142,9 @@ export function FilmForm(props: Readonly<Props>) {
                                             }))
                                         }
                                     >
+                                        <option value={0} disabled>
+                                            select
+                                        </option>
                                         {YEARS.map(y => (
                                             <option key={y} value={y}>
                                                 {y}
@@ -168,6 +168,9 @@ export function FilmForm(props: Readonly<Props>) {
                                             }))
                                         }
                                     >
+                                        <option value={""} disabled>
+                                            select
+                                        </option>
                                         {COUNTRIES.map(c => (
                                             <option key={c} value={c}>
                                                 {c}
@@ -286,6 +289,16 @@ export function FilmForm(props: Readonly<Props>) {
                     </div>
                 </div>
             </div>
+            {apiError && (
+                <div style={{ color: "red" }}>
+                    <div>{apiError.message}</div>
+                    <div>
+                        {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
+                            <div key={detail.field}>{detail.field}: {detail.message}</div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </>
     );
 }

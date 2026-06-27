@@ -1,12 +1,11 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {createFilm} from "../api/filmApi";
-import type {FilmRequest} from "../types/filmRequest.ts";
+import {deleteFilm} from "../api/filmApi.ts";
 
-export function useCreateFilm() {
+export function useDeleteFilm() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({request}: {request: FilmRequest}) =>
-            createFilm(request),
+        mutationFn: (id: string) =>
+            deleteFilm(id),
         onSuccess: () =>
             queryClient.invalidateQueries({queryKey: ["films"]})
     });
