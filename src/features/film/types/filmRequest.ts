@@ -5,7 +5,7 @@ import type {Genre} from "./genre.ts";
 export interface FilmRequest {
     title: string;
     releaseYear: number;
-    country: Country;
+    countries: Country[];
     description: string;
     posterUrl: string;
     genres: Genre[];

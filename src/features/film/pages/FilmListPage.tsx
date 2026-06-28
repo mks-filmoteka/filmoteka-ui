@@ -47,9 +47,14 @@ function FilmListPage() {
         );
     };
 
-    /* FETCH DATA */
+    const toApiParam = (p: string) =>
+            p.replaceAll(" ", "_")
+            .replaceAll("-", "_")
+            .toUpperCase();
+    const apiGenres = genres.map(toApiParam);
+    const apiCountries = countries.map(toApiParam);
     const {data, isLoading, error}
-        = useFilmsQuery(pageParam - 1, title, minYear, maxYear, genres, countries, sort);
+        = useFilmsQuery(pageParam - 1, title, minYear, maxYear, apiGenres, apiCountries, sort);
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));

@@ -5,7 +5,7 @@ export function fillForm(data?: Film): FilmRequest {
     return {
         title: data?.title ?? "",
         releaseYear: data?.releaseYear ?? 0,
-        country: data?.country ?? "",
+        countries: data?.countries ?? [],
         description: data?.description ?? "",
         posterUrl: data?.posterUrl ?? "",
         genres: data?.genres ?? [],
@@ -18,7 +18,7 @@ export function fillRequest(form: FilmRequest): FilmRequest {
     return {
         title: form.title.trim(),
         releaseYear: form.releaseYear,
-        country: form.country.trim(),
+        countries: Array.from(new Set(form.countries)),
         description: form.description.trim(),
         posterUrl: form.posterUrl.trim(),
         genres: Array.from(new Set(form.genres)),
@@ -39,7 +39,7 @@ export function isFormChanged(form: FilmRequest, data?: Film) {
     return data ? JSON.stringify(form) !== JSON.stringify({
         title: data.title,
         releaseYear: data.releaseYear,
-        country: data.country,
+        countries: data.countries,
         description: data.description,
         posterUrl: data.posterUrl,
         genres: data.genres,

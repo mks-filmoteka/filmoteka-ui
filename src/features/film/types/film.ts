@@ -6,7 +6,7 @@ export interface Film {
     id: number;
     title: string;
     releaseYear: number;
-    country: Country;
+    countries: Country[];
     description: string;
     posterUrl: string;
     genres: Genre[];

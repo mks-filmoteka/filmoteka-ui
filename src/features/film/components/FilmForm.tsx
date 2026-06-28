@@ -1,11 +1,10 @@
 import type {FilmRequest} from "../types/filmRequest.ts";
 import React from "react";
-import {formatParam} from "../utils/format.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {type Genre, GENRES} from "../types/genre.ts";
 import {YEARS} from "../constants/constants.ts";
-import {COUNTRIES} from "../types/country.ts";
+import {type Country, COUNTRIES} from "../types/country.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 
 type Props = {
@@ -22,17 +21,17 @@ export function FilmForm(props: Readonly<Props>) {
     const {form, setForm, onSave, onCancel, apiError, isPending, isChanged} = props;
 
     const updateItem =
-        (type: "actors" | "directors" | "genres" , index: number, value: string | Genre ) => {
+        (type: "actors" | "directors" | "genres" | "countries" , index: number, value: string | Genre | Country ) => {
             setForm(prev => ({
                 ...prev,
                 [type]: prev[type].map((item, i) =>
-                    i === index ? type === "genres" ? value : {name: value} : item
+                    i === index ? type === "genres" || type === "countries" ? value : {name: value} : item
                 )
             }));
     };
 
     const removeItem =
-        (type: "actors" | "directors" | "genres" , index: number) => {
+        (type: "actors" | "directors" | "genres" | "countries", index: number) => {
             setForm(prev => ({
                 ...prev,
                 [type]: prev[type].filter((_, i) => i !== index)
@@ -40,18 +39,23 @@ export function FilmForm(props: Readonly<Props>) {
         };
 
     const addItem =
-        (type: "actors" | "directors" | "genres") => {
-            setForm(prev => ({
-                ...prev,
-                [type]: [...prev[type], type === "genres"
-                    ? GENRES.find(g => !form.genres.includes(g))
-                    : {name: ""}]
-            }));
+        (type: "actors" | "directors" | "genres" | "countries") => {
+            setForm(prev => {
+                let param;
+                if (type === "genres") {
+                    param = GENRES.find(g => !form.genres.includes(g));
+                } else if (type === "countries") {
+                    param = COUNTRIES.find(g => !form.countries.includes(g));
+                } else param = {name: ""};
+                return {
+                    ...prev,
+                    [type]: [...prev[type], param]
+                };
+            });
         };
 
     const isInvalid =
         !form.title.trim() ||
-        !form.country.trim() ||
         !form.description.trim() ||
         form.releaseYear < 1888 || form.releaseYear > 2100 ||
         form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
@@ -78,7 +82,7 @@ export function FilmForm(props: Readonly<Props>) {
                     />({form.releaseYear})
                 </h1>
                 <div>
-                    <div>{formatParam(form.genres[0] ?? "")}</div>
+                    <div>{form.genres[0] ?? ""}</div>
                     <div className="page-title-controls">
                         <button onClick={onSave} disabled={!(isChanged ?? true) || isPending || isInvalid}>
                             ✔
@@ -158,26 +162,39 @@ export function FilmForm(props: Readonly<Props>) {
                         <div>
                             <span>Country</span>
                             <div className="array-editor">
-                                <div className="array-editor-row">
-                                    <select
-                                        value={form.country}
-                                        onChange={(e) =>
-                                            setForm(prev => ({
-                                                ...prev,
-                                                country: e.target.value
-                                            }))
-                                        }
-                                    >
-                                        <option value={""} disabled>
-                                            select
-                                        </option>
-                                        {COUNTRIES.map(c => (
-                                            <option key={c} value={c}>
-                                                {c}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                {form.countries.map((country, index) => (
+                                    <div key={index} className="array-editor-row">
+                                        <select
+                                            value={country}
+                                            onChange={(e) =>
+                                                updateItem("countries", index, e.target.value)
+                                            }
+                                        >
+                                            {COUNTRIES.map(g => (
+                                                <option
+                                                    key={g}
+                                                    value={g}
+                                                    disabled={form.countries.includes(g)}
+                                                >
+                                                    {g}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        <button
+                                            onClick={() => removeItem("countries", index)}
+                                        >
+                                            ✖
+                                        </button>
+
+                                    </div>
+                                ))}
+
+                                {form.countries.length < 5 && (
+                                    <button onClick={() => addItem("countries")}>
+                                        + Add country
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -198,7 +215,7 @@ export function FilmForm(props: Readonly<Props>) {
                                                     value={g}
                                                     disabled={form.genres.includes(g)}
                                                 >
-                                                    {formatParam(g)}
+                                                    {g}
                                                 </option>
                                             ))}
                                         </select>

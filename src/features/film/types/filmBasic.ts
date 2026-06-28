@@ -5,7 +5,7 @@ export interface FilmBasic {
     id: number;
     title: string;
     releaseYear: number;
-    country: Country;
+    countries: Country[];
     posterUrl: string;
     genres: Genre[];
 }

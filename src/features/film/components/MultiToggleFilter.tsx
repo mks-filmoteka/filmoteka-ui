@@ -1,5 +1,3 @@
-import {formatParam} from "../utils/format.ts";
-
 type Props = {
     title: string;
     options: string[];
@@ -30,7 +28,7 @@ export function MultiToggleFilter({title, options, selected, onToggle, onReset}:
                     className={`filter-options-button ${selected.includes(option) ? "active" : ""}`}
                     onClick={() => toggleItem(option)}
                 >
-                    {formatParam(option)}
+                    {option}
                 </button>
             ))}
         </div>

@@ -6,15 +6,16 @@ import {isCountry} from "../types/country.ts";
 
 export function useFilmSearchParams(resetPageOnChange = false) {
     const [searchParams, setSearchParams] = useSearchParams();
-    const applyParam = (params: URLSearchParams, key: string, value: string | string[] | undefined) => {
-        params.delete(key);
-        if (value === undefined) return;
-        if (Array.isArray(value)) {
-            value.forEach(v => params.append(key, v));
-            return;
-        }
-        params.set(key, value);
-    };
+    const applyParam =
+        (params: URLSearchParams, key: string, value: string | string[] | undefined) => {
+            params.delete(key);
+            if (value === undefined) return;
+            if (Array.isArray(value)) {
+                value.forEach(v => params.append(key, v));
+                return;
+            }
+            params.set(key, value);
+        };
     const updateParams = useCallback(
         (changes: Record<string, string | string[] | undefined>, resetPage = resetPageOnChange) => {
             setSearchParams(prev => {
@@ -36,7 +37,6 @@ export function useFilmSearchParams(resetPageOnChange = false) {
     const view = searchParams.get("view") ?? "list";
     const genres = searchParams.get("genres")
         ?.split(",")
-        .map(g => g.toUpperCase())
         .filter(isGenre) ?? [];
     const countries = searchParams.get("countries")
         ?.split(",")

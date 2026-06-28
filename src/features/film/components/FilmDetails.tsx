@@ -1,5 +1,4 @@
 import type {Film} from "../types/film.ts";
-import {formatParam} from "../utils/format.ts";
 import Poster from "./Poster.tsx";
 import {Link} from "react-router-dom";
 
@@ -17,7 +16,7 @@ export function FilmDetails(props: Readonly<Props>) {
             <div className="page-title">
                 <h1>{data.title} ({data.releaseYear})</h1>
                 <div>
-                    {formatParam(data.genres[0] ?? "")}
+                    {data.genres[0] ?? ""}
                     <div className="page-title-controls">
                         {isAdmin && (
                             <>
@@ -47,12 +46,12 @@ export function FilmDetails(props: Readonly<Props>) {
 
                         <div>
                             <span>Country</span>
-                            {data.country}
+                            {data.countries.join(", ")}
                         </div>
 
                         <div>
                             <span>Genre</span>
-                            {data.genres.map(formatParam).join(", ")}
+                            {data.genres.join(", ")}
                         </div>
 
                         <div>
