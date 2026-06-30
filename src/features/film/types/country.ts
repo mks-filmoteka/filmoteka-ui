@@ -2,7 +2,9 @@ export type Country = typeof COUNTRIES[number];
 
 export const COUNTRIES = [
     "United States", "United Kingdom", "France", "Germany", "Italy", "Spain", "Poland", "Russia", "Soviet Union",
-    "Japan", "South Korea", "China", "India", "Canada", "Australia", "New Zealand", "Mexico", "Brazil", "Argentina"
+    "Czech Republic", "Ukraine", "Belarus", "Finland", "Sweden", "Ireland", "Bulgaria", "Hungary", "Japan",
+    "South Korea", "China", "Thailand", "India", "Canada", "Indonesia", "Australia", "New Zealand", "Mexico", "Brazil",
+    "Netherlands", "South Africa", "Argentina"
 ];
 
 export function isCountry(value: string): value is Country {
