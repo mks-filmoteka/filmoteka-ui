@@ -1,4 +1,4 @@
-import apiClient from "../../../shared/api/client.ts";
+import {apiClient} from "../../../shared/api/client.ts";
 import type {Person} from "../types/person.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
 

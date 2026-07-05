@@ -7,7 +7,7 @@ export function fillForm(data?: Film): FilmRequest {
         releaseYear: data?.releaseYear ?? 0,
         countries: data?.countries ?? [],
         description: data?.description ?? "",
-        posterUrl: data?.posterUrl ?? "",
+        posterName: data?.posterName ?? "",
         genres: data?.genres ?? [],
         actors: data?.actors.map(a => ({ name: a.name })) ?? [],
         directors: data?.directors.map(d => ({ name: d.name })) ?? []
@@ -20,7 +20,7 @@ export function fillRequest(form: FilmRequest): FilmRequest {
         releaseYear: form.releaseYear,
         countries: Array.from(new Set(form.countries)),
         description: form.description.trim(),
-        posterUrl: form.posterUrl.trim(),
+        posterName: form.posterName.trim(),
         genres: Array.from(new Set(form.genres)),
         actors: form.actors
             .filter(a => a.name.trim())
@@ -41,7 +41,7 @@ export function isFormChanged(form: FilmRequest, data?: Film) {
         releaseYear: data.releaseYear,
         countries: data.countries,
         description: data.description,
-        posterUrl: data.posterUrl,
+        posterName: data.posterName,
         genres: data.genres,
         actors: data.actors.map(a => ({name: a.name})),
         directors: data.directors.map(d => ({name: d.name}))

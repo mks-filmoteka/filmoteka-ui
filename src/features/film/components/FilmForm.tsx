@@ -102,14 +102,14 @@ export function FilmForm(props: Readonly<Props>) {
                     <TextInput
                         id={"form-poster"}
                         aria-label="form poster"
-                        value={form.posterUrl}
+                        value={form?.posterName ?? ""}
                         onChange={(value) =>
                             setForm(prev => ({
                                 ...prev,
-                                posterUrl: value
+                                posterName: value
                             }))
                         }
-                        placeholder="poster url"
+                        placeholder="poster name"
                     />
                 </div>
 

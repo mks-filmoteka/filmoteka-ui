@@ -7,7 +7,7 @@ export interface FilmRequest {
     releaseYear: number;
     countries: Country[];
     description: string;
-    posterUrl: string;
+    posterName?: string | null;
     genres: Genre[];
     actors: PersonRequest[];
     directors: PersonRequest[];

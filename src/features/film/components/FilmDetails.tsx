@@ -1,6 +1,7 @@
 import type {Film} from "../types/film.ts";
 import Poster from "./Poster.tsx";
 import {Link} from "react-router-dom";
+import {getFileUrl} from "../../media/api/mediaApi.ts";
 
 type Props = {
     data: Film;
@@ -35,7 +36,10 @@ export function FilmDetails(props: Readonly<Props>) {
             <hr />
 
             <div className="main-grid">
-                <div><Poster src={data.posterUrl} alt={data.title} /></div>
+                <Poster
+                    src={data.posterName ? getFileUrl(data.posterName) : null}
+                    alt={data.title}
+                />
                 <div>
                     <p>{data.description}</p>
                     <div className="details-column">

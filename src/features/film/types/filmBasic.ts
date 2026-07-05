@@ -6,6 +6,6 @@ export interface FilmBasic {
     title: string;
     releaseYear: number;
     countries: Country[];
-    posterUrl: string;
+    posterName?: string | null;
     genres: Genre[];
 }

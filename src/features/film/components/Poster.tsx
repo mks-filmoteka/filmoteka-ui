@@ -1,39 +1,58 @@
 import {useState} from "react";
 
 type Props = {
-    src?: string;
+    src?: string | null;
     alt: string;
 };
 
+type ImageState = {
+    src: string;
+    loaded: boolean;
+    error: boolean;
+};
+
 function Poster({src, alt}: Readonly<Props>) {
-    const [error, setError] = useState(false);
-    const [loaded, setLoaded] = useState(false);
+    const [imageState, setImageState] = useState<ImageState | null>(null);
 
-
-    if (!loaded || !src || error) {
+    if (!src) {
         return (
-            <div className="poster-placeholder">
-                🎬
+            <div className="poster-wrapper">
+                <div className="poster-placeholder">
+                    🎬
+                </div>
+            </div>
+        );
+    }
+
+    const currentImageState = imageState?.src === src ? imageState : {src, loaded: false, error: false};
+
+    if (currentImageState.error) {
+        return (
+            <div className="poster-wrapper">
+                <div className="poster-placeholder">
+                    🎬
+                </div>
             </div>
         );
     }
 
     return (
-        <div>
-            {(!loaded || error || !src) && (
+        <div className="poster-wrapper">
+            {!currentImageState.loaded && (
                 <div className="poster-placeholder">
                     🎬
                 </div>
             )}
-            {src && !error && (
-                <img
-                    src={src}
-                    alt={alt}
-                    onLoad={() => setLoaded(true)}
-                    onError={() => setError(true)}
-                    className="poster"
-                />
-            )}
+            <img
+                key={src}
+                src={src}
+                alt={alt}
+                className="poster"
+                loading="lazy"
+                onLoad={() => setImageState({src, loaded: true, error: false,})}
+                onError={() => setImageState({src, loaded: false, error: true,})}
+                style={{opacity: currentImageState.loaded ? 1 : 0}}
+            />
         </div>
     );
 }

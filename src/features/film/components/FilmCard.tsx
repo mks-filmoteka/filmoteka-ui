@@ -2,6 +2,7 @@ import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router-dom";
 import Poster from "./Poster.tsx";
 import "../../../shared/styles/item.css";
+import {getFileUrl} from "../../media/api/mediaApi.ts";
 
 type Props = {
     readonly film: FilmBasic;
@@ -19,7 +20,7 @@ function FilmCard({film, index}: Props) {
                 {index + 1}
             </div>
             <Poster
-                src={film.posterUrl}
+                src={film.posterName ? getFileUrl(film.posterName) : null}
                 alt={film.title}
             />
             <div>
