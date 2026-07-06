@@ -6,6 +6,7 @@ import {type Genre, GENRES} from "../types/genre.ts";
 import {YEARS} from "../constants/constants.ts";
 import {type Country, COUNTRIES} from "../types/country.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import PosterUpload from "../../media/components/PosterUpload.tsx";
 
 type Props = {
     form: FilmRequest;
@@ -15,10 +16,12 @@ type Props = {
     apiError?: ApiError | Error;
     isPending?: boolean;
     isChanged?: boolean;
+    posterFile: File | null;
+    setPosterFile: (file: File | null) => void;
 };
 
 export function FilmForm(props: Readonly<Props>) {
-    const {form, setForm, onSave, onCancel, apiError, isPending, isChanged} = props;
+    const {form, setForm, onSave, onCancel, apiError, isPending, isChanged, posterFile, setPosterFile} = props;
 
     const updateItem =
         (type: "actors" | "directors" | "genres" | "countries" , index: number, value: string | Genre | Country ) => {
@@ -99,17 +102,17 @@ export function FilmForm(props: Readonly<Props>) {
 
             <div className="main-grid">
                 <div>
-                    <TextInput
-                        id={"form-poster"}
-                        aria-label="form poster"
-                        value={form?.posterName ?? ""}
-                        onChange={(value) =>
+                    <PosterUpload
+                        value={form.posterName}
+                        alt={form.title || "Film poster"}
+                        onChange={(posterName) =>
                             setForm(prev => ({
                                 ...prev,
-                                posterName: value
+                                posterName,
                             }))
                         }
-                        placeholder="poster name"
+                        posterFile={posterFile}
+                        setPosterFile={setPosterFile}
                     />
                 </div>
 

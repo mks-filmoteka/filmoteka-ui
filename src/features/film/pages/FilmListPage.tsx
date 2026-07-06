@@ -9,6 +9,7 @@ import {FilmForm} from "../components/FilmForm.tsx";
 import {useCreateFilm} from "../queries/useCreateFilm.ts";
 import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 
 function FilmListPage() {
     /* URL STATE */
@@ -30,19 +31,46 @@ function FilmListPage() {
     const isAdmin = useIsAdmin();
     const [isCreating, setIsCreating] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
+    const [posterFile, setPosterFile] = useState<File | null>(null);
     const createFilm = useCreateFilm();
     const [apiError, setApiError] = useState<ApiError | Error>();
+    const uploadPoster = useUploadFile();
+
+    const handleError = (error: Error) => {
+        const err = error as AxiosError<ApiError>;
+        setApiError(err.response?.data ?? error);
+    };
+
+    const saveFilm = (request: FilmRequest) => {
+        createFilm.mutate(
+            {request}, {
+                onSuccess: () => {
+                    setIsCreating(false);
+                    setPosterFile(null);
+                },
+                onError: handleError
+            }
+        );
+    };
 
     const handleSave = () => {
         if (!confirm("Confirm create film?")) return;
-        createFilm.mutate(
-            {request: fillRequest(form)},
+        const request = fillRequest(form);
+
+        if (!posterFile) {
+            saveFilm(request);
+            return;
+        }
+        uploadPoster.mutate(
+            posterFile,
             {
-                onSuccess: () => setIsCreating(false),
-                onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
-                }
+                onSuccess: (uploadedPoster) => {
+                    saveFilm({
+                        ...request,
+                        posterName: uploadedPoster.fileName
+                    });
+                },
+                onError: handleError
             }
         );
     };
@@ -118,6 +146,8 @@ function FilmListPage() {
                     }}
                     isPending={createFilm.isPending}
                     apiError={apiError}
+                    posterFile={posterFile}
+                    setPosterFile={setPosterFile}
                 />
             ) : (
                 <FilmList

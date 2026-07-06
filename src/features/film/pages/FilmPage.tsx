@@ -12,31 +12,60 @@ import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useDeleteFilm} from "../queries/useDeleteFilm.ts";
 import {useNavigate} from "react-router-dom";
+import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 
 function FilmPage() {
     const navigate = useNavigate();
     const isAdmin = useIsAdmin();
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
+    const [posterFile, setPosterFile] = useState<File | null>(null);
     const id = useRequiredParam("id");
     const {data, isLoading, error} = useFilmQuery(id);
     const updateFilm = useUpdateFilm();
     const deleteFilm = useDeleteFilm();
     const [apiError, setApiError] = useState<ApiError | Error>();
+    const uploadPoster = useUploadFile();
 
-    const handleSave = () => {
-        if (!confirm("Confirm update film?")) return;
+    const handleError = (error: Error) => {
+        const err = error as AxiosError<ApiError>;
+        setApiError(err.response?.data ?? error);
+    };
+
+    const saveFilm = (request: FilmRequest) => {
         updateFilm.mutate(
-            {id, request: fillRequest(form)},
-            {
-                onSuccess: () => setIsEditing(false),
-                onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
-                }
+            {id, request}, {
+                onSuccess: () => {
+                    setIsEditing(false);
+                    setPosterFile(null);
+                },
+                onError: handleError
             }
         );
     };
+
+    const handleSave = () => {
+        if (!confirm("Confirm update film?")) return;
+        const request = fillRequest(form);
+
+        if (!posterFile) {
+            saveFilm(request);
+            return;
+        }
+        uploadPoster.mutate(
+            posterFile,
+            {
+                onSuccess: (uploadedPoster) => {
+                    saveFilm({
+                        ...request,
+                        posterName: uploadedPoster.fileName
+                    });
+                },
+                onError: handleError
+            }
+        );
+    };
+
     const handleDelete = () => {
         if (!confirm("Confirm delete film?")) return;
         deleteFilm.mutate(id, {
@@ -71,9 +100,11 @@ function FilmPage() {
                         setIsEditing(false);
                         setForm(fillForm(data));
                     }}
-                    isChanged={isFormChanged(form, data)}
+                    isChanged={isFormChanged(form, data) || posterFile !== null}
                     isPending={updateFilm.isPending}
                     apiError={apiError}
+                    posterFile={posterFile}
+                    setPosterFile={setPosterFile}
                 />
             ) : (
                 <FilmDetails

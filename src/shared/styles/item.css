@@ -73,6 +73,27 @@
     font-size: 50px;
 }
 
+.poster-upload {
+    width: 100%;
+    position: relative;
+}
+
+.poster-upload-button {
+    position: absolute;
+    inset: 0;
+    opacity: 0.7;
+}
+
+.poster-upload-button:hover,
+.poster-upload-button-drag-over {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--text-color-f);
+}
+
+.poster-upload-button:disabled {
+    cursor: progress;
+}
+
 .card-title {
     overflow: hidden;
     display: -webkit-box;

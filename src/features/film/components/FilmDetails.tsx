@@ -1,5 +1,5 @@
 import type {Film} from "../types/film.ts";
-import Poster from "./Poster.tsx";
+import Poster from "../../media/components/Poster.tsx";
 import {Link} from "react-router-dom";
 import {getFileUrl} from "../../media/api/mediaApi.ts";
 
