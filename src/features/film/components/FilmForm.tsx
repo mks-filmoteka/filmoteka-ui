@@ -4,7 +4,7 @@ import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {type Genre, GENRES} from "../types/genre.ts";
 import {YEARS} from "../constants/constants.ts";
-import {type Country, COUNTRIES} from "../types/country.ts";
+import {COUNTRIES, type Country} from "../types/country.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
 
@@ -19,22 +19,30 @@ type Props = {
     posterFile: File | null;
     setPosterFile: (file: File | null) => void;
 };
+type ArrayField = "actors" | "directors" | "genres" | "countries";
+type ArrayFieldValue = string | Genre | Country;
 
 export function FilmForm(props: Readonly<Props>) {
     const {form, setForm, onSave, onCancel, apiError, isPending, isChanged, posterFile, setPosterFile} = props;
 
     const updateItem =
-        (type: "actors" | "directors" | "genres" | "countries" , index: number, value: string | Genre | Country ) => {
+        (type: ArrayField, index: number, value: ArrayFieldValue) => {
             setForm(prev => ({
                 ...prev,
-                [type]: prev[type].map((item, i) =>
-                    i === index ? type === "genres" || type === "countries" ? value : {name: value} : item
-                )
+                [type]: prev[type].map((item, i) => {
+                    if (i !== index) {
+                        return item;
+                    }
+                    if (type === "genres" || type === "countries") {
+                        return value;
+                    }
+                    return {name: value};
+                })
             }));
     };
 
     const removeItem =
-        (type: "actors" | "directors" | "genres" | "countries", index: number) => {
+        (type: ArrayField, index: number) => {
             setForm(prev => ({
                 ...prev,
                 [type]: prev[type].filter((_, i) => i !== index)
@@ -42,7 +50,7 @@ export function FilmForm(props: Readonly<Props>) {
         };
 
     const addItem =
-        (type: "actors" | "directors" | "genres" | "countries") => {
+        (type: ArrayField) => {
             setForm(prev => {
                 let param;
                 if (type === "genres") {
@@ -113,6 +121,7 @@ export function FilmForm(props: Readonly<Props>) {
                         }
                         posterFile={posterFile}
                         setPosterFile={setPosterFile}
+                        disabled={isPending}
                     />
                 </div>
 

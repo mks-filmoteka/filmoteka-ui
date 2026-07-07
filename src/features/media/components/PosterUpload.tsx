@@ -8,10 +8,11 @@ type Props = {
     onChange: (posterName: string | null) => void;
     posterFile: File | null;
     setPosterFile: (file: File | null) => void;
+    disabled?: boolean;
 };
 
 function PosterUpload(props: Readonly<Props>) {
-    const {value, alt, onChange, posterFile, setPosterFile} = props
+    const {value, alt, onChange, posterFile, setPosterFile, disabled} = props
     const [dragOver, setDragOver] = useState(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -58,35 +59,39 @@ function PosterUpload(props: Readonly<Props>) {
     return (
         <>
             <div className="poster-upload">
-            {posterUrl && (
-                <Poster src={posterUrl} alt={alt}/>
-            )}
-            <button
-                className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
-                onClick={() => inputRef.current?.click()}
-                onDragEnter={(event) => {
-                    event.preventDefault();
-                    setDragOver(true);
-                }}
-                onDragOver={(event) => {
-                    event.preventDefault();
-                    setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-
-            >
-                <div className="poster-placeholder">
-                    ✚
-                </div>
-            </button>
-            </div>
-
-            {value && (
-                <button onClick={handleRemove}>
-                    🗑
+                {posterUrl && (
+                    <Poster src={posterUrl} alt={alt}/>
+                )}
+                <button
+                    className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
+                    onClick={() => inputRef.current?.click()}
+                    onDragEnter={(event) => {
+                        event.preventDefault();
+                        setDragOver(true);
+                    }}
+                    onDragOver={(event) => {
+                        event.preventDefault();
+                        setDragOver(true);
+                    }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                    disabled={disabled}
+                >
+                    <div className="poster-placeholder">
+                        ✚
+                    </div>
                 </button>
-            )}
+
+                {(value || posterFile) && (
+                    <button
+                        className="poster-remove-button"
+                        onClick={handleRemove}
+                        disabled={disabled}
+                    >
+                        🗑
+                    </button>
+                )}
+            </div>
 
             <input
                 ref={inputRef}

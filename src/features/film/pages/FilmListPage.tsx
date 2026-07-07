@@ -10,6 +10,7 @@ import {useCreateFilm} from "../queries/useCreateFilm.ts";
 import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
+import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 
 function FilmListPage() {
     /* URL STATE */
@@ -35,20 +36,26 @@ function FilmListPage() {
     const createFilm = useCreateFilm();
     const [apiError, setApiError] = useState<ApiError | Error>();
     const uploadPoster = useUploadFile();
+    const deletePoster = useDeleteFile();
 
     const handleError = (error: Error) => {
         const err = error as AxiosError<ApiError>;
         setApiError(err.response?.data ?? error);
     };
 
-    const saveFilm = (request: FilmRequest) => {
+    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
         createFilm.mutate(
             {request}, {
                 onSuccess: () => {
                     setIsCreating(false);
                     setPosterFile(null);
                 },
-                onError: handleError
+                onError: (error: Error) => {
+                    if (uploadedPosterName) {
+                        deletePoster.mutate(uploadedPosterName);
+                    }
+                    handleError(error);
+                }
             }
         );
     };
@@ -62,13 +69,12 @@ function FilmListPage() {
             return;
         }
         uploadPoster.mutate(
-            posterFile,
-            {
+            posterFile, {
                 onSuccess: (uploadedPoster) => {
                     saveFilm({
                         ...request,
                         posterName: uploadedPoster.fileName
-                    });
+                    }, uploadedPoster.fileName);
                 },
                 onError: handleError
             }

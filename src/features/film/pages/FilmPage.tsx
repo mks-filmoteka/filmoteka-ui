@@ -13,6 +13,7 @@ import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useDeleteFilm} from "../queries/useDeleteFilm.ts";
 import {useNavigate} from "react-router-dom";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
+import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 
 function FilmPage() {
     const navigate = useNavigate();
@@ -26,20 +27,30 @@ function FilmPage() {
     const deleteFilm = useDeleteFilm();
     const [apiError, setApiError] = useState<ApiError | Error>();
     const uploadPoster = useUploadFile();
+    const deletePoster = useDeleteFile();
 
     const handleError = (error: Error) => {
         const err = error as AxiosError<ApiError>;
         setApiError(err.response?.data ?? error);
     };
 
-    const saveFilm = (request: FilmRequest) => {
+    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
+        const oldPosterName = data?.posterName ?? null;
         updateFilm.mutate(
             {id, request}, {
                 onSuccess: () => {
+                    if (oldPosterName && oldPosterName !== request.posterName) {
+                        deletePoster.mutate(oldPosterName);
+                    }
                     setIsEditing(false);
                     setPosterFile(null);
                 },
-                onError: handleError
+                onError: (error: Error) => {
+                    if (uploadedPosterName) {
+                        deletePoster.mutate(uploadedPosterName);
+                    }
+                    handleError(error);
+                }
             }
         );
     };
@@ -59,7 +70,7 @@ function FilmPage() {
                     saveFilm({
                         ...request,
                         posterName: uploadedPoster.fileName
-                    });
+                    }, uploadedPoster.fileName);
                 },
                 onError: handleError
             }
@@ -68,10 +79,23 @@ function FilmPage() {
 
     const handleDelete = () => {
         if (!confirm("Confirm delete film?")) return;
+        const posterName = data?.posterName;
         deleteFilm.mutate(id, {
             onSuccess: () => {
-                navigate("/films")
-            }
+                setPosterFile(null);
+                if (!posterName) {
+                    navigate("/films");
+                    return;
+                }
+                deletePoster.mutate(
+                    posterName, {
+                        onSettled: () => {
+                            navigate("/films");
+                        }
+                    }
+                );
+            },
+            onError: handleError
         });
     };
 

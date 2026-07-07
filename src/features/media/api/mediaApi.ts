@@ -12,3 +12,8 @@ export async function uploadFile(file: File) {
 export function getFileUrl(fileName: string): string {
     return `http://localhost:8081/api/v1/media/files/${fileName}`;
 }
+
+export async function deleteFile(fileName: string) {
+    const response = await mediaClient.delete(`/media/files/${fileName}`);
+    return response.data;
+}

@@ -67,6 +67,7 @@ export function ListToolbar(props: Readonly<Props>) {
             <button
                 onClick={() => setView("grid")}
                 title="Grid view"
+                style={{paddingRight: "1px"}}
                 className={view === "grid" ? "active" : ""}
             >
                 ▦

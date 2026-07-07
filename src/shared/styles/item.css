@@ -78,11 +78,26 @@
     position: relative;
 }
 
-.poster-upload-button {
+.poster-upload-button,
+.poster-remove-button {
     position: absolute;
-    inset: 0;
     opacity: 0.7;
 }
+.poster-upload-button {
+    inset: 0;
+}
+
+.poster-remove-button {
+    right: 8px;
+    bottom: 8px;
+    z-index: 3;
+    border-radius: 5px;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+}
+
+
 
 .poster-upload-button:hover,
 .poster-upload-button-drag-over {
@@ -90,7 +105,8 @@
     box-shadow: 0 0 10px var(--text-color-f);
 }
 
-.poster-upload-button:disabled {
+.poster-upload-button:disabled,
+.poster-remove-button:disabled {
     cursor: progress;
 }
 
