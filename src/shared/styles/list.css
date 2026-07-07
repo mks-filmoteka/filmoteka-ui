@@ -20,14 +20,17 @@
 .navigation {
     display: flex;
     gap: 4px;
-    margin: 20px 0;
+    margin: 10px 0;
     width: 70%;
     justify-self: center;
     justify-content: center;
+    position: sticky;
+    z-index: 900;
+    border-radius: 5px;
 }
 
 .navigation > button {
-    opacity: 0.7;
+    opacity: 0.8;
     width: 4%;
     text-align: center;
     font-size: var(--font-s);
@@ -42,13 +45,21 @@
     box-shadow: 0 0 7px var(--text-color-f);
 }
 
-.navigation-top {
+.toolbar {
     justify-content: flex-end;
+    top: var(--header-offset);
+    transition: top 0.2s ease-in-out;
+    padding: 10px 0;
 }
 
-.navigation-top > button {
+.toolbar > button {
     font-size: 22px;
     min-width: 22px;
+}
+
+.pagination {
+    bottom: 0;
+    padding: 10px 0;
 }
 
 .sort-section {

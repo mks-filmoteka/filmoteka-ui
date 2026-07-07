@@ -28,7 +28,7 @@ export function ListToolbar(props: Readonly<Props>) {
     const yearSort = sortParams.find(s => s.by === SORT_BY[1]);
 
     return (
-        <div className="navigation navigation-top">
+        <div className="navigation toolbar">
 
             {/* FILTRATION */}
             <button

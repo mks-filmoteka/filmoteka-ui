@@ -62,11 +62,21 @@ body {
     background: var(--body-bg);
 }
 
+main {
+    padding-top: 30px;
+}
+
 header {
     height: 40px;
     background-color: var(--accent-bg);
     display: flex;
     justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: transform 0.2s ease-in-out;
 }
 
 header button {
@@ -148,6 +158,18 @@ button:disabled {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+}
+
+.header-hidden {
+    transform: translateY(-100%);
+}
+
+.layout-header {
+    --header-offset: 40px;
+}
+
+.layout-header-hidden {
+    --header-offset: 0px;
 }
 
 .search-input {

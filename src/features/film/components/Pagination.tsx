@@ -11,7 +11,7 @@ export function Pagination(props: Readonly<Props>) {
     let start = Math.max(1, page - half);
     const end = Math.min(totalPages, start + 6);
     start = Math.max(1, end - 6);
-    const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    const pages = Array.from({length: end - start + 1}, (_, i) => start + i);
     const firstPage = () => setPage(1);
     const previousPage = () => setPage(Math.max(page - 1, 1));
     const nextPage = () => setPage(Math.min(page + 1, totalPages));
@@ -22,7 +22,7 @@ export function Pagination(props: Readonly<Props>) {
     if (totalPages <= 1) return null;
 
     return (
-        <div className="navigation">
+        <div className="navigation pagination">
             <button onClick={firstPage} title="First page">
                 ❚❰
             </button>
