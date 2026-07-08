@@ -71,7 +71,8 @@
     color: var(--text-color-f);
     font-size: var(--font-s);
     margin: 0 5px;
-    background: none;
+    background-color: var(--bg);
+    opacity: 0.8;
 }
 
 .sort-section > button:hover,
