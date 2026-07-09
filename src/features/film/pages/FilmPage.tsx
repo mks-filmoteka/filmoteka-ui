@@ -99,19 +99,9 @@ function FilmPage() {
         });
     };
 
-    if (!data) return <h1>Film not found</h1>;
     if (isLoading) return <h1>Loading...</h1>;
-
-    if (error) {
-        return (
-            <div>
-                <h1>
-                    Error loading film
-                </h1>
-                {error.message}
-            </div>
-        );
-    }
+    if (error) return <h1>Error loading film: {error.message}</h1>;
+    if (!data) return <h1>Film not found</h1>;
 
     return (
         <div>

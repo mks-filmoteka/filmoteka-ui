@@ -82,9 +82,7 @@ function FilmListPage() {
     };
 
     const toApiParam = (p: string) =>
-            p.replaceAll(" ", "_")
-            .replaceAll("-", "_")
-            .toUpperCase();
+        p.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
     const apiGenres = genres.map(toApiParam);
     const apiCountries = countries.map(toApiParam);
     const {data, isLoading, error}
@@ -124,19 +122,8 @@ function FilmListPage() {
     }, [data, pageParam, setPage, totalPages]);
 
     /* UI STATES */
-    if (isLoading) {
-        return <h1>Loading...</h1>;
-    }
-    if (error) {
-        return (
-            <div>
-                <h1>
-                    Error loading films
-                </h1>
-                {error.message}
-            </div>
-        );
-    }
+    if (isLoading) return <h1>Loading...</h1>;
+    if (error) return <h1>Error loading films: {error.message}</h1>;
 
     return (
         <>

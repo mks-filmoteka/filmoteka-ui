@@ -20,7 +20,6 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<PersonRequest>({name: ""});
     const updatePerson = useUpdatePerson(type);
-    console.log(updatePerson.error)
     const isChanged = form.name.trim() !== data?.name.trim();
     const isInvalid = !form.name.trim();
     const [apiError, setApiError] = useState<ApiError | Error>();
@@ -56,7 +55,7 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         if (minYear && film.releaseYear < minYear) return false;
         if (maxYear && film.releaseYear > maxYear) return false;
         if (genres.length && !film.genres.some(g => genres.includes(g))) return false;
-        return !(countries.length && !countries.includes(film.country));
+        return !(countries.length && !film.countries.some(country => countries.includes(country)));
 
     };
     const sorting = (a: FilmBasic, b: FilmBasic) => {
@@ -155,19 +154,9 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         </div>
     );
 
-    if (!data) return <h1>{type} not found</h1>;
     if (isLoading) return <h1>Loading...</h1>;
-
-    if (error) {
-        return (
-            <div>
-                <h1>
-                    Error loading {type}
-                </h1>
-                {error.message}
-            </div>
-        );
-    }
+    if (error) return <h1>Error loading {type}: {error.message}</h1>;
+    if (!data) return <h1>{type} not found</h1>;
 
     return (
         <FilmList
