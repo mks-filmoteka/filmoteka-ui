@@ -113,6 +113,7 @@ function FilmPage() {
                     onCancel={() => {
                         setIsEditing(false);
                         setForm(fillForm(data));
+                        setPosterFile(null);
                     }}
                     isChanged={isFormChanged(form, data) || posterFile !== null}
                     isPending={updateFilm.isPending}
@@ -127,6 +128,7 @@ function FilmPage() {
                     onEdit={() => {
                         setIsEditing(true);
                         setForm(fillForm(data));
+                        setPosterFile(null);
                     }}
                     onDelete={handleDelete}
                 />

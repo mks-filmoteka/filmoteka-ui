@@ -1,4 +1,4 @@
-import {type ChangeEvent, type DragEvent, useEffect, useMemo, useRef, useState} from "react";
+import {type ChangeEvent, type DragEvent, useEffect, useRef, useState} from "react";
 import {getFileUrl} from "../api/mediaApi.ts";
 import Poster from "./Poster.tsx";
 
@@ -11,44 +11,74 @@ type Props = {
     disabled?: boolean;
 };
 
+type Preview = {
+    file: File;
+    url: string;
+};
+
 function PosterUpload(props: Readonly<Props>) {
     const {value, alt, onChange, posterFile, setPosterFile, disabled} = props
     const [dragOver, setDragOver] = useState(false);
+    const [preview, setPreview] = useState<Preview | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
-
-    const previewUrl = useMemo(() => {
-        if (!posterFile) {
-            return null;
-        }
-        return URL.createObjectURL(posterFile);
-    }, [posterFile]);
+    const previewRef = useRef<Preview | null>(null);
 
     useEffect(() => {
         return () => {
-            if (previewUrl) {
-                URL.revokeObjectURL(previewUrl);
+            if (previewRef.current) {
+                URL.revokeObjectURL(previewRef.current.url);
+                previewRef.current = null;
             }
         };
-    }, [previewUrl]);
+    }, []);
 
-    const posterUrl = previewUrl ?? (value ? getFileUrl(value) : null);
+    const revokePreview = () => {
+        if (!previewRef.current) {
+            return;
+        }
 
-    const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        URL.revokeObjectURL(previewRef.current.url);
+        previewRef.current = null;
+    };
+
+    const setPreviewFile = (file: File) => {
+        revokePreview();
+        const nextPreview = {
+            file,
+            url: URL.createObjectURL(file),
+        };
+        previewRef.current = nextPreview;
+        setPreview(nextPreview);
+    };
+
+    const clearPreview = () => {
+        revokePreview();
+        setPreview(null);
+    };
+
+    const previewUrl = preview?.file === posterFile ? preview.url : null;
+    const savedPosterUrl = value ? getFileUrl(value) : null;
+    const posterUrl = posterFile && previewUrl ? previewUrl : savedPosterUrl;
+
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) {return}
+        setPreviewFile(file);
         setPosterFile(file);
         event.target.value = "";
     };
 
-    const handleDrop = async (event: DragEvent<HTMLButtonElement>) => {
+    const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
         event.preventDefault();
         setDragOver(false);
         const file = event.dataTransfer.files?.[0];
         if (!file) {return}
+        setPreviewFile(file);
         setPosterFile(file);
     };
 
     const handleRemove = () => {
+        clearPreview();
         setPosterFile(null);
         onChange(null);
         if (inputRef.current) {

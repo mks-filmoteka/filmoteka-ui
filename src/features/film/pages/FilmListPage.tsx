@@ -103,6 +103,7 @@ function FilmListPage() {
                             onClick={() => {
                                 setIsCreating(true);
                                 setForm(fillForm());
+                                setPosterFile(null);
                             }}
                         >
                             ✚
@@ -135,6 +136,7 @@ function FilmListPage() {
                     onCancel={() => {
                         setIsCreating(false);
                         setForm(fillForm());
+                        setPosterFile(null);
                         setApiError(undefined);
                     }}
                     isPending={createFilm.isPending}
