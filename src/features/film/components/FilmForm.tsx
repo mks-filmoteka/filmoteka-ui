@@ -79,7 +79,7 @@ export function FilmForm(props: Readonly<Props>) {
                 <h1>
                     <TextInput
                         id={"form-title"}
-                        aria-label="form title"
+                        ariaLabel="form title"
                         value={form.title}
                         maxLength={255}
                         onChange={(value) =>

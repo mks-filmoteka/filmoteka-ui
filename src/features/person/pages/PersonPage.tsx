@@ -83,7 +83,7 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
                     <h1>
                         <TextInput
                             id={"name-edit"}
-                            aria-label="edit name"
+                            ariaLabel="edit name"
                             value={form.name}
                             maxLength={100}
                             onChange={(value) =>
