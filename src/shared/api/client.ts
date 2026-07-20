@@ -1,5 +1,5 @@
 import axios from "axios";
 
-export const apiClient = axios.create({baseURL: "http://localhost:8080/api/v1"});
+export const apiClient = axios.create({baseURL: import.meta.env.VITE_BACKEND_API_URL});
 
-export const mediaClient = axios.create({baseURL: "http://localhost:8081/api/v1",});
+export const mediaClient = axios.create({baseURL: import.meta.env.VITE_MEDIA_API_URL});

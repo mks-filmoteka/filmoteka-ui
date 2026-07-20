@@ -135,6 +135,7 @@ button:disabled {
 }
 
 .header-content {
+    max-width: 786px;
     width: 70%;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
