@@ -4,6 +4,7 @@ import type {MediaFile} from "../types/mediaFile";
 import {deleteFile, getFileUrl, uploadFile} from "./mediaApi";
 
 vi.mock("../../../shared/api/client", () => ({
+    MEDIA_API_URL: "http://localhost:8081/api/v1",
     mediaClient: {
         post: vi.fn(),
         delete: vi.fn()

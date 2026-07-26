@@ -1,4 +1,4 @@
-import {mediaClient} from "../../../shared/api/client.ts";
+import {mediaClient, MEDIA_API_URL} from "../../../shared/api/client.ts";
 import type {MediaFile} from "../types/mediaFile.ts";
 
 export async function uploadFile(file: File) {
@@ -10,10 +10,10 @@ export async function uploadFile(file: File) {
 }
 
 export function getFileUrl(fileName: string): string {
-    return `http://localhost:8081/api/v1/media/files/${fileName}`;
+    return `${MEDIA_API_URL}/media/files/${encodeURIComponent(fileName)}`;
 }
 
 export async function deleteFile(fileName: string) {
-    const response = await mediaClient.delete(`/media/files/${fileName}`);
+    const response = await mediaClient.delete(`/media/files/${encodeURIComponent(fileName)}`);
     return response.data;
 }
