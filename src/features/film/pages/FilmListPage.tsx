@@ -139,7 +139,7 @@ function FilmListPage() {
                         setPosterFile(null);
                         setApiError(undefined);
                     }}
-                    isPending={createFilm.isPending}
+                    isPending={createFilm.isPending || uploadPoster.isPending}
                     apiError={apiError}
                     posterFile={posterFile}
                     setPosterFile={setPosterFile}
