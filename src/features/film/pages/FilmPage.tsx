@@ -116,7 +116,7 @@ function FilmPage() {
                         setPosterFile(null);
                     }}
                     isChanged={isFormChanged(form, data) || posterFile !== null}
-                    isPending={updateFilm.isPending}
+                    isPending={updateFilm.isPending || uploadPoster.isPending}
                     apiError={apiError}
                     posterFile={posterFile}
                     setPosterFile={setPosterFile}
