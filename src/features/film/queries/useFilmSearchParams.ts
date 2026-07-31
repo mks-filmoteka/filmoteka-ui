@@ -1,4 +1,4 @@
-import {useSearchParams} from "react-router-dom";
+import {useSearchParams} from "react-router";
 import {useCallback} from "react";
 import {MAX_YEAR, MIN_YEAR, SORT_BY, SORT_DIR} from "../constants/constants.ts";
 import {isGenre} from "../types/genre.ts";

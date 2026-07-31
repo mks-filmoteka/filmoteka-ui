@@ -1,17 +1,17 @@
 import {beforeEach, describe, expect, it, vi, type Mock} from "vitest";
-import {apiClient} from "../../../shared/api/client";
+import {catalogClient} from "../../../shared/api/client";
 import type {Person} from "../types/person";
 import type {PersonRequest} from "../types/personRequest";
 import {getPersonById, updatePerson} from "./personApi";
 
 vi.mock("../../../shared/api/client", () => ({
-    apiClient: {
+    catalogClient: {
         get: vi.fn(),
         put: vi.fn()
     }
 }));
 
-const mockedApiClient = apiClient as unknown as {
+const mockedApiClient = catalogClient as unknown as {
     get: Mock;
     put: Mock;
 };

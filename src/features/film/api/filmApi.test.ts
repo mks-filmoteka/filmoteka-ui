@@ -1,11 +1,11 @@
-import {beforeEach, describe, expect, it, vi, type Mock} from "vitest";
-import {apiClient} from "../../../shared/api/client";
+import {beforeEach, describe, expect, it, type Mock, vi} from "vitest";
+import {catalogClient} from "../../../shared/api/client";
 import type {Film} from "../types/film";
 import type {FilmRequest} from "../types/filmRequest";
 import {createFilm, deleteFilm, getFilmById, getFilms, updateFilm} from "./filmApi";
 
 vi.mock("../../../shared/api/client", () => ({
-    apiClient: {
+    catalogClient: {
         get: vi.fn(),
         post: vi.fn(),
         put: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock("../../../shared/api/client", () => ({
     }
 }));
 
-const mockedApiClient = apiClient as unknown as {
+const mockedApiClient = catalogClient as unknown as {
     get: Mock;
     post: Mock;
     put: Mock;

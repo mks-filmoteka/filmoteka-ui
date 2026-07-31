@@ -1,6 +1,6 @@
 import type {Film} from "../types/film.ts";
 import Poster from "../../media/components/Poster.tsx";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {getFileUrl} from "../../media/api/mediaApi.ts";
 
 type Props = {

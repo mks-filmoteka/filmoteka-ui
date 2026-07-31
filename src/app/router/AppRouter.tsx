@@ -1,4 +1,4 @@
-import {BrowserRouter, Route, Routes, Navigate} from "react-router-dom";
+import {BrowserRouter, Route, Routes, Navigate} from "react-router";
 import FilmListPage from "../../features/film/pages/FilmListPage";
 import FilmPage from "../../features/film/pages/FilmPage.tsx";
 import {AppLayout} from "../../layouts/AppLayout.tsx";

@@ -1,4 +1,4 @@
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useNavigate} from "react-router";
 import {useEffect, useRef, useState} from "react";
 import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
 import {TextInput} from "../shared/components/TextInput.tsx";

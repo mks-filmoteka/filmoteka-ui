@@ -11,7 +11,7 @@ import {fillForm, fillRequest, isFormChanged} from "../utils/formState.ts";
 import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useDeleteFilm} from "../queries/useDeleteFilm.ts";
-import {useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 

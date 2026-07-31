@@ -32,7 +32,7 @@ UI runs on:
 http://localhost:5173
 ```
 
-Backend should be running on:
+Catalog should be running on:
 
 ```text
 http://localhost:8080
