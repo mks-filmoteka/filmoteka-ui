@@ -63,8 +63,8 @@ vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
     useRequiredParam: () => "1",
 }));
 
-vi.mock("react-router-dom", async () => {
-    const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+vi.mock("react-router", async () => {
+    const actual = await vi.importActual<typeof import("react-router")>("react-router");
 
     return {
         ...actual,

@@ -1,11 +1,11 @@
 import axios, {AxiosHeaders, type AxiosInstance} from "axios";
 
-export const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL;
+export const CATALOG_API_URL = import.meta.env.VITE_CATALOG_API_URL;
 export const MEDIA_API_URL = import.meta.env.VITE_MEDIA_API_URL;
 export const CORRELATION_ID_HEADER = "X-Correlation-Id";
 
-export const apiClient = axios.create({baseURL: BACKEND_API_URL});
-addCorrelationIdInterceptor(apiClient);
+export const catalogClient = axios.create({baseURL: CATALOG_API_URL});
+addCorrelationIdInterceptor(catalogClient);
 
 export const mediaClient = axios.create({baseURL: MEDIA_API_URL});
 addCorrelationIdInterceptor(mediaClient);
