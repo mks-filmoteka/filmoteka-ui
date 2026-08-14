@@ -1,5 +1,6 @@
 import {Outlet, useNavigate} from "react-router";
 import {useEffect, useRef, useState} from "react";
+import {AuthButton} from "../auth/AuthButton.tsx";
 import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
 import {TextInput} from "../shared/components/TextInput.tsx";
 
@@ -63,7 +64,7 @@ export function AppLayout() {
                         )}
                     </div>
                     <div className="header-right">
-                        {/*  */}
+                        <AuthButton/>
                     </div>
                 </div>
             </header>
