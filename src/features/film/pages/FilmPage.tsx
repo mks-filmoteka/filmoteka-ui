@@ -1,6 +1,6 @@
 import {useFilmQuery} from "../queries/useFilmQuery.ts";
 import "../../../shared/styles/details.css";
-import {useIsAdmin} from "../../../shared/auth/useAuth.ts";
+import {useAuth} from "../../../auth/useAuth.ts";
 import {useState} from "react";
 import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
 import {useUpdateFilm} from "../queries/useUpdateFilm.ts";
@@ -17,7 +17,7 @@ import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 
 function FilmPage() {
     const navigate = useNavigate();
-    const isAdmin = useIsAdmin();
+    const isAdmin = useAuth().isAdmin;
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const [posterFile, setPosterFile] = useState<File | null>(null);

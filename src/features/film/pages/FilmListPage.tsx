@@ -2,7 +2,7 @@ import {useFilmsQuery} from "../queries/useFilmsQuery.ts";
 import {useEffect, useState} from "react";
 import {useFilmSearchParams} from "../queries/useFilmSearchParams";
 import {FilmList} from "../components/FilmList.tsx";
-import {useIsAdmin} from "../../../shared/auth/useAuth.ts";
+import {useAuth} from "../../../auth/useAuth.ts";
 import type {FilmRequest} from "../types/filmRequest.ts";
 import {fillForm, fillRequest} from "../utils/formState.ts";
 import {FilmForm} from "../components/FilmForm.tsx";
@@ -29,7 +29,7 @@ function FilmListPage() {
         setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams(true);
     const [filterOpen, setFilterOpen] = useState(false);
-    const isAdmin = useIsAdmin();
+    const isAdmin = useAuth().isAdmin;
     const [isCreating, setIsCreating] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const [posterFile, setPosterFile] = useState<File | null>(null);

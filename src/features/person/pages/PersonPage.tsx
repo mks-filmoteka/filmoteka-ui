@@ -4,7 +4,7 @@ import {useFilmSearchParams} from "../../film/queries/useFilmSearchParams.ts";
 import {FilmList} from "../../film/components/FilmList.tsx";
 import type {FilmBasic} from "../../film/types/filmBasic.ts";
 import {SORT_BY, SORT_DIR} from "../../film/constants/constants.ts";
-import {useIsAdmin} from "../../../shared/auth/useAuth.ts";
+import {useAuth} from "../../../auth/useAuth.ts";
 import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
@@ -16,7 +16,7 @@ import type {AxiosError} from "axios";
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     const id = useRequiredParam("id");
     const {data, isLoading, error} = usePersonQuery(type, id);
-    const isAdmin = useIsAdmin();
+    const isAdmin = useAuth().isAdmin;
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<PersonRequest>({name: ""});
     const updatePerson = useUpdatePerson(type);
