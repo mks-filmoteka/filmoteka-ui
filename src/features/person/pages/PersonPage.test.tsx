@@ -50,8 +50,8 @@ vi.mock("../queries/useUpdatePerson.ts", () => ({
     }),
 }));
 
-vi.mock("../../../shared/auth/useAuth.ts", () => ({
-    useIsAdmin: () => true,
+vi.mock("../../../auth/useAuth.ts", () => ({
+    useAuth: () => ({isAdmin: true}),
 }));
 
 vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
