@@ -87,6 +87,20 @@
     box-shadow: 0 0 10px var(--text-color-f);
 }
 
+.profile-details > div {
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-details {
+    overflow-wrap: anywhere;
+}
+
+.profile-details span {
+    color: var(--text-color-f);
+    min-width: 120px;
+}
+
 @media (max-width: 660px) {
     .filter-popup {
         width: 70%;
