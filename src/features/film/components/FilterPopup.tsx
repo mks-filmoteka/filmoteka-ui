@@ -1,7 +1,7 @@
 import {MultiToggleFilter} from "./MultiToggleFilter.tsx";
 import {DropdownFilter} from "./DropdownFilter.tsx";
 import {useState} from "react";
-import "../../../shared/styles/filter.css";
+import "../../../shared/styles/popup.css";
 import {GENRES} from "../types/genre.ts";
 import {COUNTRIES} from "../types/country.ts";
 

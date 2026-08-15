@@ -25,7 +25,7 @@
     justify-self: center;
     justify-content: center;
     position: sticky;
-    z-index: 900;
+    z-index: 50;
     border-radius: 5px;
 }
 
