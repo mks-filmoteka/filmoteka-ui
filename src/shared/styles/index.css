@@ -2,7 +2,7 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /*outline: 1px solid rgb(0 74 66);*/
+    outline: 1px solid rgb(0 74 66);
 }
 
 :root {
@@ -151,8 +151,9 @@ button:disabled {
 
 .header-left {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 10px;
 }
 
 .header-right {

@@ -3,10 +3,14 @@ import {useEffect, useRef, useState} from "react";
 import {AuthButton} from "../auth/AuthButton.tsx";
 import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
 import {TextInput} from "../shared/components/TextInput.tsx";
+import {useAuth} from "../auth/useAuth.ts";
+import {FilmListsPopup} from "../features/list/components/FilmListsPopup.tsx";
 
 export function AppLayout() {
     const navigate = useNavigate();
+    const {authenticated} = useAuth();
     const [search, setSearch] = useState("");
+    const [filmListsOpen, setFilmListsOpen] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
     const previousScrollY = useRef(0);
 
@@ -32,6 +36,14 @@ export function AppLayout() {
                         <button onClick={() => navigate("/films")} title="Home">
                             <img src="/favicon.svg" alt="Home" className="home-button-img"/>
                         </button>
+                        {authenticated && (
+                            <button
+                                onClick={() => setFilmListsOpen(prev => !prev)}
+                                title="Film lists"
+                            >
+                                ★
+                            </button>
+                        )}
                     </div>
 
                     <div className="header-center">
@@ -68,6 +80,9 @@ export function AppLayout() {
                     </div>
                 </div>
             </header>
+            {authenticated && filmListsOpen && (
+                <FilmListsPopup onClose={() => setFilmListsOpen(false)}/>
+            )}
             <main>
                 <Outlet/>
             </main>
