@@ -12,6 +12,7 @@ function AppRouter() {
                     <Route path="/" element={<Navigate to="/films" replace />} />
                     <Route path="/films" element={<FilmListPage/>}/>
                     <Route path="/films/:id" element={<FilmPage/>}/>
+                    <Route path="/film-lists/:id" element={<FilmListPage source="collection"/>}/>
                     <Route path="/people/actor/:id" element={<PersonPage type="actor"/>}/>
                     <Route path="/people/director/:id" element={<PersonPage type="director"/>}/>
                 </Route>

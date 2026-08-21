@@ -4,6 +4,7 @@ import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../types/filmBasic";
 import type {Page} from "../types/page";
 import FilmListPage from "./FilmListPage";
+import type {FilmList} from "../../list/types/filmList.ts";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
@@ -47,19 +48,34 @@ type FilmFormMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
+    routeParams: {} as Record<string, string | undefined>,
     useFilmSearchParams: vi.fn(),
-    useFilmsQuery: vi.fn(),
+    useFilms: vi.fn(),
+    useCollection: vi.fn(),
+    useFilmList: vi.fn(),
     createFilmMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFileMutate: vi.fn(),
+}));
+
+vi.mock("react-router", () => ({
+    useParams: () => mocks.routeParams,
 }));
 
 vi.mock("../queries/useFilmSearchParams", () => ({
     useFilmSearchParams: mocks.useFilmSearchParams,
 }));
 
-vi.mock("../queries/useFilmsQuery.ts", () => ({
-    useFilmsQuery: mocks.useFilmsQuery,
+vi.mock("../queries/useFilms.ts", () => ({
+    useFilms: mocks.useFilms,
+}));
+
+vi.mock("../queries/useCollection.ts", () => ({
+    useCollection: mocks.useCollection,
+}));
+
+vi.mock("../../list/queries/useFilmList.ts", () => ({
+    useFilmList: mocks.useFilmList,
 }));
 
 vi.mock("../queries/useCreateFilm.ts", () => ({
@@ -128,6 +144,21 @@ const emptyPage: Page<FilmBasic> = {
     page: 0,
 };
 
+const film: FilmBasic = {
+    id: 1,
+    title: "Collection Film",
+    releaseYear: 2000,
+    countries: ["Poland"],
+    posterName: null,
+    genres: ["Drama"],
+};
+
+const filmList: FilmList = {
+    id: "7",
+    name: "Favorites",
+    filmIds: [1, 2],
+};
+
 const createSearchParams = (overrides: Partial<SearchParamsReturn> = {}): SearchParamsReturn => ({
     title: undefined,
     pageParam: 1,
@@ -162,11 +193,22 @@ const apiError = Object.assign(new Error("Create failed"), {
 
 beforeEach(() => {
     vi.clearAllMocks();
+    mocks.routeParams = {};
     vi.stubGlobal("confirm", vi.fn(() => true));
 
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
-    mocks.useFilmsQuery.mockReturnValue({
+    mocks.useFilms.mockReturnValue({
         data: emptyPage,
+        isLoading: false,
+        error: null,
+    });
+    mocks.useCollection.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        error: null,
+    });
+    mocks.useFilmList.mockReturnValue({
+        data: undefined,
         isLoading: false,
         error: null,
     });
@@ -198,15 +240,51 @@ describe("FilmListPage", () => {
 
         render(<FilmListPage />);
 
-        expect(mocks.useFilmsQuery).toHaveBeenCalledWith(
-            2,
-            "test title",
-            1990,
-            2020,
-            ["SCI_FI"],
-            ["UNITED_STATES", "CZECH_REPUBLIC"],
-            sort
+        expect(mocks.useFilms).toHaveBeenCalledWith(
+            {
+                page: 2,
+                title: "test title",
+                yearFrom: 1990,
+                yearTo: 2020,
+                genres: ["SCI_FI"],
+                countries: ["UNITED_STATES", "CZECH_REPUBLIC"],
+                sort,
+            },
+            true
         );
+    });
+
+    it("uses film collection data and hides create controls for film-list routes", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useFilmList.mockReturnValue({
+            data: filmList,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollection.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        expect(mocks.useFilmList).toHaveBeenCalledWith("7");
+        expect(mocks.useFilms).toHaveBeenCalledWith(expect.any(Object), false);
+        expect(mocks.useCollection).toHaveBeenCalledWith(
+            expect.objectContaining({
+                page: 0,
+                ids: [1, 2],
+            }),
+            true
+        );
+        expect(screen.getByText("Favorites")).toBeInTheDocument();
+        expect(screen.getByText("Collection Film")).toBeInTheDocument();
+        expect(screen.queryByTitle("Add new film")).not.toBeInTheDocument();
     });
 
     it("corrects the URL page when it is out of bound", async () => {
@@ -215,7 +293,7 @@ describe("FilmListPage", () => {
             pageParam: 9,
             setPage,
         }));
-        mocks.useFilmsQuery.mockReturnValue({
+        mocks.useFilms.mockReturnValue({
             data: {
                 ...emptyPage,
                 totalPages: 2,

@@ -1,4 +1,4 @@
-import {useFilmsQuery} from "../queries/useFilmsQuery.ts";
+import {useFilms} from "../queries/useFilms.ts";
 import {useEffect, useState} from "react";
 import {useFilmSearchParams} from "../queries/useFilmSearchParams";
 import {FilmList} from "../components/FilmList.tsx";
@@ -11,8 +11,18 @@ import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
+import {useFilmList} from "../../list/queries/useFilmList.ts";
+import {useCollection} from "../queries/useCollection.ts";
+import {useParams} from "react-router";
 
-function FilmListPage() {
+type Props = {
+    source?: "films" | "collection";
+};
+
+function FilmListPage({source = "films"}: Readonly<Props>) {
+    const isCollection = source === "collection";
+    const {id} = useParams();
+
     /* URL STATE */
     const {
         title,
@@ -85,19 +95,36 @@ function FilmListPage() {
         p.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
     const apiGenres = genres.map(toApiParam);
     const apiCountries = countries.map(toApiParam);
-    const {data, isLoading, error}
-        = useFilmsQuery(pageParam - 1, title, minYear, maxYear, apiGenres, apiCountries, sort);
+    const filmFilter = {
+        page: pageParam - 1,
+        title,
+        yearFrom: minYear,
+        yearTo: maxYear,
+        genres: apiGenres,
+        countries: apiCountries,
+        sort
+    };
+    const filmListQuery = useFilmList(isCollection ? id : undefined);
+    const filmList = filmListQuery.data;
+    const filmIds = filmList?.filmIds ?? [];
+    const filmsQuery = useFilms(filmFilter, !isCollection);
+    const collectionQuery =
+        useCollection({...filmFilter, ids: filmIds}, isCollection);
+    const activeFilmsQuery = isCollection ? collectionQuery : filmsQuery;
+
+    const data = activeFilmsQuery.data;
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));
+    const pageName = isCollection ? filmList?.name : "Films";
 
     const pageTitle = (
         <div className="page-title">
-            <h1>Films</h1>
+            <h1>{pageName}</h1>
             <div>
                 <div></div>
                 <div className="page-title-controls">
-                    {isAdmin && (
+                    {!isCollection && isAdmin && (
                         <button
                             title="Add new film"
                             onClick={() => {
@@ -123,12 +150,14 @@ function FilmListPage() {
     }, [data, pageParam, setPage, totalPages]);
 
     /* UI STATES */
-    if (isLoading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error loading films: {error.message}</h1>;
+    if (filmListQuery.isLoading) return <h1>Loading...</h1>;
+    if (filmListQuery.error) return <h1>Error loading collection: {filmListQuery.error.message}</h1>;
+    if (activeFilmsQuery.isLoading) return <h1>Loading...</h1>;
+    if (activeFilmsQuery.error) return <h1>Error loading films: {activeFilmsQuery.error.message}</h1>;
 
     return (
         <>
-            {isCreating ? (
+            {!isCollection && isAdmin && isCreating ? (
                 <FilmForm
                     form={form}
                     setForm={setForm}
