@@ -1,6 +1,6 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {createFilmList} from "../api/filmListApi.ts";
-import type {FilmListRequest} from "../types/FilmListRequest.ts";
+import type {FilmListRequest} from "../types/filmListRequest.ts";
 
 export function useCreateFilmList() {
     const queryClient = useQueryClient();

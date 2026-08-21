@@ -2,7 +2,7 @@ import {useQuery} from "@tanstack/react-query";
 import {getFilmList} from "../api/filmListApi.ts";
 import type {FilmList} from "../types/filmList.ts";
 
-export function useFilmList(id?: number) {
+export function useFilmList(id?: string) {
     return useQuery<FilmList>({
         queryKey: ["film-list", id],
         enabled: !!id,

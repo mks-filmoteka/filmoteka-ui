@@ -1,5 +1,5 @@
 export interface FilmList {
-    id: number;
+    id: string;
     name: string;
     filmIds: number[];
 }
