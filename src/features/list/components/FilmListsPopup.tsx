@@ -8,6 +8,8 @@ import {useDeleteFilmList} from "../queries/useDeleteFilmList.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
+import type {FilmList} from "../types/filmList.ts";
+import type {FilmListRequest} from "../types/filmListRequest.ts";
 import "../../../shared/styles/popup.css";
 import "../../../shared/styles/item.css";
 import "../../../shared/styles/details.css";
@@ -19,8 +21,8 @@ type Props = {
 export function FilmListsPopup({onClose}: Readonly<Props>) {
     const [isCreating, setIsCreating] = useState(false);
     const [filmListName, setFilmListName] = useState("");
-    const [editingFilmListId, setEditingFilmListId] = useState<number>();
-    const [editingFilmListName, setEditingFilmListName] = useState("");
+    const [editingFilmList, setEditingFilmList] = useState<FilmList>();
+    const [form, setForm] = useState<FilmListRequest>({name: ""});
     const [apiError, setApiError] = useState<ApiError | Error>();
     const navigate = useNavigate();
     const createFilmList = useCreateFilmList();
@@ -40,14 +42,13 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
 
     const resetEditForm = () => {
         setApiError(undefined);
-        setEditingFilmListId(undefined);
-        setEditingFilmListName("");
+        setEditingFilmList(undefined);
+        setForm({name: ""});
     };
 
     const resetForms = () => {
         resetCreateForm();
-        setEditingFilmListId(undefined);
-        setEditingFilmListName("");
+        resetEditForm();
     };
 
     const closePopup = () => {
@@ -55,25 +56,24 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         onClose();
     };
 
-    const navigateToFilmList = (filmListId: number) => {
+    const navigateToFilmList = (filmListId: string) => {
         closePopup();
         navigate(`/film-lists/${filmListId}`);
     };
 
     const startCreating = () => {
         setApiError(undefined);
-        setEditingFilmListId(undefined);
-        setEditingFilmListName("");
+        resetEditForm();
         setFilmListName("");
         setIsCreating(true);
     };
 
-    const startEditing = (filmList: {id: number; name: string}) => {
+    const startEditing = (filmList: FilmList) => {
         setApiError(undefined);
         setIsCreating(false);
         setFilmListName("");
-        setEditingFilmListId(filmList.id);
-        setEditingFilmListName(filmList.name);
+        setEditingFilmList(filmList);
+        setForm({name: filmList.name});
     };
 
     const handleApiError = (error: Error) => {
@@ -94,12 +94,12 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         );
     };
 
-    const handleUpdate = (filmListId: number) => {
-        const name = editingFilmListName.trim();
-        if (!name || updateFilmList.isPending) return;
+    const handleUpdate = () => {
+        const name = form.name.trim();
+        if (!editingFilmList || !name || updateFilmList.isPending) return;
 
         updateFilmList.mutate(
-            {id: filmListId, request: {name}},
+            {id: editingFilmList.id, request: {name}},
             {
                 onSuccess: resetEditForm,
                 onError: handleApiError
@@ -107,7 +107,7 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         );
     };
 
-    const handleDelete = (filmListId: number) => {
+    const handleDelete = (filmListId: string) => {
         if (!confirm("Confirm delete film list?")) return;
         setApiError(undefined);
 
@@ -160,25 +160,25 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
 
                 {filmLists.map((filmList) => (
                     <div key={filmList.id} className="array-editor-row film-list-row">
-                        {editingFilmListId === filmList.id ? (
+                        {editingFilmList?.id === filmList.id ? (
                             <>
                                 <TextInput
                                     id={`film-list-${filmList.id}`}
                                     ariaLabel={`edit film list ${filmList.name}`}
-                                    value={editingFilmListName}
+                                    value={form.name}
                                     maxLength={255}
                                     placeholder="Film list name"
                                     regex={INPUT_RULES.title}
                                     disabled={updateFilmList.isPending}
-                                    onChange={setEditingFilmListName}
-                                    onEnter={() => handleUpdate(filmList.id)}
+                                    onChange={(name) => setForm({name})}
+                                    onEnter={handleUpdate}
                                 />
                                 <button
                                     title="Save"
-                                    onClick={() => handleUpdate(filmList.id)}
+                                    onClick={handleUpdate}
                                     disabled={
-                                        !editingFilmListName.trim() ||
-                                        editingFilmListName.trim() === filmList.name.trim() ||
+                                        !form.name.trim() ||
+                                        form.name.trim() === filmList.name.trim() ||
                                         updateFilmList.isPending
                                     }
                                 >

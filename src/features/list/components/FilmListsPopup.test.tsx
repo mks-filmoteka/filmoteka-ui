@@ -25,8 +25,8 @@ const mocks = vi.hoisted(() => ({
     },
     filmListsQuery: {
         data: [
-            {id: 7, name: "Favorites", filmIds: [1, 2]},
-            {id: 9, name: "Watch later", filmIds: [3]}
+            {id: "7", name: "Favorites", filmIds: [1, 2]},
+            {id: "9", name: "Watch later", filmIds: [3]}
         ],
         isLoading: false,
         error: null as Error | null
@@ -62,8 +62,8 @@ beforeEach(() => {
     vi.stubGlobal("confirm", vi.fn(() => true));
     mocks.filmListsQuery = {
         data: [
-            {id: 7, name: "Favorites", filmIds: [1, 2]},
-            {id: 9, name: "Watch later", filmIds: [3]}
+            {id: "7", name: "Favorites", filmIds: [1, 2]},
+            {id: "9", name: "Watch later", filmIds: [3]}
         ],
         isLoading: false,
         error: null
@@ -163,7 +163,7 @@ describe("FilmListsPopup", () => {
         fireEvent.click(screen.getByTitle("Save"));
 
         expect(mocks.updateFilmList.mutate).toHaveBeenCalledWith(
-            {id: 7, request: {name: "Updated Favorites"}},
+            {id: "7", request: {name: "Updated Favorites"}},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
@@ -179,7 +179,7 @@ describe("FilmListsPopup", () => {
 
         expect(globalThis.confirm).toHaveBeenCalledWith("Confirm delete film list?");
         expect(mocks.deleteFilmList.mutate).toHaveBeenCalledWith(
-            9,
+            "9",
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
