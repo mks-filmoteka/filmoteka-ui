@@ -8,6 +8,6 @@ export interface FilmFilter {
     sort?: string[];
 }
 
-export interface FilmCollectionFilter extends FilmFilter {
+export interface CollectionFilmFilter extends FilmFilter {
     ids: number[];
 }

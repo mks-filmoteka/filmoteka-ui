@@ -3,7 +3,7 @@ import type {Page} from "../types/page.ts";
 import type {FilmBasic} from "../types/filmBasic.ts";
 import type {Film} from "../types/film";
 import type {FilmRequest} from "../types/filmRequest.ts";
-import type {FilmCollectionFilter, FilmFilter} from "../types/filmFilter.ts";
+import type {CollectionFilmFilter, FilmFilter} from "../types/filmFilter.ts";
 
 function createFilmFilter(
     page: number,
@@ -32,7 +32,7 @@ export async function getFilms(
     return response.data;
 }
 
-export async function getFilmCollection(filter: FilmCollectionFilter) {
+export async function getCollectionFilms(filter: CollectionFilmFilter) {
     const response =
         await catalogClient.post<Page<FilmBasic>>("/films/collection", filter);
     return response.data;

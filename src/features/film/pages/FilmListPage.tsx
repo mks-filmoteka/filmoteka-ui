@@ -11,8 +11,8 @@ import type {AxiosError} from "axios";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
-import {useFilmList} from "../../list/queries/useFilmList.ts";
-import {useCollection} from "../queries/useCollection.ts";
+import {useCollection} from "../../collection/queries/useCollection.ts";
+import {useCollectionFilms} from "../queries/useCollectionFilms.ts";
 import {useParams} from "react-router";
 
 type Props = {
@@ -104,19 +104,19 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
         countries: apiCountries,
         sort
     };
-    const filmListQuery = useFilmList(isCollection ? id : undefined);
-    const filmList = filmListQuery.data;
-    const filmIds = filmList?.filmIds ?? [];
+    const selectedCollectionQuery = useCollection(isCollection ? id : undefined);
+    const collection = selectedCollectionQuery.data;
+    const filmIds = collection?.filmIds ?? [];
     const filmsQuery = useFilms(filmFilter, !isCollection);
-    const collectionQuery =
-        useCollection({...filmFilter, ids: filmIds}, isCollection);
-    const activeFilmsQuery = isCollection ? collectionQuery : filmsQuery;
+    const collectionFilmsQuery =
+        useCollectionFilms({...filmFilter, ids: filmIds}, isCollection);
+    const activeFilmsQuery = isCollection ? collectionFilmsQuery : filmsQuery;
 
     const data = activeFilmsQuery.data;
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));
-    const pageName = isCollection ? filmList?.name : "Films";
+    const pageName = isCollection ? collection?.name : "Films";
 
     const pageTitle = (
         <div className="page-title">
@@ -150,8 +150,10 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
     }, [data, pageParam, setPage, totalPages]);
 
     /* UI STATES */
-    if (filmListQuery.isLoading) return <h1>Loading...</h1>;
-    if (filmListQuery.error) return <h1>Error loading collection: {filmListQuery.error.message}</h1>;
+    if (selectedCollectionQuery.isLoading) return <h1>Loading...</h1>;
+    if (selectedCollectionQuery.error) {
+        return <h1>Error loading collection: {selectedCollectionQuery.error.message}</h1>;
+    }
     if (activeFilmsQuery.isLoading) return <h1>Loading...</h1>;
     if (activeFilmsQuery.error) return <h1>Error loading films: {activeFilmsQuery.error.message}</h1>;
 

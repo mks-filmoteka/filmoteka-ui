@@ -2,7 +2,7 @@ import {beforeEach, describe, expect, it, type Mock, vi} from "vitest";
 import {catalogClient} from "../../../shared/api/client";
 import type {Film} from "../types/film";
 import type {FilmRequest} from "../types/filmRequest";
-import {createFilm, deleteFilm, getFilmById, getFilmCollection, getFilms, updateFilm} from "./filmApi";
+import {createFilm, deleteFilm, getCollectionFilms, getFilmById, getFilms, updateFilm} from "./filmApi";
 
 vi.mock("../../../shared/api/client", () => ({
     catalogClient: {
@@ -100,7 +100,7 @@ describe("filmApi", () => {
         };
         mockedApiClient.post.mockResolvedValue({data: page});
 
-        await expect(getFilmCollection({
+        await expect(getCollectionFilms({
             page: 0,
             title: "Test Title",
             yearFrom: 1990,

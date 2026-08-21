@@ -1,12 +1,12 @@
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {deleteFilmList} from "../api/filmListApi.ts";
+import {deleteCollection} from "../api/collectionApi.ts";
 
-export function useDeleteFilmList() {
+export function useDeleteCollection() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (id: string) =>
-            deleteFilmList(id),
+            deleteCollection(id),
         onSuccess: () =>
-            queryClient.invalidateQueries({queryKey: ["film-lists"]})
+            queryClient.invalidateQueries({queryKey: ["collections"]})
     });
 }

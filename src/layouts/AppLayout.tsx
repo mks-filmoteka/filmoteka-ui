@@ -4,13 +4,13 @@ import {AuthButton} from "../auth/AuthButton.tsx";
 import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
 import {TextInput} from "../shared/components/TextInput.tsx";
 import {useAuth} from "../auth/useAuth.ts";
-import {FilmListsPopup} from "../features/list/components/FilmListsPopup.tsx";
+import {CollectionsPopup} from "../features/collection/components/CollectionsPopup.tsx";
 
 export function AppLayout() {
     const navigate = useNavigate();
     const {authenticated} = useAuth();
     const [search, setSearch] = useState("");
-    const [filmListsOpen, setFilmListsOpen] = useState(false);
+    const [collectionsOpen, setCollectionsOpen] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
     const previousScrollY = useRef(0);
 
@@ -38,8 +38,8 @@ export function AppLayout() {
                         </button>
                         {authenticated && (
                             <button
-                                onClick={() => setFilmListsOpen(prev => !prev)}
-                                title="Film lists"
+                                onClick={() => setCollectionsOpen(prev => !prev)}
+                                title="Collections"
                             >
                                 ★
                             </button>
@@ -80,8 +80,8 @@ export function AppLayout() {
                     </div>
                 </div>
             </header>
-            {authenticated && filmListsOpen && (
-                <FilmListsPopup onClose={() => setFilmListsOpen(false)}/>
+            {authenticated && collectionsOpen && (
+                <CollectionsPopup onClose={() => setCollectionsOpen(false)}/>
             )}
             <main>
                 <Outlet/>

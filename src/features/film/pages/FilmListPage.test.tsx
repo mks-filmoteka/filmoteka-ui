@@ -4,7 +4,7 @@ import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../types/filmBasic";
 import type {Page} from "../types/page";
 import FilmListPage from "./FilmListPage";
-import type {FilmList} from "../../list/types/filmList.ts";
+import type {Collection} from "../../collection/types/collection.ts";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
@@ -51,8 +51,8 @@ const mocks = vi.hoisted(() => ({
     routeParams: {} as Record<string, string | undefined>,
     useFilmSearchParams: vi.fn(),
     useFilms: vi.fn(),
+    useCollectionFilms: vi.fn(),
     useCollection: vi.fn(),
-    useFilmList: vi.fn(),
     createFilmMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFileMutate: vi.fn(),
@@ -70,12 +70,12 @@ vi.mock("../queries/useFilms.ts", () => ({
     useFilms: mocks.useFilms,
 }));
 
-vi.mock("../queries/useCollection.ts", () => ({
-    useCollection: mocks.useCollection,
+vi.mock("../queries/useCollectionFilms.ts", () => ({
+    useCollectionFilms: mocks.useCollectionFilms,
 }));
 
-vi.mock("../../list/queries/useFilmList.ts", () => ({
-    useFilmList: mocks.useFilmList,
+vi.mock("../../collection/queries/useCollection.ts", () => ({
+    useCollection: mocks.useCollection,
 }));
 
 vi.mock("../queries/useCreateFilm.ts", () => ({
@@ -153,7 +153,7 @@ const film: FilmBasic = {
     genres: ["Drama"],
 };
 
-const filmList: FilmList = {
+const collection: Collection = {
     id: "7",
     name: "Favorites",
     filmIds: [1, 2],
@@ -202,12 +202,12 @@ beforeEach(() => {
         isLoading: false,
         error: null,
     });
-    mocks.useCollection.mockReturnValue({
+    mocks.useCollectionFilms.mockReturnValue({
         data: undefined,
         isLoading: false,
         error: null,
     });
-    mocks.useFilmList.mockReturnValue({
+    mocks.useCollection.mockReturnValue({
         data: undefined,
         isLoading: false,
         error: null,
@@ -254,14 +254,14 @@ describe("FilmListPage", () => {
         );
     });
 
-    it("uses film collection data and hides create controls for film-list routes", () => {
+    it("uses collection film data and hides create controls for collection routes", () => {
         mocks.routeParams = {id: "7"};
-        mocks.useFilmList.mockReturnValue({
-            data: filmList,
+        mocks.useCollection.mockReturnValue({
+            data: collection,
             isLoading: false,
             error: null,
         });
-        mocks.useCollection.mockReturnValue({
+        mocks.useCollectionFilms.mockReturnValue({
             data: {
                 ...emptyPage,
                 content: [film],
@@ -273,9 +273,9 @@ describe("FilmListPage", () => {
 
         render(<FilmListPage source="collection" />);
 
-        expect(mocks.useFilmList).toHaveBeenCalledWith("7");
+        expect(mocks.useCollection).toHaveBeenCalledWith("7");
         expect(mocks.useFilms).toHaveBeenCalledWith(expect.any(Object), false);
-        expect(mocks.useCollection).toHaveBeenCalledWith(
+        expect(mocks.useCollectionFilms).toHaveBeenCalledWith(
             expect.objectContaining({
                 page: 0,
                 ids: [1, 2],

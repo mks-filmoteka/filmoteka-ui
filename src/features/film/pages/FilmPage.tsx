@@ -1,4 +1,4 @@
-import {useFilmQuery} from "../queries/useFilmQuery.ts";
+import {useFilm} from "../queries/useFilm.ts";
 import "../../../shared/styles/details.css";
 import {useAuth} from "../../../auth/useAuth.ts";
 import {useState} from "react";
@@ -22,7 +22,7 @@ function FilmPage() {
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const [posterFile, setPosterFile] = useState<File | null>(null);
     const id = useRequiredParam("id");
-    const {data, isLoading, error} = useFilmQuery(id);
+    const {data, isLoading, error} = useFilm(id);
     const updateFilm = useUpdateFilm();
     const deleteFilm = useDeleteFilm();
     const [apiError, setApiError] = useState<ApiError | Error>();

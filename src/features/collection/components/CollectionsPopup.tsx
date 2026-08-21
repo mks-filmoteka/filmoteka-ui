@@ -1,15 +1,15 @@
 import {useState} from "react";
 import {useNavigate} from "react-router";
 import type {AxiosError} from "axios";
-import {useFilmLists} from "../queries/useFilmLists.ts";
-import {useCreateFilmList} from "../queries/useCreateFilmList.ts";
-import {useUpdateFilmList} from "../queries/useUpdateFilmList.ts";
-import {useDeleteFilmList} from "../queries/useDeleteFilmList.ts";
+import {useCollections} from "../queries/useCollections.ts";
+import {useCreateCollection} from "../queries/useCreateCollection.ts";
+import {useUpdateCollection} from "../queries/useUpdateCollection.ts";
+import {useDeleteCollection} from "../queries/useDeleteCollection.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import type {FilmList} from "../types/filmList.ts";
-import type {FilmListRequest} from "../types/filmListRequest.ts";
+import type {Collection} from "../types/collection.ts";
+import type {CollectionRequest} from "../types/collectionRequest.ts";
 import "../../../shared/styles/popup.css";
 import "../../../shared/styles/item.css";
 import "../../../shared/styles/details.css";
@@ -18,31 +18,31 @@ type Props = {
     onClose: () => void;
 };
 
-export function FilmListsPopup({onClose}: Readonly<Props>) {
+export function CollectionsPopup({onClose}: Readonly<Props>) {
     const [isCreating, setIsCreating] = useState(false);
-    const [filmListName, setFilmListName] = useState("");
-    const [editingFilmList, setEditingFilmList] = useState<FilmList>();
-    const [form, setForm] = useState<FilmListRequest>({name: ""});
+    const [collectionName, setCollectionName] = useState("");
+    const [editingCollection, setEditingCollection] = useState<Collection>();
+    const [form, setForm] = useState<CollectionRequest>({name: ""});
     const [apiError, setApiError] = useState<ApiError | Error>();
     const navigate = useNavigate();
-    const createFilmList = useCreateFilmList();
-    const updateFilmList = useUpdateFilmList();
-    const deleteFilmList = useDeleteFilmList();
+    const createCollection = useCreateCollection();
+    const updateCollection = useUpdateCollection();
+    const deleteCollection = useDeleteCollection();
     const {
-        data: filmLists = [],
+        data: collections = [],
         isLoading,
         error
-    } = useFilmLists();
+    } = useCollections();
 
     const resetCreateForm = () => {
         setApiError(undefined);
-        setFilmListName("");
+        setCollectionName("");
         setIsCreating(false);
     };
 
     const resetEditForm = () => {
         setApiError(undefined);
-        setEditingFilmList(undefined);
+        setEditingCollection(undefined);
         setForm({name: ""});
     };
 
@@ -56,24 +56,24 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         onClose();
     };
 
-    const navigateToFilmList = (filmListId: string) => {
+    const navigateToCollection = (collectionId: string) => {
         closePopup();
-        navigate(`/film-lists/${filmListId}`);
+        navigate(`/collections/${collectionId}`);
     };
 
     const startCreating = () => {
         setApiError(undefined);
         resetEditForm();
-        setFilmListName("");
+        setCollectionName("");
         setIsCreating(true);
     };
 
-    const startEditing = (filmList: FilmList) => {
+    const startEditing = (collection: Collection) => {
         setApiError(undefined);
         setIsCreating(false);
-        setFilmListName("");
-        setEditingFilmList(filmList);
-        setForm({name: filmList.name});
+        setCollectionName("");
+        setEditingCollection(collection);
+        setForm({name: collection.name});
     };
 
     const handleApiError = (error: Error) => {
@@ -82,10 +82,10 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
     };
 
     const handleCreate = () => {
-        const name = filmListName.trim();
-        if (!name || createFilmList.isPending) return;
+        const name = collectionName.trim();
+        if (!name || createCollection.isPending) return;
 
-        createFilmList.mutate(
+        createCollection.mutate(
             {request: {name}},
             {
                 onSuccess: resetCreateForm,
@@ -96,10 +96,10 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
 
     const handleUpdate = () => {
         const name = form.name.trim();
-        if (!editingFilmList || !name || updateFilmList.isPending) return;
+        if (!editingCollection || !name || updateCollection.isPending) return;
 
-        updateFilmList.mutate(
-            {id: editingFilmList.id, request: {name}},
+        updateCollection.mutate(
+            {id: editingCollection.id, request: {name}},
             {
                 onSuccess: resetEditForm,
                 onError: handleApiError
@@ -107,12 +107,12 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         );
     };
 
-    const handleDelete = (filmListId: string) => {
-        if (!confirm("Confirm delete film list?")) return;
+    const handleDelete = (collectionId: string) => {
+        if (!confirm("Confirm delete collection?")) return;
         setApiError(undefined);
 
-        deleteFilmList.mutate(
-            filmListId,
+        deleteCollection.mutate(
+            collectionId,
             {
                 onSuccess: resetEditForm,
                 onError: handleApiError
@@ -120,56 +120,56 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
         );
     };
 
-    let filmListsContent;
+    let collectionsContent;
     if (isLoading) {
-        filmListsContent = <h1>Loading...</h1>;
+        collectionsContent = <h1>Loading...</h1>;
     } else if (error) {
-        filmListsContent = <h1>Error loading film lists: {error.message}</h1>;
+        collectionsContent = <h1>Error loading collections: {error.message}</h1>;
     } else {
-        filmListsContent = (
-            <div className="film-list-popup">
+        collectionsContent = (
+            <div className="collection-popup">
                 {isCreating && (
-                    <div className="array-editor-row film-list-row">
+                    <div className="array-editor-row collection-row">
                         <TextInput
-                            id="film-list-name"
-                            ariaLabel="film list name"
-                            value={filmListName}
+                            id="collection-name"
+                            ariaLabel="collection name"
+                            value={collectionName}
                             maxLength={255}
-                            placeholder="Film list name"
+                            placeholder="Collection name"
                             regex={INPUT_RULES.title}
-                            disabled={createFilmList.isPending}
-                            onChange={setFilmListName}
+                            disabled={createCollection.isPending}
+                            onChange={setCollectionName}
                             onEnter={handleCreate}
                         />
                         <button
                             title="Save"
                             onClick={handleCreate}
-                            disabled={!filmListName.trim() || createFilmList.isPending}
+                            disabled={!collectionName.trim() || createCollection.isPending}
                         >
                             ✔
                         </button>
                         <button
                             title="Cancel"
                             onClick={resetCreateForm}
-                            disabled={createFilmList.isPending}
+                            disabled={createCollection.isPending}
                         >
                             ✖
                         </button>
                     </div>
                 )}
 
-                {filmLists.map((filmList) => (
-                    <div key={filmList.id} className="array-editor-row film-list-row">
-                        {editingFilmList?.id === filmList.id ? (
+                {collections.map((collection) => (
+                    <div key={collection.id} className="array-editor-row collection-row">
+                        {editingCollection?.id === collection.id ? (
                             <>
                                 <TextInput
-                                    id={`film-list-${filmList.id}`}
-                                    ariaLabel={`edit film list ${filmList.name}`}
+                                    id={`collection-${collection.id}`}
+                                    ariaLabel={`edit collection ${collection.name}`}
                                     value={form.name}
                                     maxLength={255}
-                                    placeholder="Film list name"
+                                    placeholder="Collection name"
                                     regex={INPUT_RULES.title}
-                                    disabled={updateFilmList.isPending}
+                                    disabled={updateCollection.isPending}
                                     onChange={(name) => setForm({name})}
                                     onEnter={handleUpdate}
                                 />
@@ -178,8 +178,8 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
                                     onClick={handleUpdate}
                                     disabled={
                                         !form.name.trim() ||
-                                        form.name.trim() === filmList.name.trim() ||
-                                        updateFilmList.isPending
+                                        form.name.trim() === collection.name.trim() ||
+                                        updateCollection.isPending
                                     }
                                 >
                                     ✔
@@ -187,7 +187,7 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
                                 <button
                                     title="Cancel"
                                     onClick={resetEditForm}
-                                    disabled={updateFilmList.isPending}
+                                    disabled={updateCollection.isPending}
                                 >
                                     ✖
                                 </button>
@@ -196,22 +196,22 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
                             <>
                                 <button
                                     className="list-item-button"
-                                    onClick={() => navigateToFilmList(filmList.id)}
+                                    onClick={() => navigateToCollection(collection.id)}
                                 >
-                                    <span className="film-list-item-name">{filmList.name}</span>
-                                    <span className="item-label">{filmList.filmIds.length}</span>
+                                    <span className="collection-item-name">{collection.name}</span>
+                                    <span className="item-label">{collection.filmIds.length}</span>
                                 </button>
                                 <button
                                     title="rename"
-                                    onClick={() => startEditing(filmList)}
-                                    disabled={updateFilmList.isPending || deleteFilmList.isPending}
+                                    onClick={() => startEditing(collection)}
+                                    disabled={updateCollection.isPending || deleteCollection.isPending}
                                 >
                                     ✎
                                 </button>
                                 <button
                                     title="delete"
-                                    onClick={() => handleDelete(filmList.id)}
-                                    disabled={updateFilmList.isPending || deleteFilmList.isPending}
+                                    onClick={() => handleDelete(collection.id)}
+                                    disabled={updateCollection.isPending || deleteCollection.isPending}
                                 >
                                     🗑
                                 </button>
@@ -224,26 +224,26 @@ export function FilmListsPopup({onClose}: Readonly<Props>) {
     }
 
     return (
-        <div className="filter-overlay">
+        <div className="popup-overlay">
             <button
                 className="popup-backdrop-button"
-                aria-label="Close film lists"
+                aria-label="Close collections"
                 title="Close"
                 onClick={closePopup}
             />
-            <div className="filter-popup" role="dialog" aria-label="Film lists">
+            <div className="popup" role="dialog" aria-label="Collections">
                 <div className="filter-section-header">
-                    <span>Custom lists</span>
+                    <span>Collections</span>
                     <button
-                        title="Create new list"
+                        title="Create new collection"
                         onClick={startCreating}
-                        disabled={isCreating || isLoading || !!error || createFilmList.isPending}
+                        disabled={isCreating || isLoading || !!error || createCollection.isPending}
                     >
                         ✚
                     </button>
                 </div>
 
-                {filmListsContent}
+                {collectionsContent}
 
                 {apiError && (
                     <div style={{ color: "red" }}>

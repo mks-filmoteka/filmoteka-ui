@@ -1,4 +1,4 @@
-.filter-popup {
+.popup {
     position: absolute;
     max-width: 490px;
     width: 40%;
@@ -9,7 +9,7 @@
     z-index: 1;
 }
 
-.filter-overlay {
+.popup-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -69,26 +69,26 @@
     width: 28px;
 }
 
-.film-list-popup {
+.collection-popup {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
-.film-list-popup button {
+.collection-popup button {
     text-align: center;
     height: 28px;
     width: 28px;
 }
 
-.film-list-row input,
-.film-list-row > .list-item-button {
+.collection-row input,
+.collection-row > .list-item-button {
     text-align: left;
     flex: 1;
     padding: 0 5px;
 }
 
-.film-list-item-name {
+.collection-item-name {
     margin-right: auto;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -142,19 +142,19 @@
 }
 
 @media (max-width: 660px) {
-    .filter-popup {
+    .popup {
         width: 70%;
     }
 }
 
 @media (max-width: 490px) {
-    .filter-popup {
+    .popup {
         width: 90%;
     }
 }
 
 @media (max-width: 320px) {
-    .filter-popup {
+    .popup {
         padding: 1px;
         width: 100%;
     }

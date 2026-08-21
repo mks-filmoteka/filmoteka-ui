@@ -56,7 +56,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
 
     return (
         <div
-            className="filter-overlay"
+            className="popup-overlay"
             onClick={onClose}
             onKeyDown={(event) => {
                 if (event.key === "Escape") {
@@ -66,7 +66,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
             role="presentation"
         >
             <div
-                className="filter-popup"
+                className="popup"
                 onClick={(event) => event.stopPropagation()}
             >
                 <div className="filter-section-header">

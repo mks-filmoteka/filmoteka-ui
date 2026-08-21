@@ -1,7 +1,7 @@
 import {useQuery} from "@tanstack/react-query";
 import {getFilmById} from "../api/filmApi";
 
-export function useFilmQuery(id?: string) {
+export function useFilm(id?: string) {
     return useQuery({
         queryKey: ["film", id],
         enabled: !!id,

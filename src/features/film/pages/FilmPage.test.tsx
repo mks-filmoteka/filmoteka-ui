@@ -18,7 +18,7 @@ type FilmFormMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
-    useFilmQuery: vi.fn(),
+    useFilm: vi.fn(),
     updateFilmMutate: vi.fn(),
     deleteFilmMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
@@ -26,8 +26,8 @@ const mocks = vi.hoisted(() => ({
     navigate: vi.fn(),
 }));
 
-vi.mock("../queries/useFilmQuery.ts", () => ({
-    useFilmQuery: mocks.useFilmQuery,
+vi.mock("../queries/useFilm.ts", () => ({
+    useFilm: mocks.useFilm,
 }));
 
 vi.mock("../queries/useUpdateFilm.ts", () => ({
@@ -143,7 +143,7 @@ beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("confirm", vi.fn(() => true));
 
-    mocks.useFilmQuery.mockReturnValue({
+    mocks.useFilm.mockReturnValue({
         data: film,
         isLoading: false,
         error: null,
