@@ -14,11 +14,13 @@ import {useDeleteFilm} from "../queries/useDeleteFilm.ts";
 import {useNavigate} from "react-router";
 import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
+import {CollectionsPopup} from "../../collection/components/CollectionsPopup.tsx";
 
 function FilmPage() {
     const navigate = useNavigate();
-    const isAdmin = useAuth().isAdmin;
+    const {authenticated, isAdmin} = useAuth();
     const [isEditing, setIsEditing] = useState(false);
+    const [collectionsOpen, setCollectionsOpen] = useState(false);
     const [form, setForm] = useState<FilmRequest>(fillForm());
     const [posterFile, setPosterFile] = useState<File | null>(null);
     const id = useRequiredParam("id");
@@ -131,6 +133,13 @@ function FilmPage() {
                         setPosterFile(null);
                     }}
                     onDelete={handleDelete}
+                    onOpenCollections={authenticated ? () => setCollectionsOpen(true) : undefined}
+                />
+            )}
+            {authenticated && collectionsOpen && (
+                <CollectionsPopup
+                    filmId={data.id}
+                    onClose={() => setCollectionsOpen(false)}
                 />
             )}
         </div>

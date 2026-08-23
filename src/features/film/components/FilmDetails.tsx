@@ -8,10 +8,11 @@ type Props = {
     isAdmin: boolean;
     onEdit: () => void;
     onDelete: () => void;
+    onOpenCollections?: () => void;
 };
 
 export function FilmDetails(props: Readonly<Props>) {
-    const { data, isAdmin, onEdit, onDelete } = props;
+    const { data, isAdmin, onEdit, onDelete, onOpenCollections } = props;
     return (
         <>
             <div className="page-title">
@@ -19,6 +20,11 @@ export function FilmDetails(props: Readonly<Props>) {
                 <div>
                     {data.genres[0] ?? ""}
                     <div className="page-title-controls">
+                        {onOpenCollections && (
+                            <button title="Collections" onClick={onOpenCollections}>
+                                ★
+                            </button>
+                        )}
                         {isAdmin && (
                             <>
                                 <button title="Edit" onClick={onEdit}>

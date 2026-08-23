@@ -72,6 +72,7 @@
 .collection-popup {
     display: flex;
     flex-direction: column;
+    padding-top: 10px;
     gap: 6px;
 }
 
