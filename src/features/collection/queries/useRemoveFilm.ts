@@ -6,7 +6,10 @@ export function useRemoveFilm() {
     return useMutation({
         mutationFn: ({collectionId, filmId}: { collectionId: string; filmId: string }) =>
             removeFilm(collectionId, filmId),
-        onSuccess: (_, variables) =>
-            queryClient.invalidateQueries({queryKey: ["collection", variables.collectionId]})
+        onSuccess: (_, variables) => Promise.all([
+            queryClient.invalidateQueries({queryKey: ["collections"]}),
+            queryClient.invalidateQueries({queryKey: ["collection", variables.collectionId]}),
+            queryClient.invalidateQueries({queryKey: ["films", "collection"]})
+        ])
     });
 }

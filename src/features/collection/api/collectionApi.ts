@@ -28,12 +28,10 @@ export async function deleteCollection(id: string) {
 
 export async function addFilm(collectionId: string, filmId: string) {
     const response =
-        await userClient.post<Collection>(`/film-lists/${collectionId}/films/${filmId}`);
+        await userClient.put<Collection>(`/film-lists/${collectionId}/films/${filmId}`);
     return response.data;
 }
 
 export async function removeFilm(collectionId: string, filmId: string) {
-    const response =
-        await userClient.delete<Collection>(`/film-lists/${collectionId}/films/${filmId}`);
-    return response.data;
+    await userClient.delete(`/film-lists/${collectionId}/films/${filmId}`);
 }
