@@ -80,17 +80,17 @@ describe("collectionApi", () => {
     });
 
     it("adds a film to a collection", async () => {
-        mockedUserClient.post.mockResolvedValue({data: collection});
+        mockedUserClient.put.mockResolvedValue({data: collection});
 
         await expect(addFilm("1", "2")).resolves.toBe(collection);
 
-        expect(mockedUserClient.post).toHaveBeenCalledWith("/film-lists/1/films/2");
+        expect(mockedUserClient.put).toHaveBeenCalledWith("/film-lists/1/films/2");
     });
 
     it("removes a film from a collection", async () => {
-        mockedUserClient.delete.mockResolvedValue({data: collection});
+        mockedUserClient.delete.mockResolvedValue({data: undefined});
 
-        await expect(removeFilm("1", "2")).resolves.toBe(collection);
+        await expect(removeFilm("1", "2")).resolves.toBeUndefined();
 
         expect(mockedUserClient.delete).toHaveBeenCalledWith("/film-lists/1/films/2");
     });

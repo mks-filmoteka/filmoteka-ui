@@ -23,6 +23,14 @@ const mocks = vi.hoisted(() => ({
         mutate: vi.fn(),
         isPending: false
     },
+    addFilm: {
+        mutate: vi.fn(),
+        isPending: false
+    },
+    removeFilm: {
+        mutate: vi.fn(),
+        isPending: false
+    },
     collectionsQuery: {
         data: [
             {id: "7", name: "Favorites", filmIds: [1, 2]},
@@ -49,6 +57,14 @@ vi.mock("../queries/useDeleteCollection.ts", () => ({
     useDeleteCollection: () => mocks.deleteCollection
 }));
 
+vi.mock("../queries/useAddFilm.ts", () => ({
+    useAddFilm: () => mocks.addFilm
+}));
+
+vi.mock("../queries/useRemoveFilm.ts", () => ({
+    useRemoveFilm: () => mocks.removeFilm
+}));
+
 vi.mock("react-router", async () => {
     const actual = await vi.importActual<typeof import("react-router")>("react-router");
     return {
@@ -72,6 +88,8 @@ beforeEach(() => {
     mocks.createCollection.isPending = false;
     mocks.updateCollection.isPending = false;
     mocks.deleteCollection.isPending = false;
+    mocks.addFilm.isPending = false;
+    mocks.removeFilm.isPending = false;
     mocks.createCollection.mutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
@@ -79,6 +97,12 @@ beforeEach(() => {
         options?.onSuccess?.();
     });
     mocks.deleteCollection.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+        options?.onSuccess?.();
+    });
+    mocks.addFilm.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+        options?.onSuccess?.();
+    });
+    mocks.removeFilm.mutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
 });
@@ -180,6 +204,39 @@ describe("CollectionsPopup", () => {
         expect(globalThis.confirm).toHaveBeenCalledWith("Confirm delete collection?");
         expect(mocks.deleteCollection.mutate).toHaveBeenCalledWith(
             "9",
+            expect.objectContaining({
+                onSuccess: expect.any(Function),
+                onError: expect.any(Function)
+            })
+        );
+    });
+
+    it("replaces collection edit actions with film add and remove actions", () => {
+        render(<CollectionsPopup onClose={mocks.onClose} filmId={2}/>);
+
+        const addButtons = screen.getAllByTitle("add film");
+        const removeButtons = screen.getAllByTitle("remove film");
+
+        expect(screen.queryByTitle("Create new collection")).not.toBeInTheDocument();
+        expect(screen.queryByTitle("rename")).not.toBeInTheDocument();
+        expect(screen.queryByTitle("delete")).not.toBeInTheDocument();
+        expect(addButtons[0]).toBeDisabled();
+        expect(addButtons[1]).toBeEnabled();
+        expect(removeButtons[0]).toBeEnabled();
+        expect(removeButtons[1]).toBeDisabled();
+
+        fireEvent.click(addButtons[1]);
+        fireEvent.click(removeButtons[0]);
+
+        expect(mocks.addFilm.mutate).toHaveBeenCalledWith(
+            {collectionId: "9", filmId: "2"},
+            expect.objectContaining({
+                onSuccess: expect.any(Function),
+                onError: expect.any(Function)
+            })
+        );
+        expect(mocks.removeFilm.mutate).toHaveBeenCalledWith(
+            {collectionId: "7", filmId: "2"},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
