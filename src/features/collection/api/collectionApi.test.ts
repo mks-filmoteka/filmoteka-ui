@@ -9,13 +9,15 @@ import {
     getCollection,
     getCollections,
     removeFilm,
-    updateCollection
+    updateCollection,
+    updateCollectionFilms
 } from "./collectionApi.ts";
 
 vi.mock("../../../shared/api/client.ts", () => ({
     userClient: {
         get: vi.fn(),
         post: vi.fn(),
+        patch: vi.fn(),
         put: vi.fn(),
         delete: vi.fn()
     }
@@ -24,6 +26,7 @@ vi.mock("../../../shared/api/client.ts", () => ({
 const mockedUserClient = userClient as unknown as {
     get: Mock;
     post: Mock;
+    patch: Mock;
     put: Mock;
     delete: Mock;
 };
@@ -93,5 +96,20 @@ describe("collectionApi", () => {
         await expect(removeFilm("1", "2")).resolves.toBeUndefined();
 
         expect(mockedUserClient.delete).toHaveBeenCalledWith("/film-lists/1/films/2");
+    });
+
+    it("updates films in a collection in batch", async () => {
+        const filmsRequest = {
+            addedFilmIds: [3, 4],
+            removedFilmIds: [1]
+        };
+        mockedUserClient.patch.mockResolvedValue({data: collection});
+
+        await expect(updateCollectionFilms("1", filmsRequest)).resolves.toBe(collection);
+
+        expect(mockedUserClient.patch).toHaveBeenCalledWith(
+            "/film-lists/1/films",
+            filmsRequest
+        );
     });
 });

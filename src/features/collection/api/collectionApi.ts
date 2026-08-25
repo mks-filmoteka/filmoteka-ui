@@ -1,5 +1,6 @@
 import {userClient} from "../../../shared/api/client.ts";
 import type {Collection} from "../types/collection.ts";
+import type {CollectionFilmsRequest} from "../types/collectionFilmsRequest.ts";
 import type {CollectionRequest} from "../types/collectionRequest.ts";
 
 export async function getCollections() {
@@ -34,4 +35,10 @@ export async function addFilm(collectionId: string, filmId: string) {
 
 export async function removeFilm(collectionId: string, filmId: string) {
     await userClient.delete(`/film-lists/${collectionId}/films/${filmId}`);
+}
+
+export async function updateCollectionFilms(id: string, request: CollectionFilmsRequest) {
+    const response =
+        await userClient.patch<Collection>(`/film-lists/${id}/films`, request);
+    return response.data;
 }
