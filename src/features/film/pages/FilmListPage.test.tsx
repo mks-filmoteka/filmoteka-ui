@@ -38,6 +38,13 @@ type FilmListMockProps = {
     pageTitle: ReactElement;
     page: number;
     totalPages: number;
+    onSave?: () => void;
+    onCancel?: () => void;
+    saveDisabled?: boolean;
+    cancelDisabled?: boolean;
+    selectedFilmIds?: ReadonlySet<number>;
+    onFilmCheckedChange?: (filmId: number, checked: boolean) => void;
+    selectionDisabled?: boolean;
 };
 
 type FilmFormMockProps = {
@@ -54,6 +61,7 @@ const mocks = vi.hoisted(() => ({
     useCollectionFilms: vi.fn(),
     useCollection: vi.fn(),
     createFilmMutate: vi.fn(),
+    updateCollectionFilmsMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFileMutate: vi.fn(),
 }));
@@ -76,6 +84,13 @@ vi.mock("../queries/useCollectionFilms.ts", () => ({
 
 vi.mock("../../collection/queries/useCollection.ts", () => ({
     useCollection: mocks.useCollection,
+}));
+
+vi.mock("../../collection/queries/useUpdateCollectionFilms.ts", () => ({
+    useUpdateCollectionFilms: () => ({
+        mutate: mocks.updateCollectionFilmsMutate,
+        isPending: false,
+    }),
 }));
 
 vi.mock("../queries/useCreateFilm.ts", () => ({
@@ -102,14 +117,51 @@ vi.mock("../../../auth/useAuth.ts", () => ({
 }));
 
 vi.mock("../components/FilmList.tsx", () => ({
-    FilmList: ({films, pageTitle, page, totalPages}: FilmListMockProps) => (
+    FilmList: ({
+        films,
+        pageTitle,
+        page,
+        totalPages,
+        onSave,
+        onCancel,
+        saveDisabled,
+        cancelDisabled,
+        selectedFilmIds,
+        onFilmCheckedChange,
+        selectionDisabled
+    }: FilmListMockProps) => (
         <div>
             {pageTitle}
+            <div role="toolbar">
+                {onSave && onCancel && (
+                    <>
+                        <button onClick={onSave} disabled={saveDisabled}>Save</button>
+                        <button onClick={onCancel} disabled={cancelDisabled}>Cancel</button>
+                    </>
+                )}
+            </div>
             <div data-testid="page">{page}</div>
             <div data-testid="total-pages">{totalPages}</div>
-            {films.map(film => (
-                <div key={film.id}>{film.title}</div>
-            ))}
+            {onFilmCheckedChange ? (
+                films.map(film => (
+                    <label key={film.id}>
+                        <input
+                            type="checkbox"
+                            aria-label={`Select ${film.title}`}
+                            checked={selectedFilmIds?.has(film.id) ?? false}
+                            disabled={selectionDisabled}
+                            onChange={(event) =>
+                                onFilmCheckedChange(film.id, event.currentTarget.checked)
+                            }
+                        />
+                        {film.title}
+                    </label>
+                ))
+            ) : (
+                films.map(film => (
+                    <div key={film.id}>{film.title}</div>
+                ))
+            )}
         </div>
     ),
 }));
@@ -151,6 +203,15 @@ const film: FilmBasic = {
     countries: ["Poland"],
     posterName: null,
     genres: ["Drama"],
+};
+
+const outsideFilm: FilmBasic = {
+    id: 3,
+    title: "Outside Film",
+    releaseYear: 2005,
+    countries: ["France"],
+    posterName: null,
+    genres: ["Action"],
 };
 
 const collection: Collection = {
@@ -222,6 +283,11 @@ beforeEach(() => {
             options?.onSuccess?.({});
         }
     );
+    mocks.updateCollectionFilmsMutate.mockImplementation(
+        (_variables: unknown, options?: MutationOptions<Collection>) => {
+            options?.onSuccess?.(collection);
+        }
+    );
 });
 
 describe("FilmListPage", () => {
@@ -285,6 +351,98 @@ describe("FilmListPage", () => {
         expect(screen.getByText("Favorites")).toBeInTheDocument();
         expect(screen.getByText("Collection Film")).toBeInTheDocument();
         expect(screen.queryByTitle("Add new film")).not.toBeInTheDocument();
+    });
+
+    it("edits collection films by showing all films with checkbox state", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useCollection.mockReturnValue({
+            data: collection,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film, outsideFilm],
+                totalElements: 2,
+            },
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollectionFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        fireEvent.click(screen.getByTitle("Add films to collection"));
+
+        const selectedCollectionFilm = screen.getByLabelText("Select Collection Film");
+        const selectedOutsideFilm = screen.getByLabelText("Select Outside Film");
+
+        expect(selectedCollectionFilm).toBeChecked();
+        expect(selectedOutsideFilm).not.toBeChecked();
+
+        fireEvent.click(selectedOutsideFilm);
+        fireEvent.click(selectedCollectionFilm);
+        fireEvent.click(screen.getByText("Save"));
+
+        expect(mocks.updateCollectionFilmsMutate).toHaveBeenCalledWith(
+            {
+                collectionId: "7",
+                request: {
+                    addedFilmIds: [3],
+                    removedFilmIds: [1],
+                },
+            },
+            expect.objectContaining({
+                onSuccess: expect.any(Function),
+                onError: expect.any(Function),
+            })
+        );
+    });
+
+    it("cancels collection film editing without saving", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useCollection.mockReturnValue({
+            data: collection,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film, outsideFilm],
+                totalElements: 2,
+            },
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollectionFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        fireEvent.click(screen.getByTitle("Add films to collection"));
+        fireEvent.click(screen.getByLabelText("Select Outside Film"));
+        fireEvent.click(screen.getByText("Cancel"));
+
+        expect(mocks.updateCollectionFilmsMutate).not.toHaveBeenCalled();
+        expect(screen.queryByLabelText("Select Outside Film")).not.toBeInTheDocument();
+        expect(screen.getByText("Collection Film")).toBeInTheDocument();
     });
 
     it("corrects the URL page when it is out of bound", async () => {

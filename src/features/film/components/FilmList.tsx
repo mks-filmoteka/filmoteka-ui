@@ -29,6 +29,13 @@ type Props = {
     resetYears: () => void;
     sortParams: { by?: string, dir?: string }[];
     setSort: (sort: { by?: string; dir?: string; }[]) => void
+    onSave?: () => void;
+    onCancel?: () => void;
+    saveDisabled?: boolean;
+    cancelDisabled?: boolean;
+    selectedFilmIds?: ReadonlySet<number>;
+    onFilmCheckedChange?: (filmId: number, checked: boolean) => void;
+    selectionDisabled?: boolean;
 };
 
 export function FilmList(props: Readonly<Props>) {
@@ -53,7 +60,14 @@ export function FilmList(props: Readonly<Props>) {
         setYearFrom,
         setYearTo,
         resetYears,
-        setSort
+        setSort,
+        onSave,
+        onCancel,
+        saveDisabled,
+        cancelDisabled,
+        selectedFilmIds,
+        onFilmCheckedChange,
+        selectionDisabled
     } = props;
 
     const {ItemComponent, containerClass} = view === "list"
@@ -67,7 +81,14 @@ export function FilmList(props: Readonly<Props>) {
         filmsContent = (
             <div className={containerClass}>
                 {films.map((film, index) => (
-                    <ItemComponent key={film.id} film={film} index={index + (page - 1) * pageSize}/>
+                    <ItemComponent
+                        key={film.id}
+                        film={film}
+                        index={index + (page - 1) * pageSize}
+                        checked={selectedFilmIds?.has(film.id)}
+                        onCheckedChange={onFilmCheckedChange}
+                        selectionDisabled={selectionDisabled}
+                    />
                 ))}
             </div>
         );
@@ -101,6 +122,10 @@ export function FilmList(props: Readonly<Props>) {
                 setSort={setSort}
                 view={view}
                 setView={setView}
+                onSave={onSave}
+                onCancel={onCancel}
+                saveDisabled={saveDisabled}
+                cancelDisabled={cancelDisabled}
             />
 
             {/* MAIN GRID */}

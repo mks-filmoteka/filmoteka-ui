@@ -15,6 +15,16 @@
     display: flex;
     gap: 15px;
     padding: 5px 0;
+    background-color: var(--accent-bg);
+    border-radius: 5px;
+}
+
+.film-selection-checkbox {
+    height: 22px;
+    width: 22px;
+    margin: 0 5px 0 0;
+    cursor: pointer;
+    accent-color: var(--accent);
 }
 
 .list-item-button:hover {
@@ -25,6 +35,8 @@
     align-items: flex-start;
     flex-direction: column;
     display: flex;
+    background-color: var(--accent-bg);
+    border-radius: 5px;
 }
 
 .card-button:hover {

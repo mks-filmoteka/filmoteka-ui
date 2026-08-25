@@ -8,10 +8,25 @@ type Props = {
     setSort: (sort: { by?: string; dir?: string; }[]) => void
     view: string;
     setView: (view: string) => void;
+    onSave?: () => void;
+    onCancel?: () => void;
+    saveDisabled?: boolean;
+    cancelDisabled?: boolean;
 };
 
 export function ListToolbar(props: Readonly<Props>) {
-    const {filterOpen, setFilterOpen, sortParams, setSort, view, setView} = props;
+    const {
+        filterOpen,
+        setFilterOpen,
+        sortParams,
+        setSort,
+        view,
+        setView,
+        onSave,
+        onCancel,
+        saveDisabled,
+        cancelDisabled
+    } = props;
     const toggleSort = (by: string) => {
         const existingSort = sortParams.find(s => s.by === by);
         if (!existingSort) {
@@ -54,6 +69,26 @@ export function ListToolbar(props: Readonly<Props>) {
                     Year {yearSort ? yearSort.dir === SORT_DIR[0] ? "↑" : "↓" : "⇅"}
                 </button>
             </div>
+
+            {onSave && onCancel && (
+                <>
+                    <button
+                        title="Save films"
+                        onClick={onSave}
+                        disabled={saveDisabled}
+                    >
+                        ✔
+                    </button>
+                    <button
+                        style={{marginRight: "30px"}}
+                        title="Cancel films"
+                        onClick={onCancel}
+                        disabled={cancelDisabled}
+                    >
+                        ✖
+                    </button>
+                </>
+            )}
 
             {/* VIEW */}
             <button

@@ -7,17 +7,28 @@ import {getFileUrl} from "../../media/api/mediaApi.ts";
 type Props = {
     readonly film: FilmBasic;
     readonly index: number;
+    readonly checked?: boolean;
+    readonly onCheckedChange?: (filmId: number, checked: boolean) => void;
+    readonly selectionDisabled?: boolean;
 };
 
-function FilmCard({film, index}: Props) {
+function FilmCard({film, index, checked, onCheckedChange, selectionDisabled}: Props) {
     const navigate = useNavigate();
-    return (
-        <button
-            onClick={() => navigate(`/films/${film.id}`)}
-            className="card-button"
-        >
+
+    const content = (
+        <>
             <div className="card-number">
-                {index + 1}
+                <span>{index + 1}</span>
+                {onCheckedChange && (
+                    <input
+                        type="checkbox"
+                        className="film-selection-checkbox"
+                        aria-label={`Select ${film.title}`}
+                        checked={!!checked}
+                        disabled={selectionDisabled}
+                        onChange={(event) => onCheckedChange(film.id, event.currentTarget.checked)}
+                    />
+                )}
             </div>
             <Poster
                 src={film.posterName ? getFileUrl(film.posterName) : null}
@@ -36,6 +47,23 @@ function FilmCard({film, index}: Props) {
                     {film.genres[0]}
                 </span>
             </div>
+        </>
+    );
+
+    if (onCheckedChange) {
+        return (
+            <div className="card-button">
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <button
+            onClick={() => navigate(`/films/${film.id}`)}
+            className="card-button"
+        >
+            {content}
         </button>
     );
 }

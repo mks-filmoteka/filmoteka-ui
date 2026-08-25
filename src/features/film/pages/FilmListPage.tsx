@@ -14,6 +14,7 @@ import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 import {useCollection} from "../../collection/queries/useCollection.ts";
 import {useCollectionFilms} from "../queries/useCollectionFilms.ts";
 import {useParams} from "react-router";
+import {useCollectionFilmEditor} from "../../collection/queries/useCollectionFilmEditor.ts";
 
 type Props = {
     source?: "films" | "collection";
@@ -107,10 +108,19 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
     const selectedCollectionQuery = useCollection(isCollection ? id : undefined);
     const collection = selectedCollectionQuery.data;
     const filmIds = collection?.filmIds ?? [];
-    const filmsQuery = useFilms(filmFilter, !isCollection);
+    const collectionFilmEditor = useCollectionFilmEditor({
+        collectionId: id,
+        filmIds,
+        onError: handleError,
+        onClearError: () => setApiError(undefined)
+    });
+    const isEditingCollectionFilms = isCollection && collectionFilmEditor.isEditing;
+    const filmsQuery =
+        useFilms(filmFilter, !isCollection || isEditingCollectionFilms);
     const collectionFilmsQuery =
-        useCollectionFilms({...filmFilter, ids: filmIds}, isCollection);
-    const activeFilmsQuery = isCollection ? collectionFilmsQuery : filmsQuery;
+        useCollectionFilms({...filmFilter, ids: filmIds}, isCollection && !isEditingCollectionFilms);
+    const activeFilmsQuery =
+        isCollection && !isEditingCollectionFilms ? collectionFilmsQuery : filmsQuery;
 
     const data = activeFilmsQuery.data;
     const totalPages = data?.totalPages ?? 0;
@@ -124,6 +134,15 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
             <div>
                 <div></div>
                 <div className="page-title-controls">
+                    {isCollection && !isEditingCollectionFilms && (
+                        <button
+                            title="Add films to collection"
+                            onClick={collectionFilmEditor.startEditing}
+                            disabled={!collection}
+                        >
+                            ✚
+                        </button>
+                    )}
                     {!isCollection && isAdmin && (
                         <button
                             title="Add new film"
@@ -198,6 +217,13 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
                     resetYears={resetYears}
                     sortParams={sortParams}
                     setSort={setSort}
+                    onSave={isEditingCollectionFilms ? collectionFilmEditor.save : undefined}
+                    onCancel={isEditingCollectionFilms ? collectionFilmEditor.cancelEditing : undefined}
+                    saveDisabled={!collectionFilmEditor.hasChanges || collectionFilmEditor.isPending}
+                    cancelDisabled={collectionFilmEditor.isPending}
+                    selectedFilmIds={isEditingCollectionFilms ? collectionFilmEditor.selectedFilmIds : undefined}
+                    onFilmCheckedChange={isEditingCollectionFilms ? collectionFilmEditor.updateSelection : undefined}
+                    selectionDisabled={collectionFilmEditor.isPending}
                 />
             )}
         </>
