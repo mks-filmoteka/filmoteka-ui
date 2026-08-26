@@ -18,16 +18,17 @@ type FilmFormMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
-    useFilmQuery: vi.fn(),
+    useFilm: vi.fn(),
     updateFilmMutate: vi.fn(),
     deleteFilmMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFileMutate: vi.fn(),
     navigate: vi.fn(),
+    authenticated: true,
 }));
 
-vi.mock("../queries/useFilmQuery.ts", () => ({
-    useFilmQuery: mocks.useFilmQuery,
+vi.mock("../queries/useFilm.ts", () => ({
+    useFilm: mocks.useFilm,
 }));
 
 vi.mock("../queries/useUpdateFilm.ts", () => ({
@@ -56,7 +57,10 @@ vi.mock("../../media/queries/useDeleteFile.ts", () => ({
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
-    useAuth: () => ({isAdmin: true}),
+    useAuth: () => ({
+        authenticated: mocks.authenticated,
+        isAdmin: true,
+    }),
 }));
 
 vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
@@ -77,19 +81,41 @@ vi.mock("../components/FilmDetails.tsx", () => ({
         data,
         onEdit,
         onDelete,
+        onOpenCollections,
     }: {
-        data: {title: string};
+        data: {id: number; title: string};
         onEdit: () => void;
         onDelete: () => void;
+        onOpenCollections?: () => void;
     }) => (
         <div>
             <h1>{data.title}</h1>
+            {onOpenCollections && (
+                <button title="Collections" onClick={onOpenCollections}>
+                    Collections
+                </button>
+            )}
             <button title="Edit" onClick={onEdit}>
                 Edit
             </button>
             <button title="Delete" onClick={onDelete}>
                 Delete
             </button>
+        </div>
+    ),
+}));
+
+vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
+    CollectionsPopup: ({
+        filmId,
+        onClose,
+    }: {
+        filmId: number | string;
+        onClose: () => void;
+    }) => (
+        <div role="dialog" aria-label="Collections">
+            <span>film {filmId}</span>
+            <button onClick={onClose}>close collections</button>
         </div>
     ),
 }));
@@ -142,8 +168,9 @@ const apiError = Object.assign(new Error("Update failed"), {
 beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("confirm", vi.fn(() => true));
+    mocks.authenticated = true;
 
-    mocks.useFilmQuery.mockReturnValue({
+    mocks.useFilm.mockReturnValue({
         data: film,
         isLoading: false,
         error: null,
@@ -171,6 +198,18 @@ beforeEach(() => {
 });
 
 describe("FilmPage", () => {
+    it("opens collections popup for the current film", () => {
+        render(<FilmPage />);
+
+        fireEvent.click(screen.getByTitle("Collections"));
+
+        expect(screen.getByRole("dialog", {name: "Collections"})).toHaveTextContent("film 1");
+
+        fireEvent.click(screen.getByText("close collections"));
+
+        expect(screen.queryByRole("dialog", {name: "Collections"})).not.toBeInTheDocument();
+    });
+
     it("deletes the newly uploaded poster when updating the film fails", async () => {
         mocks.updateFilmMutate.mockImplementation(
             (_variables: unknown, options?: MutationOptions) => {

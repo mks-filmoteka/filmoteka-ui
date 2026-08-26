@@ -40,7 +40,7 @@ describe("ProfileDetails", () => {
         expect(screen.getByText("test@example.com")).toBeInTheDocument();
         expect(screen.getByText("Test User")).toBeInTheDocument();
 
-        const overlay = container.querySelector<HTMLElement>(".filter-overlay");
+        const overlay = container.querySelector<HTMLElement>(".popup-overlay");
         if (!overlay) {
             throw new Error("Expected profile overlay");
         }

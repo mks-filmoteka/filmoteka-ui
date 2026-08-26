@@ -3,7 +3,19 @@ import type {Page} from "../types/page.ts";
 import type {FilmBasic} from "../types/filmBasic.ts";
 import type {Film} from "../types/film";
 import type {FilmRequest} from "../types/filmRequest.ts";
+import type {CollectionFilmFilter, FilmFilter} from "../types/filmFilter.ts";
 
+function createFilmFilter(
+    page: number,
+    title: string | undefined,
+    yearFrom: number | undefined,
+    yearTo: number | undefined,
+    genres: string[] | undefined,
+    countries: string[] | undefined,
+    sort: string[] | undefined
+): FilmFilter {
+    return {page, title, yearFrom, yearTo, genres, countries, sort};
+}
 
 export async function getFilms(
     page: number,
@@ -14,11 +26,20 @@ export async function getFilms(
     countries: string[] | undefined,
     sort: string[] | undefined,
 ) {
+    const filter = createFilmFilter(page, title, yearFrom, yearTo, genres, countries, sort);
     const response =
-        await catalogClient.get<Page<FilmBasic>>("/films", {
-            params: {page, title, yearFrom, yearTo, genres, countries, sort},
-            paramsSerializer: {indexes: null}
-        });
+        await catalogClient.get<Page<FilmBasic>>("/films", {params: filter, paramsSerializer: {indexes: null}});
+    return response.data;
+}
+
+export async function getCollectionFilms(filter: CollectionFilmFilter) {
+    const {page, sort, ...request} = filter;
+    const response =
+        await catalogClient.post<Page<FilmBasic>>(
+            "/films/collection",
+            request,
+            {params: {page, sort}, paramsSerializer: {indexes: null}}
+        );
     return response.data;
 }
 

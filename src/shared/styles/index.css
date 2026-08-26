@@ -2,7 +2,7 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /*outline: 1px solid rgb(0 74 66);*/
+    outline: 1px solid rgb(0 74 66);
 }
 
 :root {
@@ -129,9 +129,10 @@ button:hover {
     box-shadow: 0 0 10px var(--text-color-f);
 }
 
-button:disabled {
+body button:disabled {
     opacity: 0.3;
     cursor: default;
+    transform: none;
 }
 
 .header-content {
@@ -151,8 +152,9 @@ button:disabled {
 
 .header-left {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 10px;
 }
 
 .header-right {

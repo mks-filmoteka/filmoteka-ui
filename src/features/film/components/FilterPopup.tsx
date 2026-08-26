@@ -32,7 +32,7 @@ export function FilterPopup(props: Readonly<Props>) {
 
     return (
         <div
-            className="filter-overlay"
+            className="popup-overlay"
             onClick={() => {
                 setFilterOpen(false)
             }}
@@ -44,7 +44,7 @@ export function FilterPopup(props: Readonly<Props>) {
             role="presentation"
         >
             <div
-                className="filter-popup"
+                className="popup"
                 onClick={(e) => {
                     e.stopPropagation()
                 }}

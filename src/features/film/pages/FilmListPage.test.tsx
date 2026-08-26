@@ -4,6 +4,7 @@ import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../types/filmBasic";
 import type {Page} from "../types/page";
 import FilmListPage from "./FilmListPage";
+import type {Collection} from "../../collection/types/collection.ts";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
@@ -37,6 +38,13 @@ type FilmListMockProps = {
     pageTitle: ReactElement;
     page: number;
     totalPages: number;
+    onSave?: () => void;
+    onCancel?: () => void;
+    saveDisabled?: boolean;
+    cancelDisabled?: boolean;
+    selectedFilmIds?: ReadonlySet<number>;
+    onFilmCheckedChange?: (filmId: number, checked: boolean) => void;
+    selectionDisabled?: boolean;
 };
 
 type FilmFormMockProps = {
@@ -47,19 +55,42 @@ type FilmFormMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
+    routeParams: {} as Record<string, string | undefined>,
     useFilmSearchParams: vi.fn(),
-    useFilmsQuery: vi.fn(),
+    useFilms: vi.fn(),
+    useCollectionFilms: vi.fn(),
+    useCollection: vi.fn(),
     createFilmMutate: vi.fn(),
+    updateCollectionFilmsMutate: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFileMutate: vi.fn(),
+}));
+
+vi.mock("react-router", () => ({
+    useParams: () => mocks.routeParams,
 }));
 
 vi.mock("../queries/useFilmSearchParams", () => ({
     useFilmSearchParams: mocks.useFilmSearchParams,
 }));
 
-vi.mock("../queries/useFilmsQuery.ts", () => ({
-    useFilmsQuery: mocks.useFilmsQuery,
+vi.mock("../queries/useFilms.ts", () => ({
+    useFilms: mocks.useFilms,
+}));
+
+vi.mock("../queries/useCollectionFilms.ts", () => ({
+    useCollectionFilms: mocks.useCollectionFilms,
+}));
+
+vi.mock("../../collection/queries/useCollection.ts", () => ({
+    useCollection: mocks.useCollection,
+}));
+
+vi.mock("../../collection/queries/useUpdateCollectionFilms.ts", () => ({
+    useUpdateCollectionFilms: () => ({
+        mutate: mocks.updateCollectionFilmsMutate,
+        isPending: false,
+    }),
 }));
 
 vi.mock("../queries/useCreateFilm.ts", () => ({
@@ -86,14 +117,51 @@ vi.mock("../../../auth/useAuth.ts", () => ({
 }));
 
 vi.mock("../components/FilmList.tsx", () => ({
-    FilmList: ({films, pageTitle, page, totalPages}: FilmListMockProps) => (
+    FilmList: ({
+        films,
+        pageTitle,
+        page,
+        totalPages,
+        onSave,
+        onCancel,
+        saveDisabled,
+        cancelDisabled,
+        selectedFilmIds,
+        onFilmCheckedChange,
+        selectionDisabled
+    }: FilmListMockProps) => (
         <div>
             {pageTitle}
+            <div role="toolbar">
+                {onSave && onCancel && (
+                    <>
+                        <button onClick={onSave} disabled={saveDisabled}>Save</button>
+                        <button onClick={onCancel} disabled={cancelDisabled}>Cancel</button>
+                    </>
+                )}
+            </div>
             <div data-testid="page">{page}</div>
             <div data-testid="total-pages">{totalPages}</div>
-            {films.map(film => (
-                <div key={film.id}>{film.title}</div>
-            ))}
+            {onFilmCheckedChange ? (
+                films.map(film => (
+                    <label key={film.id}>
+                        <input
+                            type="checkbox"
+                            aria-label={`Select ${film.title}`}
+                            checked={selectedFilmIds?.has(film.id) ?? false}
+                            disabled={selectionDisabled}
+                            onChange={(event) =>
+                                onFilmCheckedChange(film.id, event.currentTarget.checked)
+                            }
+                        />
+                        {film.title}
+                    </label>
+                ))
+            ) : (
+                films.map(film => (
+                    <div key={film.id}>{film.title}</div>
+                ))
+            )}
         </div>
     ),
 }));
@@ -126,6 +194,30 @@ const emptyPage: Page<FilmBasic> = {
     totalPages: 1,
     size: 20,
     page: 0,
+};
+
+const film: FilmBasic = {
+    id: 1,
+    title: "Collection Film",
+    releaseYear: 2000,
+    countries: ["Poland"],
+    posterName: null,
+    genres: ["Drama"],
+};
+
+const outsideFilm: FilmBasic = {
+    id: 3,
+    title: "Outside Film",
+    releaseYear: 2005,
+    countries: ["France"],
+    posterName: null,
+    genres: ["Action"],
+};
+
+const collection: Collection = {
+    id: "7",
+    name: "Favorites",
+    filmIds: [1, 2],
 };
 
 const createSearchParams = (overrides: Partial<SearchParamsReturn> = {}): SearchParamsReturn => ({
@@ -162,11 +254,22 @@ const apiError = Object.assign(new Error("Create failed"), {
 
 beforeEach(() => {
     vi.clearAllMocks();
+    mocks.routeParams = {};
     vi.stubGlobal("confirm", vi.fn(() => true));
 
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
-    mocks.useFilmsQuery.mockReturnValue({
+    mocks.useFilms.mockReturnValue({
         data: emptyPage,
+        isLoading: false,
+        error: null,
+    });
+    mocks.useCollectionFilms.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        error: null,
+    });
+    mocks.useCollection.mockReturnValue({
+        data: undefined,
         isLoading: false,
         error: null,
     });
@@ -178,6 +281,11 @@ beforeEach(() => {
     mocks.createFilmMutate.mockImplementation(
         (_variables: unknown, options?: MutationOptions) => {
             options?.onSuccess?.({});
+        }
+    );
+    mocks.updateCollectionFilmsMutate.mockImplementation(
+        (_variables: unknown, options?: MutationOptions<Collection>) => {
+            options?.onSuccess?.(collection);
         }
     );
 });
@@ -198,15 +306,143 @@ describe("FilmListPage", () => {
 
         render(<FilmListPage />);
 
-        expect(mocks.useFilmsQuery).toHaveBeenCalledWith(
-            2,
-            "test title",
-            1990,
-            2020,
-            ["SCI_FI"],
-            ["UNITED_STATES", "CZECH_REPUBLIC"],
-            sort
+        expect(mocks.useFilms).toHaveBeenCalledWith(
+            {
+                page: 2,
+                title: "test title",
+                yearFrom: 1990,
+                yearTo: 2020,
+                genres: ["SCI_FI"],
+                countries: ["UNITED_STATES", "CZECH_REPUBLIC"],
+                sort,
+            },
+            true
         );
+    });
+
+    it("uses collection film data and hides create controls for collection routes", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useCollection.mockReturnValue({
+            data: collection,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollectionFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        expect(mocks.useCollection).toHaveBeenCalledWith("7");
+        expect(mocks.useFilms).toHaveBeenCalledWith(expect.any(Object), false);
+        expect(mocks.useCollectionFilms).toHaveBeenCalledWith(
+            expect.objectContaining({
+                page: 0,
+                ids: [1, 2],
+            }),
+            true
+        );
+        expect(screen.getByText("Favorites")).toBeInTheDocument();
+        expect(screen.getByText("Collection Film")).toBeInTheDocument();
+        expect(screen.queryByTitle("Add new film")).not.toBeInTheDocument();
+    });
+
+    it("edits collection films by showing all films with checkbox state", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useCollection.mockReturnValue({
+            data: collection,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film, outsideFilm],
+                totalElements: 2,
+            },
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollectionFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        fireEvent.click(screen.getByTitle("Add films to collection"));
+
+        const selectedCollectionFilm = screen.getByLabelText("Select Collection Film");
+        const selectedOutsideFilm = screen.getByLabelText("Select Outside Film");
+
+        expect(selectedCollectionFilm).toBeChecked();
+        expect(selectedOutsideFilm).not.toBeChecked();
+
+        fireEvent.click(selectedOutsideFilm);
+        fireEvent.click(selectedCollectionFilm);
+        fireEvent.click(screen.getByText("Save"));
+
+        expect(mocks.updateCollectionFilmsMutate).toHaveBeenCalledWith(
+            {
+                collectionId: "7",
+                request: {
+                    addedFilmIds: [3],
+                    removedFilmIds: [1],
+                },
+            },
+            expect.objectContaining({
+                onSuccess: expect.any(Function),
+                onError: expect.any(Function),
+            })
+        );
+    });
+
+    it("cancels collection film editing without saving", () => {
+        mocks.routeParams = {id: "7"};
+        mocks.useCollection.mockReturnValue({
+            data: collection,
+            isLoading: false,
+            error: null,
+        });
+        mocks.useFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film, outsideFilm],
+                totalElements: 2,
+            },
+            isLoading: false,
+            error: null,
+        });
+        mocks.useCollectionFilms.mockReturnValue({
+            data: {
+                ...emptyPage,
+                content: [film],
+                totalElements: 1,
+            },
+            isLoading: false,
+            error: null,
+        });
+
+        render(<FilmListPage source="collection" />);
+
+        fireEvent.click(screen.getByTitle("Add films to collection"));
+        fireEvent.click(screen.getByLabelText("Select Outside Film"));
+        fireEvent.click(screen.getByText("Cancel"));
+
+        expect(mocks.updateCollectionFilmsMutate).not.toHaveBeenCalled();
+        expect(screen.queryByLabelText("Select Outside Film")).not.toBeInTheDocument();
+        expect(screen.getByText("Collection Film")).toBeInTheDocument();
     });
 
     it("corrects the URL page when it is out of bound", async () => {
@@ -215,7 +451,7 @@ describe("FilmListPage", () => {
             pageParam: 9,
             setPage,
         }));
-        mocks.useFilmsQuery.mockReturnValue({
+        mocks.useFilms.mockReturnValue({
             data: {
                 ...emptyPage,
                 totalPages: 2,
