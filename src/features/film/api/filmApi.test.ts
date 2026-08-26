@@ -90,7 +90,7 @@ describe("filmApi", () => {
         expect(mockedApiClient.get).toHaveBeenCalledWith("/films/1");
     });
 
-    it("requests user collection film pages with the filter in the body", async () => {
+    it("requests user collection film pages with the filter in the body and pageable params", async () => {
         const page = {
             content: [film],
             totalElements: 1,
@@ -111,16 +111,24 @@ describe("filmApi", () => {
             ids: [1, 2]
         })).resolves.toBe(page);
 
-        expect(mockedApiClient.post).toHaveBeenCalledWith("/films/collection", {
-            page: 0,
-            title: "Test Title",
-            yearFrom: 1990,
-            yearTo: 2010,
-            genres: ["Drama"],
-            countries: ["Poland"],
-            sort: ["title,asc"],
-            ids: [1, 2]
-        });
+        expect(mockedApiClient.post).toHaveBeenCalledWith(
+            "/films/collection",
+            {
+                title: "Test Title",
+                yearFrom: 1990,
+                yearTo: 2010,
+                genres: ["Drama"],
+                countries: ["Poland"],
+                ids: [1, 2]
+            },
+            {
+                params: {
+                    page: 0,
+                    sort: ["title,asc"]
+                },
+                paramsSerializer: {indexes: null}
+            }
+        );
     });
 
     it("sends create and update requests to the expected endpoints", async () => {

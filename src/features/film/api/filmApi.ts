@@ -33,8 +33,13 @@ export async function getFilms(
 }
 
 export async function getCollectionFilms(filter: CollectionFilmFilter) {
+    const {page, sort, ...request} = filter;
     const response =
-        await catalogClient.post<Page<FilmBasic>>("/films/collection", filter);
+        await catalogClient.post<Page<FilmBasic>>(
+            "/films/collection",
+            request,
+            {params: {page, sort}, paramsSerializer: {indexes: null}}
+        );
     return response.data;
 }
 
