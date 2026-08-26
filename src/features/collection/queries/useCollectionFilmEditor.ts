@@ -4,8 +4,8 @@ import {useUpdateCollectionFilms} from "./useUpdateCollectionFilms.ts";
 type Params = {
     collectionId?: string;
     filmIds: number[];
-    onError: (error: Error) => void;
-    onClearError: () => void;
+    onError?: (error: Error) => void;
+    onClearError?: () => void;
 };
 
 function updateFilmIdSet(current: Set<number>, filmId: number, shouldContain: boolean) {
@@ -20,6 +20,8 @@ function updateFilmIdSet(current: Set<number>, filmId: number, shouldContain: bo
 
 export function useCollectionFilmEditor(params: Params) {
     const {collectionId, filmIds, onError, onClearError} = params;
+    const handleError = onError ?? (() => {});
+    const clearError = onClearError ?? (() => {});
     const updateCollectionFilms = useUpdateCollectionFilms();
     const [editingCollectionId, setEditingCollectionId] = useState<string>();
     const [selectedFilmIds, setSelectedFilmIds] = useState<Set<number>>(() => new Set());
@@ -34,7 +36,7 @@ export function useCollectionFilmEditor(params: Params) {
         setSelectedFilmIds(new Set());
         setAddedFilmIds(new Set());
         setRemovedFilmIds(new Set());
-        onClearError();
+        clearError();
     };
 
     const startEditing = () => {
@@ -42,7 +44,7 @@ export function useCollectionFilmEditor(params: Params) {
         setSelectedFilmIds(new Set(filmIds));
         setAddedFilmIds(new Set());
         setRemovedFilmIds(new Set());
-        onClearError();
+        clearError();
         setEditingCollectionId(collectionId);
     };
 
@@ -61,7 +63,7 @@ export function useCollectionFilmEditor(params: Params) {
 
     const save = () => {
         if (!collectionId || !hasChanges || updateCollectionFilms.isPending) return;
-        onClearError();
+        clearError();
 
         updateCollectionFilms.mutate(
             {
@@ -76,7 +78,7 @@ export function useCollectionFilmEditor(params: Params) {
                     setEditingCollectionId(undefined);
                     reset();
                 },
-                onError
+                onError: handleError
             }
         );
     };

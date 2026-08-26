@@ -1,28 +1,28 @@
-import {useFilms} from "../queries/useFilms.ts";
 import {useEffect, useState} from "react";
-import {useFilmSearchParams} from "../queries/useFilmSearchParams";
-import {FilmList} from "../components/FilmList.tsx";
-import {useAuth} from "../../../auth/useAuth.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import {fillForm, fillRequest} from "../utils/formState.ts";
-import {FilmForm} from "../components/FilmForm.tsx";
-import {useCreateFilm} from "../queries/useCreateFilm.ts";
-import type {AxiosError} from "axios";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
-import {useUploadFile} from "../../media/queries/useUploadFile.ts";
-import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
-import {useCollection} from "../../collection/queries/useCollection.ts";
-import {useCollectionFilms} from "../queries/useCollectionFilms.ts";
 import {useParams} from "react-router";
-import {useCollectionFilmEditor} from "../../collection/queries/useCollectionFilmEditor.ts";
+import {useAuth} from "../../../auth/useAuth.ts";
+import {FilmFormController} from "../components/FilmFormController.tsx";
+import {FilmList} from "../components/FilmList.tsx";
+import {FilmListPageTitle} from "../components/FilmListPageTitle.tsx";
+import {useCreateFilm} from "../queries/useCreateFilm.ts";
+import {useFilmListData} from "../queries/useFilmListData.ts";
+import {useFilmSearchParams} from "../queries/useFilmSearchParams";
 
 type Props = {
     source?: "films" | "collection";
 };
 
+function toApiParam(p: string) {
+    return p.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
+}
+
 function FilmListPage({source = "films"}: Readonly<Props>) {
     const isCollection = source === "collection";
     const {id} = useParams();
+    const isAdmin = useAuth().isAdmin;
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const createFilm = useCreateFilm();
 
     /* URL STATE */
     const {
@@ -39,194 +39,97 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
         sortParams,
         setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
     } = useFilmSearchParams(true);
-    const [filterOpen, setFilterOpen] = useState(false);
-    const isAdmin = useAuth().isAdmin;
-    const [isCreating, setIsCreating] = useState(false);
-    const [form, setForm] = useState<FilmRequest>(fillForm());
-    const [posterFile, setPosterFile] = useState<File | null>(null);
-    const createFilm = useCreateFilm();
-    const [apiError, setApiError] = useState<ApiError | Error>();
-    const uploadPoster = useUploadFile();
-    const deletePoster = useDeleteFile();
 
-    const handleError = (error: Error) => {
-        const err = error as AxiosError<ApiError>;
-        setApiError(err.response?.data ?? error);
-    };
-
-    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
-        createFilm.mutate(
-            {request}, {
-                onSuccess: () => {
-                    setIsCreating(false);
-                    setPosterFile(null);
-                },
-                onError: (error: Error) => {
-                    if (uploadedPosterName) {
-                        deletePoster.mutate(uploadedPosterName);
-                    }
-                    handleError(error);
-                }
-            }
-        );
-    };
-
-    const handleSave = () => {
-        if (!confirm("Confirm create film?")) return;
-        const request = fillRequest(form);
-
-        if (!posterFile) {
-            saveFilm(request);
-            return;
-        }
-        uploadPoster.mutate(
-            posterFile, {
-                onSuccess: (uploadedPoster) => {
-                    saveFilm({
-                        ...request,
-                        posterName: uploadedPoster.fileName
-                    }, uploadedPoster.fileName);
-                },
-                onError: handleError
-            }
-        );
-    };
-
-    const toApiParam = (p: string) =>
-        p.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
-    const apiGenres = genres.map(toApiParam);
-    const apiCountries = countries.map(toApiParam);
     const filmFilter = {
         page: pageParam - 1,
         title,
         yearFrom: minYear,
         yearTo: maxYear,
-        genres: apiGenres,
-        countries: apiCountries,
+        genres: genres.map(toApiParam),
+        countries: countries.map(toApiParam),
         sort
     };
-    const selectedCollectionQuery = useCollection(isCollection ? id : undefined);
-    const collection = selectedCollectionQuery.data;
-    const filmIds = collection?.filmIds ?? [];
-    const collectionFilmEditor = useCollectionFilmEditor({
+    const {
+        selectedCollectionQuery,
+        activeFilmsQuery,
+        collection,
+        collectionFilmEditor,
+        isEditingCollectionFilms,
+        collectionEditingProps
+    } = useFilmListData({
         collectionId: id,
-        filmIds,
-        onError: handleError,
-        onClearError: () => setApiError(undefined)
+        filmFilter,
+        isCollection
     });
-    const isEditingCollectionFilms = isCollection && collectionFilmEditor.isEditing;
-    const filmsQuery =
-        useFilms(filmFilter, !isCollection || isEditingCollectionFilms);
-    const collectionFilmsQuery =
-        useCollectionFilms({...filmFilter, ids: filmIds}, isCollection && !isEditingCollectionFilms);
-    const activeFilmsQuery =
-        isCollection && !isEditingCollectionFilms ? collectionFilmsQuery : filmsQuery;
 
     const data = activeFilmsQuery.data;
     const totalPages = data?.totalPages ?? 0;
     const pageSize = data?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));
-    const pageName = isCollection ? collection?.name : "Films";
-
-    const pageTitle = (
-        <div className="page-title">
-            <h1>{pageName}</h1>
-            <div>
-                <div></div>
-                <div className="page-title-controls">
-                    {isCollection && !isEditingCollectionFilms && (
-                        <button
-                            title="Add films to collection"
-                            onClick={collectionFilmEditor.startEditing}
-                            disabled={!collection}
-                        >
-                            ✚
-                        </button>
-                    )}
-                    {!isCollection && isAdmin && (
-                        <button
-                            title="Add new film"
-                            onClick={() => {
-                                setIsCreating(true);
-                                setForm(fillForm());
-                                setPosterFile(null);
-                            }}
-                        >
-                            ✚
-                        </button>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+    const showCreateForm = !isCollection && isAdmin && isCreating;
 
     /* URL PAGE CORRECTION */
     useEffect(() => {
-        if (!data || totalPages === 0) return;
-        if (pageParam > totalPages) {
+        if (data && totalPages > 0 && pageParam > totalPages) {
             setPage(totalPages);
         }
     }, [data, pageParam, setPage, totalPages]);
 
     /* UI STATES */
-    if (selectedCollectionQuery.isLoading) return <h1>Loading...</h1>;
+    if (selectedCollectionQuery.isLoading || activeFilmsQuery.isLoading) {
+        return <h1>Loading...</h1>;
+    }
     if (selectedCollectionQuery.error) {
         return <h1>Error loading collection: {selectedCollectionQuery.error.message}</h1>;
     }
-    if (activeFilmsQuery.isLoading) return <h1>Loading...</h1>;
-    if (activeFilmsQuery.error) return <h1>Error loading films: {activeFilmsQuery.error.message}</h1>;
+    if (activeFilmsQuery.error) {
+        return <h1>Error loading films: {activeFilmsQuery.error.message}</h1>;
+    }
+    if (showCreateForm) {
+        return (
+            <FilmFormController
+                confirmMessage="Confirm create film?"
+                isPending={createFilm.isPending}
+                onCancel={() => setIsCreating(false)}
+                onSave={(request, options) => createFilm.mutate({request}, options)}
+            />
+        );
+    }
 
     return (
-        <>
-            {!isCollection && isAdmin && isCreating ? (
-                <FilmForm
-                    form={form}
-                    setForm={setForm}
-                    onSave={handleSave}
-                    onCancel={() => {
-                        setIsCreating(false);
-                        setForm(fillForm());
-                        setPosterFile(null);
-                        setApiError(undefined);
-                    }}
-                    isPending={createFilm.isPending || uploadPoster.isPending}
-                    apiError={apiError}
-                    posterFile={posterFile}
-                    setPosterFile={setPosterFile}
-                />
-            ) : (
-                <FilmList
-                    films={data?.content ?? []}
-                    pageTitle={pageTitle}
-                    page={page}
-                    pageSize={pageSize}
-                    totalPages={data?.totalPages ?? 0}
-                    setPage={setPage}
-                    view={view}
-                    setView={setView}
-                    filterOpen={filterOpen}
-                    setFilterOpen={setFilterOpen}
-                    genres={genres}
-                    setGenres={setGenres}
-                    countries={countries}
-                    setCountries={setCountries}
-                    yearFrom={yearFrom}
-                    yearTo={yearTo}
-                    setYearFrom={setYearFrom}
-                    setYearTo={setYearTo}
-                    resetYears={resetYears}
-                    sortParams={sortParams}
-                    setSort={setSort}
-                    onSave={isEditingCollectionFilms ? collectionFilmEditor.save : undefined}
-                    onCancel={isEditingCollectionFilms ? collectionFilmEditor.cancelEditing : undefined}
-                    saveDisabled={!collectionFilmEditor.hasChanges || collectionFilmEditor.isPending}
-                    cancelDisabled={collectionFilmEditor.isPending}
-                    selectedFilmIds={isEditingCollectionFilms ? collectionFilmEditor.selectedFilmIds : undefined}
-                    onFilmCheckedChange={isEditingCollectionFilms ? collectionFilmEditor.updateSelection : undefined}
-                    selectionDisabled={collectionFilmEditor.isPending}
+        <FilmList
+            films={data?.content ?? []}
+            pageTitle={(
+                <FilmListPageTitle
+                    source={source}
+                    collection={collection}
+                    isAdmin={isAdmin}
+                    isEditingCollectionFilms={isEditingCollectionFilms}
+                    onAddFilmsToCollection={collectionFilmEditor.startEditing}
+                    onCreateFilm={() => setIsCreating(true)}
                 />
             )}
-        </>
+            page={page}
+            pageSize={pageSize}
+            totalPages={data?.totalPages ?? 0}
+            setPage={setPage}
+            view={view}
+            setView={setView}
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            genres={genres}
+            setGenres={setGenres}
+            countries={countries}
+            setCountries={setCountries}
+            yearFrom={yearFrom}
+            yearTo={yearTo}
+            setYearFrom={setYearFrom}
+            setYearTo={setYearTo}
+            resetYears={resetYears}
+            sortParams={sortParams}
+            setSort={setSort}
+            {...collectionEditingProps}
+        />
     );
 }
 

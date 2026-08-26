@@ -4,15 +4,11 @@ import {useAuth} from "../../../auth/useAuth.ts";
 import {useState} from "react";
 import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
 import {useUpdateFilm} from "../queries/useUpdateFilm.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
 import {FilmDetails} from "../components/FilmDetails.tsx";
-import {FilmForm} from "../components/FilmForm.tsx";
-import {fillForm, fillRequest, isFormChanged} from "../utils/formState.ts";
-import type {AxiosError} from "axios";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {FilmFormController} from "../components/FilmFormController.tsx";
+import {isFormChanged} from "../utils/formState.ts";
 import {useDeleteFilm} from "../queries/useDeleteFilm.ts";
 import {useNavigate} from "react-router";
-import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 import {CollectionsPopup} from "../../collection/components/CollectionsPopup.tsx";
 
@@ -21,70 +17,17 @@ function FilmPage() {
     const {authenticated, isAdmin} = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [collectionsOpen, setCollectionsOpen] = useState(false);
-    const [form, setForm] = useState<FilmRequest>(fillForm());
-    const [posterFile, setPosterFile] = useState<File | null>(null);
     const id = useRequiredParam("id");
     const {data, isLoading, error} = useFilm(id);
     const updateFilm = useUpdateFilm();
     const deleteFilm = useDeleteFilm();
-    const [apiError, setApiError] = useState<ApiError | Error>();
-    const uploadPoster = useUploadFile();
     const deletePoster = useDeleteFile();
-
-    const handleError = (error: Error) => {
-        const err = error as AxiosError<ApiError>;
-        setApiError(err.response?.data ?? error);
-    };
-
-    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
-        const oldPosterName = data?.posterName ?? null;
-        updateFilm.mutate(
-            {id, request}, {
-                onSuccess: () => {
-                    if (oldPosterName && oldPosterName !== request.posterName) {
-                        deletePoster.mutate(oldPosterName);
-                    }
-                    setIsEditing(false);
-                    setPosterFile(null);
-                },
-                onError: (error: Error) => {
-                    if (uploadedPosterName) {
-                        deletePoster.mutate(uploadedPosterName);
-                    }
-                    handleError(error);
-                }
-            }
-        );
-    };
-
-    const handleSave = () => {
-        if (!confirm("Confirm update film?")) return;
-        const request = fillRequest(form);
-
-        if (!posterFile) {
-            saveFilm(request);
-            return;
-        }
-        uploadPoster.mutate(
-            posterFile,
-            {
-                onSuccess: (uploadedPoster) => {
-                    saveFilm({
-                        ...request,
-                        posterName: uploadedPoster.fileName
-                    }, uploadedPoster.fileName);
-                },
-                onError: handleError
-            }
-        );
-    };
 
     const handleDelete = () => {
         if (!confirm("Confirm delete film?")) return;
         const posterName = data?.posterName;
         deleteFilm.mutate(id, {
             onSuccess: () => {
-                setPosterFile(null);
                 if (!posterName) {
                     navigate("/films");
                     return;
@@ -97,7 +40,6 @@ function FilmPage() {
                     }
                 );
             },
-            onError: handleError
         });
     };
 
@@ -108,20 +50,26 @@ function FilmPage() {
     return (
         <div>
             {isEditing ? (
-                <FilmForm
-                    form={form}
-                    setForm={setForm}
-                    onSave={handleSave}
-                    onCancel={() => {
-                        setIsEditing(false);
-                        setForm(fillForm(data));
-                        setPosterFile(null);
+                <FilmFormController
+                    initialFilm={data}
+                    confirmMessage="Confirm update film?"
+                    onCancel={() => setIsEditing(false)}
+                    onSave={(request, options) => {
+                        const oldPosterName = data.posterName ?? null;
+                        updateFilm.mutate(
+                            {id, request}, {
+                                onSuccess: () => {
+                                    if (oldPosterName && oldPosterName !== request.posterName) {
+                                        deletePoster.mutate(oldPosterName);
+                                    }
+                                    options.onSuccess();
+                                },
+                                onError: options.onError
+                            }
+                        );
                     }}
-                    isChanged={isFormChanged(form, data) || posterFile !== null}
-                    isPending={updateFilm.isPending || uploadPoster.isPending}
-                    apiError={apiError}
-                    posterFile={posterFile}
-                    setPosterFile={setPosterFile}
+                    isChanged={(form, posterFile) => isFormChanged(form, data) || posterFile !== null}
+                    isPending={updateFilm.isPending}
                 />
             ) : (
                 <FilmDetails
@@ -129,8 +77,6 @@ function FilmPage() {
                     isAdmin={isAdmin}
                     onEdit={() => {
                         setIsEditing(true);
-                        setForm(fillForm(data));
-                        setPosterFile(null);
                     }}
                     onDelete={handleDelete}
                     onOpenCollections={authenticated ? () => setCollectionsOpen(true) : undefined}
