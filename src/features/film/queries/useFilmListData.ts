@@ -5,13 +5,14 @@ import {useCollectionFilms} from "./useCollectionFilms.ts";
 import {useFilms} from "./useFilms.ts";
 
 type Params = {
-    collectionId?: string;
+    collectionId?: number;
     filmFilter: FilmFilter;
+    collectionFilmFilter: FilmFilter;
     isCollection: boolean;
 };
 
 export function useFilmListData(params: Params) {
-    const {collectionId, filmFilter, isCollection} = params;
+    const {collectionId, filmFilter, collectionFilmFilter, isCollection} = params;
     const selectedCollectionQuery = useCollection(isCollection ? collectionId : undefined);
     const collection = selectedCollectionQuery.data;
     const filmIds = collection?.filmIds ?? [];
@@ -22,7 +23,7 @@ export function useFilmListData(params: Params) {
     const isEditingCollectionFilms = isCollection && collectionFilmEditor.isEditing;
     const filmsQuery = useFilms(filmFilter, !isCollection || isEditingCollectionFilms);
     const collectionFilmsQuery = useCollectionFilms(
-        {...filmFilter, ids: filmIds},
+        {...collectionFilmFilter, ids: filmIds},
         isCollection && !isEditingCollectionFilms
     );
     const activeFilmsQuery = isCollection && !isEditingCollectionFilms

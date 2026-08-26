@@ -41,8 +41,8 @@ describe("personApi", () => {
     it("unwraps actor and director responses from the expected endpoints", async () => {
         mockedApiClient.get.mockResolvedValue({data: person});
 
-        await expect(getPersonById("actor", "1")).resolves.toBe(person);
-        await expect(getPersonById("director", "1")).resolves.toBe(person);
+        await expect(getPersonById("actor", 1)).resolves.toBe(person);
+        await expect(getPersonById("director", 1)).resolves.toBe(person);
 
         expect(mockedApiClient.get).toHaveBeenNthCalledWith(1, "/actors/1");
         expect(mockedApiClient.get).toHaveBeenNthCalledWith(2, "/directors/1");
@@ -51,7 +51,7 @@ describe("personApi", () => {
     it("sends update requests to the expected person endpoint", async () => {
         mockedApiClient.put.mockResolvedValue({data: person});
 
-        await expect(updatePerson("actor", "1", request)).resolves.toBe(person);
+        await expect(updatePerson("actor", 1, request)).resolves.toBe(person);
 
         expect(mockedApiClient.put).toHaveBeenCalledWith("/actors/1", request);
     });

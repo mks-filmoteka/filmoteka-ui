@@ -18,7 +18,7 @@ import "../../../shared/styles/details.css";
 
 type Props = {
     onClose: () => void;
-    filmId?: number | string;
+    filmId?: number;
 };
 
 export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
@@ -62,7 +62,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         onClose();
     };
 
-    const navigateToCollection = (collectionId: string) => {
+    const navigateToCollection = (collectionId: number) => {
         closePopup();
         navigate(`/collections/${collectionId}`);
     };
@@ -113,7 +113,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         );
     };
 
-    const handleDelete = (collectionId: string) => {
+    const handleDelete = (collectionId: number) => {
         if (!confirm("Confirm delete collection?")) return;
         setApiError(undefined);
 
@@ -127,14 +127,14 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     };
 
     const collectionHasFilm = (collection: Collection) =>
-        collection.filmIds.some((id) => String(id) === String(filmId));
+        filmId !== undefined && collection.filmIds.includes(filmId);
 
-    const handleAddFilm = (collectionId: string) => {
+    const handleAddFilm = (collectionId: number) => {
         if (filmId === undefined || addFilm.isPending) return;
         setApiError(undefined);
 
         addFilm.mutate(
-            {collectionId, filmId: String(filmId)},
+            {collectionId, filmId},
             {
                 onSuccess: () => setApiError(undefined),
                 onError: handleApiError
@@ -142,12 +142,12 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         );
     };
 
-    const handleRemoveFilm = (collectionId: string) => {
+    const handleRemoveFilm = (collectionId: number) => {
         if (filmId === undefined || removeFilm.isPending) return;
         setApiError(undefined);
 
         removeFilm.mutate(
-            {collectionId, filmId: String(filmId)},
+            {collectionId, filmId},
             {
                 onSuccess: () => setApiError(undefined),
                 onError: handleApiError

@@ -2,7 +2,7 @@ import {useFilm} from "../queries/useFilm.ts";
 import "../../../shared/styles/details.css";
 import {useAuth} from "../../../auth/useAuth.ts";
 import {useState} from "react";
-import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
+import {useRequiredId} from "../../../shared/queries/useRequiredParam.ts";
 import {useUpdateFilm} from "../queries/useUpdateFilm.ts";
 import {FilmDetails} from "../components/FilmDetails.tsx";
 import {FilmFormController} from "../components/FilmFormController.tsx";
@@ -17,7 +17,7 @@ function FilmPage() {
     const {authenticated, isAdmin} = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [collectionsOpen, setCollectionsOpen] = useState(false);
-    const id = useRequiredParam("id");
+    const id = useRequiredId("id");
     const {data, isLoading, error} = useFilm(id);
     const updateFilm = useUpdateFilm();
     const deleteFilm = useDeleteFilm();

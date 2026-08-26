@@ -34,20 +34,18 @@ type FilmListMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
-    usePersonQuery: vi.fn(),
+    usePerson: vi.fn(),
+    useUpdatePerson: vi.fn(),
     updatePersonMutate: vi.fn(),
     useFilmSearchParams: vi.fn(),
 }));
 
-vi.mock("../queries/usePersonQuery.ts", () => ({
-    usePersonQuery: mocks.usePersonQuery,
+vi.mock("../queries/usePerson.ts", () => ({
+    usePerson: mocks.usePerson,
 }));
 
 vi.mock("../queries/useUpdatePerson.ts", () => ({
-    useUpdatePerson: () => ({
-        mutate: mocks.updatePersonMutate,
-        isPending: false,
-    }),
+    useUpdatePerson: mocks.useUpdatePerson,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -55,7 +53,7 @@ vi.mock("../../../auth/useAuth.ts", () => ({
 }));
 
 vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
-    useRequiredParam: () => "7",
+    useRequiredId: () => 7,
 }));
 
 vi.mock("../../film/queries/useFilmSearchParams.ts", () => ({
@@ -138,10 +136,14 @@ beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("confirm", vi.fn(() => true));
 
-    mocks.usePersonQuery.mockReturnValue({
+    mocks.usePerson.mockReturnValue({
         data: person,
         isLoading: false,
         error: null,
+    });
+    mocks.useUpdatePerson.mockReturnValue({
+        mutate: mocks.updatePersonMutate,
+        isPending: false,
     });
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
     mocks.updatePersonMutate.mockImplementation(
@@ -163,7 +165,7 @@ describe("PersonPage", () => {
 
         expect(mocks.updatePersonMutate).toHaveBeenCalledWith(
             {
-                id: "7",
+                id: 7,
                 request: {name: "Updated Test Person"},
             },
             expect.any(Object)

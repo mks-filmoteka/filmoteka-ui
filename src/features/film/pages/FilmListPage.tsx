@@ -7,6 +7,7 @@ import {FilmListPageTitle} from "../components/FilmListPageTitle.tsx";
 import {useCreateFilm} from "../queries/useCreateFilm.ts";
 import {useFilmListData} from "../queries/useFilmListData.ts";
 import {useFilmSearchParams} from "../queries/useFilmSearchParams";
+import {parseRequiredId} from "../../../shared/queries/useRequiredParam.ts";
 
 type Props = {
     source?: "films" | "collection";
@@ -19,6 +20,7 @@ function toApiParam(p: string) {
 function FilmListPage({source = "films"}: Readonly<Props>) {
     const isCollection = source === "collection";
     const {id} = useParams();
+    const collectionId = isCollection ? parseRequiredId("id", id) : undefined;
     const isAdmin = useAuth().isAdmin;
     const [filterOpen, setFilterOpen] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -49,6 +51,11 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
         countries: countries.map(toApiParam),
         sort
     };
+    const collectionFilmFilter = {
+        ...filmFilter,
+        genres,
+        countries
+    };
     const {
         selectedCollectionQuery,
         activeFilmsQuery,
@@ -57,8 +64,9 @@ function FilmListPage({source = "films"}: Readonly<Props>) {
         isEditingCollectionFilms,
         collectionEditingProps
     } = useFilmListData({
-        collectionId: id,
+        collectionId,
         filmFilter,
+        collectionFilmFilter,
         isCollection
     });
 

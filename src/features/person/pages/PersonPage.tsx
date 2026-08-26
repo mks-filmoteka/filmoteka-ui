@@ -1,4 +1,4 @@
-import {usePersonQuery} from "../queries/usePersonQuery.ts";
+import {usePerson} from "../queries/usePerson.ts";
 import {useState} from "react";
 import {useFilmSearchParams} from "../../film/queries/useFilmSearchParams.ts";
 import {FilmList} from "../../film/components/FilmList.tsx";
@@ -8,14 +8,14 @@ import {useAuth} from "../../../auth/useAuth.ts";
 import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
+import {useRequiredId} from "../../../shared/queries/useRequiredParam.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import type {AxiosError} from "axios";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
-    const id = useRequiredParam("id");
-    const {data, isLoading, error} = usePersonQuery(type, id);
+    const id = useRequiredId("id");
+    const {data, isLoading, error} = usePerson(type, id);
     const isAdmin = useAuth().isAdmin;
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<PersonRequest>({name: ""});

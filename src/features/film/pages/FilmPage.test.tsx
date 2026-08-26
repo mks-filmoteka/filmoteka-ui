@@ -19,9 +19,13 @@ type FilmFormMockProps = {
 
 const mocks = vi.hoisted(() => ({
     useFilm: vi.fn(),
+    useUpdateFilm: vi.fn(),
     updateFilmMutate: vi.fn(),
+    useDeleteFilm: vi.fn(),
     deleteFilmMutate: vi.fn(),
+    useUploadFile: vi.fn(),
     uploadFileMutate: vi.fn(),
+    useDeleteFile: vi.fn(),
     deleteFileMutate: vi.fn(),
     navigate: vi.fn(),
     authenticated: true,
@@ -32,28 +36,19 @@ vi.mock("../queries/useFilm.ts", () => ({
 }));
 
 vi.mock("../queries/useUpdateFilm.ts", () => ({
-    useUpdateFilm: () => ({
-        mutate: mocks.updateFilmMutate,
-        isPending: false,
-    }),
+    useUpdateFilm: mocks.useUpdateFilm,
 }));
 
 vi.mock("../queries/useDeleteFilm.ts", () => ({
-    useDeleteFilm: () => ({
-        mutate: mocks.deleteFilmMutate,
-    }),
+    useDeleteFilm: mocks.useDeleteFilm,
 }));
 
 vi.mock("../../media/queries/useUploadFile.ts", () => ({
-    useUploadFile: () => ({
-        mutate: mocks.uploadFileMutate,
-    }),
+    useUploadFile: mocks.useUploadFile,
 }));
 
 vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: () => ({
-        mutate: mocks.deleteFileMutate,
-    }),
+    useDeleteFile: mocks.useDeleteFile,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -64,7 +59,7 @@ vi.mock("../../../auth/useAuth.ts", () => ({
 }));
 
 vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
-    useRequiredParam: () => "1",
+    useRequiredId: () => 1,
 }));
 
 vi.mock("react-router", async () => {
@@ -110,7 +105,7 @@ vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
         filmId,
         onClose,
     }: {
-        filmId: number | string;
+        filmId: number;
         onClose: () => void;
     }) => (
         <div role="dialog" aria-label="Collections">
@@ -175,6 +170,19 @@ beforeEach(() => {
         isLoading: false,
         error: null,
     });
+    mocks.useUpdateFilm.mockReturnValue({
+        mutate: mocks.updateFilmMutate,
+        isPending: false,
+    });
+    mocks.useDeleteFilm.mockReturnValue({
+        mutate: mocks.deleteFilmMutate,
+    });
+    mocks.useUploadFile.mockReturnValue({
+        mutate: mocks.uploadFileMutate,
+    });
+    mocks.useDeleteFile.mockReturnValue({
+        mutate: mocks.deleteFileMutate,
+    });
     mocks.uploadFileMutate.mockImplementation(
         (_file: File, options?: MutationOptions<{fileName: string}>) => {
             options?.onSuccess?.({fileName: "new.jpg"});
@@ -186,7 +194,7 @@ beforeEach(() => {
         }
     );
     mocks.deleteFilmMutate.mockImplementation(
-        (_id: string, options?: MutationOptions) => {
+        (_id: number, options?: MutationOptions) => {
             options?.onSuccess?.({});
         }
     );
@@ -241,7 +249,7 @@ describe("FilmPage", () => {
         await waitFor(() => {
             expect(mocks.updateFilmMutate).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    id: "1",
+                    id: 1,
                     request: expect.objectContaining({posterName: "new.jpg"}),
                 }),
                 expect.any(Object)
@@ -257,7 +265,7 @@ describe("FilmPage", () => {
         fireEvent.click(screen.getByTitle("Delete"));
 
         await waitFor(() => {
-            expect(mocks.deleteFilmMutate).toHaveBeenCalledWith("1", expect.any(Object));
+            expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
             expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg", expect.any(Object));
             expect(mocks.navigate).toHaveBeenCalledWith("/films");
         });

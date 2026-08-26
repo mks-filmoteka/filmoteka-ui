@@ -5,7 +5,7 @@ import type {FilmRequest} from "../types/filmRequest.ts";
 export function useUpdateFilm() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({id, request}: { id: string; request: FilmRequest }) =>
+        mutationFn: ({id, request}: { id: number; request: FilmRequest }) =>
             updateFilm(id, request),
         onSuccess: (_, variables) =>
             queryClient.invalidateQueries({queryKey: ["film", variables.id]})

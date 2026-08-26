@@ -55,19 +55,23 @@ type FilmFormMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
-    routeParams: {} as Record<string, string | undefined>,
+    useParams: vi.fn(),
     useFilmSearchParams: vi.fn(),
     useFilms: vi.fn(),
     useCollectionFilms: vi.fn(),
     useCollection: vi.fn(),
+    useCreateFilm: vi.fn(),
     createFilmMutate: vi.fn(),
+    useUpdateCollectionFilms: vi.fn(),
     updateCollectionFilmsMutate: vi.fn(),
+    useUploadFile: vi.fn(),
     uploadFileMutate: vi.fn(),
+    useDeleteFile: vi.fn(),
     deleteFileMutate: vi.fn(),
 }));
 
 vi.mock("react-router", () => ({
-    useParams: () => mocks.routeParams,
+    useParams: mocks.useParams,
 }));
 
 vi.mock("../queries/useFilmSearchParams", () => ({
@@ -87,29 +91,19 @@ vi.mock("../../collection/queries/useCollection.ts", () => ({
 }));
 
 vi.mock("../../collection/queries/useUpdateCollectionFilms.ts", () => ({
-    useUpdateCollectionFilms: () => ({
-        mutate: mocks.updateCollectionFilmsMutate,
-        isPending: false,
-    }),
+    useUpdateCollectionFilms: mocks.useUpdateCollectionFilms,
 }));
 
 vi.mock("../queries/useCreateFilm.ts", () => ({
-    useCreateFilm: () => ({
-        mutate: mocks.createFilmMutate,
-        isPending: false,
-    }),
+    useCreateFilm: mocks.useCreateFilm,
 }));
 
 vi.mock("../../media/queries/useUploadFile.ts", () => ({
-    useUploadFile: () => ({
-        mutate: mocks.uploadFileMutate,
-    }),
+    useUploadFile: mocks.useUploadFile,
 }));
 
 vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: () => ({
-        mutate: mocks.deleteFileMutate,
-    }),
+    useDeleteFile: mocks.useDeleteFile,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -215,7 +209,7 @@ const outsideFilm: FilmBasic = {
 };
 
 const collection: Collection = {
-    id: "7",
+    id: 7,
     name: "Favorites",
     filmIds: [1, 2],
 };
@@ -254,9 +248,9 @@ const apiError = Object.assign(new Error("Create failed"), {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    mocks.routeParams = {};
     vi.stubGlobal("confirm", vi.fn(() => true));
 
+    mocks.useParams.mockReturnValue({});
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
     mocks.useFilms.mockReturnValue({
         data: emptyPage,
@@ -272,6 +266,20 @@ beforeEach(() => {
         data: undefined,
         isLoading: false,
         error: null,
+    });
+    mocks.useCreateFilm.mockReturnValue({
+        mutate: mocks.createFilmMutate,
+        isPending: false,
+    });
+    mocks.useUpdateCollectionFilms.mockReturnValue({
+        mutate: mocks.updateCollectionFilmsMutate,
+        isPending: false,
+    });
+    mocks.useUploadFile.mockReturnValue({
+        mutate: mocks.uploadFileMutate,
+    });
+    mocks.useDeleteFile.mockReturnValue({
+        mutate: mocks.deleteFileMutate,
     });
     mocks.uploadFileMutate.mockImplementation(
         (_file: File, options?: MutationOptions<{fileName: string}>) => {
@@ -321,7 +329,7 @@ describe("FilmListPage", () => {
     });
 
     it("uses collection film data and hides create controls for collection routes", () => {
-        mocks.routeParams = {id: "7"};
+        mocks.useParams.mockReturnValue({id: "7"});
         mocks.useCollection.mockReturnValue({
             data: collection,
             isLoading: false,
@@ -339,7 +347,7 @@ describe("FilmListPage", () => {
 
         render(<FilmListPage source="collection" />);
 
-        expect(mocks.useCollection).toHaveBeenCalledWith("7");
+        expect(mocks.useCollection).toHaveBeenCalledWith(7);
         expect(mocks.useFilms).toHaveBeenCalledWith(expect.any(Object), false);
         expect(mocks.useCollectionFilms).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -354,7 +362,7 @@ describe("FilmListPage", () => {
     });
 
     it("edits collection films by showing all films with checkbox state", () => {
-        mocks.routeParams = {id: "7"};
+        mocks.useParams.mockReturnValue({id: "7"});
         mocks.useCollection.mockReturnValue({
             data: collection,
             isLoading: false,
@@ -395,7 +403,7 @@ describe("FilmListPage", () => {
 
         expect(mocks.updateCollectionFilmsMutate).toHaveBeenCalledWith(
             {
-                collectionId: "7",
+                collectionId: 7,
                 request: {
                     addedFilmIds: [3],
                     removedFilmIds: [1],
@@ -409,7 +417,7 @@ describe("FilmListPage", () => {
     });
 
     it("cancels collection film editing without saving", () => {
-        mocks.routeParams = {id: "7"};
+        mocks.useParams.mockReturnValue({id: "7"});
         mocks.useCollection.mockReturnValue({
             data: collection,
             isLoading: false,

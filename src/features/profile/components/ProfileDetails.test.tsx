@@ -10,14 +10,12 @@ type MutationOptions = {
 
 const mocks = vi.hoisted(() => ({
     isPending: false,
+    useUpdateProfile: vi.fn(),
     updateProfileMutate: vi.fn()
 }));
 
 vi.mock("../queries/useUpdateProfile.ts", () => ({
-    useUpdateProfile: () => ({
-        isPending: mocks.isPending,
-        mutate: mocks.updateProfileMutate
-    })
+    useUpdateProfile: mocks.useUpdateProfile
 }));
 
 const profile: UserProfile = {
@@ -28,6 +26,10 @@ const profile: UserProfile = {
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.isPending = false;
+    mocks.useUpdateProfile.mockReturnValue({
+        isPending: mocks.isPending,
+        mutate: mocks.updateProfileMutate
+    });
     vi.stubGlobal("confirm", vi.fn(() => true));
 });
 

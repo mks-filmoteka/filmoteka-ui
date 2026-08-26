@@ -2,7 +2,7 @@ import {useState} from "react";
 import {useUpdateCollectionFilms} from "./useUpdateCollectionFilms.ts";
 
 type Params = {
-    collectionId?: string;
+    collectionId?: number;
     filmIds: number[];
     onError?: (error: Error) => void;
     onClearError?: () => void;
@@ -23,7 +23,7 @@ export function useCollectionFilmEditor(params: Params) {
     const handleError = onError ?? (() => {});
     const clearError = onClearError ?? (() => {});
     const updateCollectionFilms = useUpdateCollectionFilms();
-    const [editingCollectionId, setEditingCollectionId] = useState<string>();
+    const [editingCollectionId, setEditingCollectionId] = useState<number>();
     const [selectedFilmIds, setSelectedFilmIds] = useState<Set<number>>(() => new Set());
     const [addedFilmIds, setAddedFilmIds] = useState<Set<number>>(() => new Set());
     const [removedFilmIds, setRemovedFilmIds] = useState<Set<number>>(() => new Set());

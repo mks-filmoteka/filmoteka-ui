@@ -5,8 +5,8 @@ import type {CollectionRequest} from "../types/collectionRequest.ts";
 export function useUpdateCollection() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({id, request}: { id: string; request: CollectionRequest }) =>
-            updateCollection(String(id), request),
+        mutationFn: ({id, request}: { id: number; request: CollectionRequest }) =>
+            updateCollection(id, request),
         onSuccess: (_, variables) =>
             queryClient.invalidateQueries({queryKey: ["collection", variables.id]})
     });
