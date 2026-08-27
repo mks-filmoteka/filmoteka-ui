@@ -1,14 +1,14 @@
 import {useNavigate} from "react-router";
 import {useAuth} from "../../../auth/useAuth.ts";
-import {FilmListScreen} from "../components/FilmListScreen.tsx";
-import {useFilmListSearchState} from "../queries/useFilmListSearchState.ts";
+import {FilmBrowser} from "../components/FilmBrowser.tsx";
 import {useFilms} from "../queries/useFilms.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
+import {useFilmApiParams} from "../queries/useFilmApiParams.ts";
 
 function AllFilmsPage() {
     const navigate = useNavigate();
     const isAdmin = useAuth().isAdmin;
-    const search = useFilmListSearchState();
+    const search = useFilmApiParams();
     const filmsQuery = useFilms(search.filmFilter);
 
     if (filmsQuery.isLoading) {
@@ -32,7 +32,7 @@ function AllFilmsPage() {
                 )}
             />
             <hr/>
-            <FilmListScreen
+            <FilmBrowser
                 filmsData={filmsQuery.data}
                 search={search}
             />

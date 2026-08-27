@@ -1,7 +1,7 @@
 import {usePerson} from "../queries/usePerson.ts";
 import {useState} from "react";
 import {useFilmSearchParams} from "../../film/queries/useFilmSearchParams.ts";
-import {FilmList} from "../../film/components/FilmList.tsx";
+import {FilmBrowser} from "../../film/components/FilmBrowser.tsx";
 import type {FilmBasic} from "../../film/types/filmBasic.ts";
 import {SORT_BY, SORT_DIR} from "../../film/constants/constants.ts";
 import {useAuth} from "../../../auth/useAuth.ts";
@@ -76,7 +76,27 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         .filter(filtering)
         .sort(sorting);
 
-    const pageTitle = (
+    const browserSearch = {
+        pageParam: 1,
+        view,
+        yearFrom,
+        yearTo,
+        genres,
+        countries,
+        sortParams,
+        filterOpen,
+        setPage: () => {},
+        setView,
+        setGenres,
+        setYearFrom,
+        setYearTo,
+        resetYears,
+        setCountries,
+        setSort,
+        setFilterOpen
+    };
+
+    const pageHeader = (
         <PageHeader
             title={isEditing ? (
                 <TextInput
@@ -141,29 +161,11 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
 
     return (
         <div>
-            {pageTitle}
+            {pageHeader}
             <hr/>
-            <FilmList
+            <FilmBrowser
                 films={films}
-                page={0}
-                pageSize={0}
-                totalPages={0}
-                setPage={() => {}}
-                view={view}
-                setView={setView}
-                filterOpen={filterOpen}
-                setFilterOpen={setFilterOpen}
-                genres={genres}
-                setGenres={setGenres}
-                countries={countries}
-                setCountries={setCountries}
-                yearFrom={yearFrom}
-                yearTo={yearTo}
-                setYearFrom={setYearFrom}
-                setYearTo={setYearTo}
-                resetYears={resetYears}
-                sortParams={sortParams}
-                setSort={setSort}
+                search={browserSearch}
             />
         </div>
     );

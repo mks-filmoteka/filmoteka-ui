@@ -1,15 +1,15 @@
 import {useRequiredId} from "../../../shared/utils/useRequiredId.ts";
 import {useCollection} from "../queries/useCollection.ts";
 import {useCollectionFilmEditor} from "../queries/useCollectionFilmEditor.ts";
-import {FilmListScreen} from "../../film/components/FilmListScreen.tsx";
+import {FilmBrowser} from "../../film/components/FilmBrowser.tsx";
 import {useCollectionFilms} from "../../film/queries/useCollectionFilms.ts";
-import {useFilmListSearchState} from "../../film/queries/useFilmListSearchState.ts";
 import {useFilms} from "../../film/queries/useFilms.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
+import {useFilmApiParams} from "../../film/queries/useFilmApiParams.ts";
 
 function CollectionPage() {
     const collectionId = useRequiredId();
-    const search = useFilmListSearchState();
+    const search = useFilmApiParams();
     const selectedCollectionQuery = useCollection(collectionId);
     const collection = selectedCollectionQuery.data;
     const filmIds = collection?.filmIds ?? [];
@@ -55,7 +55,7 @@ function CollectionPage() {
                 )}
             />
             <hr/>
-            <FilmListScreen
+            <FilmBrowser
                 filmsData={activeFilmsQuery.data}
                 search={search}
                 {...(collectionFilmEditor.isEditing ? {

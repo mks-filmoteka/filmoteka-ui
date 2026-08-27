@@ -6,7 +6,7 @@ function toApiParam(value: string) {
     return value.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
 }
 
-export function useFilmListSearchState() {
+export function useFilmApiParams() {
     const [filterOpen, setFilterOpen] = useState(false);
     const {
         title,
@@ -54,5 +54,3 @@ export function useFilmListSearchState() {
         setFilterOpen
     };
 }
-
-export type FilmListSearchState = ReturnType<typeof useFilmListSearchState>;
