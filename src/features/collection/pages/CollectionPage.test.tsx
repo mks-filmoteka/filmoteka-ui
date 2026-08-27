@@ -12,11 +12,6 @@ type MutationOptions<TData = unknown> = {
 
 type FilmListScreenMockProps = {
     filmsData?: Page<FilmBasic>;
-    title?: string;
-    titleAction?: {
-        title: string;
-        onClick: () => void;
-    };
     onSave?: () => void;
     onCancel?: () => void;
     saveDisabled?: boolean;
@@ -63,8 +58,6 @@ vi.mock("../queries/useUpdateCollectionFilms.ts", () => ({
 vi.mock("../../film/components/FilmListScreen.tsx", () => ({
     FilmListScreen: ({
         filmsData,
-        title,
-        titleAction,
         onSave,
         onCancel,
         saveDisabled,
@@ -74,12 +67,6 @@ vi.mock("../../film/components/FilmListScreen.tsx", () => ({
         selectionDisabled,
     }: FilmListScreenMockProps) => (
         <div>
-            <h1>{title}</h1>
-            {titleAction && (
-                <button title={titleAction.title} onClick={titleAction.onClick}>
-                    add
-                </button>
-            )}
             {onSave && onCancel && (
                 <>
                     <button onClick={onSave} disabled={saveDisabled}>Save</button>

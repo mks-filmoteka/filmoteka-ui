@@ -52,7 +52,7 @@ vi.mock("../../../auth/useAuth.ts", () => ({
     useAuth: () => ({isAdmin: true}),
 }));
 
-vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
+vi.mock("../../../shared/utils/useRequiredId.ts", () => ({
     useRequiredId: () => 7,
 }));
 

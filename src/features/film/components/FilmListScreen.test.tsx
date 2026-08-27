@@ -1,4 +1,4 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import type {ReactElement} from "react";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../types/filmBasic.ts";
@@ -85,26 +85,17 @@ beforeEach(() => {
 });
 
 describe("FilmListScreen", () => {
-    it("renders the title action and forwards list data", () => {
-        const onClick = vi.fn();
-
+    it("forwards list data", () => {
         render(
             <FilmListScreen
                 filmsData={filmsData}
                 search={createSearch()}
-                title="Films"
-                titleAction={{title: "Add new film", onClick}}
             />
         );
 
-        expect(screen.getByRole("heading", {name: "Films"})).toBeInTheDocument();
         expect(screen.getByText("Test Film")).toBeInTheDocument();
         expect(screen.getByTestId("page")).toHaveTextContent("1");
         expect(screen.getByTestId("total-pages")).toHaveTextContent("3");
-
-        fireEvent.click(screen.getByTitle("Add new film"));
-
-        expect(onClick).toHaveBeenCalledTimes(1);
     });
 
     it("corrects the URL page when it is out of bound", async () => {
@@ -117,7 +108,6 @@ describe("FilmListScreen", () => {
                     totalPages: 2,
                 }}
                 search={createSearch({pageParam: 9, setPage})}
-                title="Films"
             />
         );
 
