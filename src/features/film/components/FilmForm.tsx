@@ -1,29 +1,51 @@
-import type {FilmRequest} from "../types/filmRequest.ts";
-import React from "react";
+import type {AxiosError} from "axios";
+import {type SubmitEvent as ReactSubmitEvent, useState} from "react";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
+import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {type Genre, GENRES} from "../types/genre.ts";
+import PosterUpload from "../../media/components/PosterUpload.tsx";
+import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
+import {useUploadFile} from "../../media/queries/useUploadFile.ts";
 import {YEARS} from "../constants/constants.ts";
 import {COUNTRIES, type Country} from "../types/country.ts";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
-import PosterUpload from "../../media/components/PosterUpload.tsx";
+import type {Film} from "../types/film.ts";
+import type {FilmRequest} from "../types/filmRequest.ts";
+import {GENRES, type Genre} from "../types/genre.ts";
+import {fillForm, fillRequest} from "../utils/formState.ts";
+
+export type FilmFormSaveOptions = {
+    onSuccess: () => void;
+    onError: (error: Error) => void;
+};
 
 type Props = {
-    form: FilmRequest;
-    setForm: React.Dispatch<React.SetStateAction<FilmRequest>>;
+    confirmMessage: string;
     onCancel: () => void;
-    onSave: () => void;
-    apiError?: ApiError | Error;
+    onSave: (request: FilmRequest, options: FilmFormSaveOptions) => void;
+    initialFilm?: Film;
     isPending?: boolean;
-    isChanged?: boolean;
-    posterFile: File | null;
-    setPosterFile: (file: File | null) => void;
+    isChanged: (form: FilmRequest, posterFile: File | null) => boolean;
 };
+
 type ArrayField = "actors" | "directors" | "genres" | "countries";
 type ArrayFieldValue = string | Genre | Country;
 
+function isFormInvalid(form: FilmRequest) {
+    return !form.title.trim() ||
+        !form.description.trim() ||
+        form.releaseYear < 1888 || form.releaseYear > 2100 ||
+        form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
+        form.actors.some(actor => !actor.name.trim()) ||
+        form.directors.some(director => !director.name.trim());
+}
+
 export function FilmForm(props: Readonly<Props>) {
-    const {form, setForm, onSave, onCancel, apiError, isPending, isChanged, posterFile, setPosterFile} = props;
+    const {confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged} = props;
+    const uploadPoster = useUploadFile();
+    const deletePoster = useDeleteFile();
+    const [form, setForm] = useState<FilmRequest>(() => fillForm(initialFilm));
+    const [posterFile, setPosterFile] = useState<File | null>(null);
+    const [apiError, setApiError] = useState<ApiError | Error>();
 
     const updateItem =
         (type: ArrayField, index: number, value: ArrayFieldValue) => {
@@ -39,7 +61,7 @@ export function FilmForm(props: Readonly<Props>) {
                     return {name: value};
                 })
             }));
-    };
+        };
 
     const removeItem =
         (type: ArrayField, index: number) => {
@@ -54,10 +76,14 @@ export function FilmForm(props: Readonly<Props>) {
             setForm(prev => {
                 let param;
                 if (type === "genres") {
-                    param = GENRES.find(g => !form.genres.includes(g));
+                    param = GENRES.find(genre => !prev.genres.includes(genre));
                 } else if (type === "countries") {
-                    param = COUNTRIES.find(g => !form.countries.includes(g));
+                    param = COUNTRIES.find(country => !prev.countries.includes(country));
                 } else param = {name: ""};
+
+                if (!param) {
+                    return prev;
+                }
                 return {
                     ...prev,
                     [type]: [...prev[type], param]
@@ -65,16 +91,62 @@ export function FilmForm(props: Readonly<Props>) {
             });
         };
 
-    const isInvalid =
-        !form.title.trim() ||
-        !form.description.trim() ||
-        form.releaseYear < 1888 || form.releaseYear > 2100 ||
-        form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
-        form.actors.some(a => !a.name.trim()) ||
-        form.directors.some(d => !d.name.trim());
+    const resetForm = () => {
+        setForm(fillForm(initialFilm));
+        setPosterFile(null);
+        setApiError(undefined);
+    };
+
+    const handleError = (error: Error, uploadedPosterName?: string) => {
+        if (uploadedPosterName) {
+            deletePoster.mutate(uploadedPosterName);
+        }
+        const err = error as AxiosError<ApiError>;
+        setApiError(err.response?.data ?? error);
+    };
+
+    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
+        onSave(request, {
+            onSuccess: resetForm,
+            onError: (error: Error) => handleError(error, uploadedPosterName)
+        });
+    };
+
+    const pending = !!isPending || uploadPoster.isPending;
+    const saveDisabled = !isChanged(form, posterFile) || pending || isFormInvalid(form);
+
+    const handleSubmit = (event: ReactSubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (saveDisabled) return;
+        if (!confirm(confirmMessage)) return;
+
+        const request = fillRequest(form);
+        if (!posterFile) {
+            saveFilm(request);
+            return;
+        }
+
+        uploadPoster.mutate(
+            posterFile,
+            {
+                onSuccess: (uploadedPoster) => {
+                    saveFilm({
+                        ...request,
+                        posterName: uploadedPoster.fileName
+                    }, uploadedPoster.fileName);
+                },
+                onError: (error: Error) => handleError(error)
+            }
+        );
+    };
+
+    const handleCancel = () => {
+        resetForm();
+        onCancel();
+    };
 
     return (
-        <>
+        <form onSubmit={handleSubmit}>
             <div className="page-title">
                 <h1>
                     <TextInput
@@ -95,11 +167,18 @@ export function FilmForm(props: Readonly<Props>) {
                 <div>
                     <div>{form.genres[0] ?? ""}</div>
                     <div className="page-title-controls">
-                        <button onClick={onSave} disabled={!(isChanged ?? true) || isPending || isInvalid}>
+                        <button
+                            type="submit"
+                            title="Save film"
+                            disabled={saveDisabled}
+                        >
                             ✔
                         </button>
-
-                        <button onClick={onCancel}>
+                        <button
+                            type="button"
+                            title="Cancel film"
+                            onClick={handleCancel}
+                        >
                             ✖
                         </button>
                     </div>
@@ -121,7 +200,7 @@ export function FilmForm(props: Readonly<Props>) {
                         }
                         posterFile={posterFile}
                         setPosterFile={setPosterFile}
-                        disabled={isPending}
+                        disabled={pending}
                     />
                 </div>
 
@@ -161,9 +240,9 @@ export function FilmForm(props: Readonly<Props>) {
                                         <option value={0} disabled>
                                             select
                                         </option>
-                                        {YEARS.map(y => (
-                                            <option key={y} value={y}>
-                                                {y}
+                                        {YEARS.map(year => (
+                                            <option key={year} value={year}>
+                                                {year}
                                             </option>
                                         ))}
                                     </select>
@@ -182,18 +261,19 @@ export function FilmForm(props: Readonly<Props>) {
                                                 updateItem("countries", index, e.target.value)
                                             }
                                         >
-                                            {COUNTRIES.map(g => (
+                                            {COUNTRIES.map(option => (
                                                 <option
-                                                    key={g}
-                                                    value={g}
-                                                    disabled={form.countries.includes(g)}
+                                                    key={option}
+                                                    value={option}
+                                                    disabled={form.countries.includes(option)}
                                                 >
-                                                    {g}
+                                                    {option}
                                                 </option>
                                             ))}
                                         </select>
 
                                         <button
+                                            type="button"
                                             onClick={() => removeItem("countries", index)}
                                         >
                                             ✖
@@ -203,7 +283,7 @@ export function FilmForm(props: Readonly<Props>) {
                                 ))}
 
                                 {form.countries.length < 5 && (
-                                    <button onClick={() => addItem("countries")}>
+                                    <button type="button" onClick={() => addItem("countries")}>
                                         + Add country
                                     </button>
                                 )}
@@ -221,18 +301,19 @@ export function FilmForm(props: Readonly<Props>) {
                                                 updateItem("genres", index, e.target.value)
                                             }
                                         >
-                                            {GENRES.map(g => (
+                                            {GENRES.map(option => (
                                                 <option
-                                                    key={g}
-                                                    value={g}
-                                                    disabled={form.genres.includes(g)}
+                                                    key={option}
+                                                    value={option}
+                                                    disabled={form.genres.includes(option)}
                                                 >
-                                                    {g}
+                                                    {option}
                                                 </option>
                                             ))}
                                         </select>
 
                                         <button
+                                            type="button"
                                             onClick={() => removeItem("genres", index)}
                                         >
                                             ✖
@@ -242,7 +323,7 @@ export function FilmForm(props: Readonly<Props>) {
                                 ))}
 
                                 {form.genres.length < 5 && (
-                                    <button onClick={() => addItem("genres")}>
+                                    <button type="button" onClick={() => addItem("genres")}>
                                         + Add genre
                                     </button>
                                 )}
@@ -267,6 +348,7 @@ export function FilmForm(props: Readonly<Props>) {
                                             }
                                         />
                                         <button
+                                            type="button"
                                             onClick={() => removeItem("directors", index)}
                                             disabled={form.directors.length <= 1}
                                         >
@@ -275,7 +357,7 @@ export function FilmForm(props: Readonly<Props>) {
                                     </div>
                                 ))}
                                 {form.directors.length < 5 && (
-                                    <button onClick={() => addItem("directors")}>
+                                    <button type="button" onClick={() => addItem("directors")}>
                                         + Add director
                                     </button>
                                 )}
@@ -302,6 +384,7 @@ export function FilmForm(props: Readonly<Props>) {
                                         }
                                     />
                                     <button
+                                        type="button"
                                         onClick={() => removeItem("actors", index)}
                                         disabled={form.actors.length <= 1}
                                     >
@@ -310,7 +393,7 @@ export function FilmForm(props: Readonly<Props>) {
                                 </div>
                             ))}
                             {form.actors.length < 20 && (
-                                <button onClick={() => addItem("actors")}>
+                                <button type="button" onClick={() => addItem("actors")}>
                                     + Add actor
                                 </button>
                             )}
@@ -319,7 +402,7 @@ export function FilmForm(props: Readonly<Props>) {
                 </div>
             </div>
             {apiError && (
-                <div style={{ color: "red" }}>
+                <div style={{color: "red"}}>
                     <div>{apiError.message}</div>
                     <div>
                         {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
@@ -328,6 +411,6 @@ export function FilmForm(props: Readonly<Props>) {
                     </div>
                 </div>
             )}
-        </>
+        </form>
     );
 }
