@@ -26,7 +26,7 @@ type SearchParamsReturn = {
     setSort: (sort: {by?: string; dir?: string}[]) => void;
 };
 
-type FilmListScreenMockProps = {
+type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
 };
 
@@ -57,8 +57,8 @@ vi.mock("../../../auth/useAuth.ts", () => ({
     useAuth: () => ({isAdmin: true}),
 }));
 
-vi.mock("../components/FilmListScreen.tsx", () => ({
-    FilmListScreen: ({filmsData}: FilmListScreenMockProps) => (
+vi.mock("../components/FilmBrowser.tsx", () => ({
+    FilmBrowser: ({filmsData}: FilmBrowserMockProps) => (
         <div>
             {filmsData?.content.map(film => (
                 <div key={film.id}>{film.title}</div>

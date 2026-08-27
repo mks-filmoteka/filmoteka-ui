@@ -10,7 +10,7 @@ type MutationOptions<TData = unknown> = {
     onError?: (error: Error) => void;
 };
 
-type FilmListScreenMockProps = {
+type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
     onSave?: () => void;
     onCancel?: () => void;
@@ -23,7 +23,7 @@ type FilmListScreenMockProps = {
 
 const mocks = vi.hoisted(() => ({
     useParams: vi.fn(),
-    useFilmListSearchState: vi.fn(),
+    useFilmSearchParams: vi.fn(),
     useFilms: vi.fn(),
     useCollectionFilms: vi.fn(),
     useCollection: vi.fn(),
@@ -35,8 +35,8 @@ vi.mock("react-router", () => ({
     useParams: mocks.useParams,
 }));
 
-vi.mock("../../film/queries/useFilmListSearchState.ts", () => ({
-    useFilmListSearchState: mocks.useFilmListSearchState,
+vi.mock("../../film/queries/useFilmSearchParams.ts", () => ({
+    useFilmSearchParams: mocks.useFilmSearchParams,
 }));
 
 vi.mock("../../film/queries/useFilms.ts", () => ({
@@ -55,8 +55,8 @@ vi.mock("../queries/useUpdateCollectionFilms.ts", () => ({
     useUpdateCollectionFilms: mocks.useUpdateCollectionFilms,
 }));
 
-vi.mock("../../film/components/FilmListScreen.tsx", () => ({
-    FilmListScreen: ({
+vi.mock("../../film/components/FilmBrowser.tsx", () => ({
+    FilmBrowser: ({
         filmsData,
         onSave,
         onCancel,
@@ -65,7 +65,7 @@ vi.mock("../../film/components/FilmListScreen.tsx", () => ({
         selectedFilmIds,
         onFilmCheckedChange,
         selectionDisabled,
-    }: FilmListScreenMockProps) => (
+    }: FilmBrowserMockProps) => (
         <div>
             {onSave && onCancel && (
                 <>
@@ -129,22 +129,33 @@ const collection: Collection = {
     filmIds: [1, 2],
 };
 
-const createSearchState = () => ({
-    filmFilter: {
-        page: 0,
-        genres: [],
-        countries: [],
-        sort: [],
-    },
+const createSearchParams = () => ({
+    title: undefined,
+    pageParam: 1,
+    view: "list",
+    yearFrom: undefined,
+    yearTo: undefined,
+    minYear: undefined,
+    maxYear: undefined,
     genres: [],
     countries: [],
+    sort: [],
+    sortParams: [],
+    setPage: vi.fn(),
+    setView: vi.fn(),
+    setGenres: vi.fn(),
+    setYearFrom: vi.fn(),
+    setYearTo: vi.fn(),
+    resetYears: vi.fn(),
+    setCountries: vi.fn(),
+    setSort: vi.fn(),
 });
 
 beforeEach(() => {
     vi.clearAllMocks();
 
     mocks.useParams.mockReturnValue({id: "7"});
-    mocks.useFilmListSearchState.mockReturnValue(createSearchState());
+    mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
     mocks.useCollection.mockReturnValue({
         data: collection,
         isLoading: false,

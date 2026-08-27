@@ -1,5 +1,4 @@
 import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import type {ReactElement} from "react";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../../film/types/filmBasic";
 import type {Person} from "../types/person";
@@ -28,9 +27,8 @@ type SearchParamsReturn = {
     setSort: (sort: {by?: string; dir?: string}[]) => void;
 };
 
-type FilmListMockProps = {
+type FilmBrowserMockProps = {
     films: FilmBasic[];
-    pageTitle: ReactElement;
 };
 
 const mocks = vi.hoisted(() => ({
@@ -60,16 +58,13 @@ vi.mock("../../film/queries/useFilmSearchParams.ts", () => ({
     useFilmSearchParams: mocks.useFilmSearchParams,
 }));
 
-vi.mock("../../film/components/FilmList.tsx", () => ({
-    FilmList: ({films, pageTitle}: FilmListMockProps) => (
-        <div>
-            {pageTitle}
-            <ol>
-                {films.map(film => (
-                    <li key={film.id}>{film.title}</li>
-                ))}
-            </ol>
-        </div>
+vi.mock("../../film/components/FilmBrowser.tsx", () => ({
+    FilmBrowser: ({films}: FilmBrowserMockProps) => (
+        <ol>
+            {films.map(film => (
+                <li key={film.id}>{film.title}</li>
+            ))}
+        </ol>
     ),
 }));
 

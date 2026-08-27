@@ -1,40 +1,10 @@
 import {render, screen, waitFor} from "@testing-library/react";
-import type {ReactElement} from "react";
 import {beforeEach, describe, expect, it, vi} from "vitest";
+import {MemoryRouter} from "react-router";
+import type {ReactElement} from "react";
 import type {FilmBasic} from "../types/filmBasic.ts";
 import type {Page} from "../types/page.ts";
-import {FilmListScreen} from "./FilmListScreen.tsx";
-import type {FilmListSearchState} from "../queries/useFilmListSearchState.ts";
-
-type FilmListMockProps = {
-    films: FilmBasic[];
-    pageTitle: ReactElement;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-};
-
-const mocks = vi.hoisted(() => ({
-    filmList: vi.fn(),
-}));
-
-vi.mock("./FilmList.tsx", () => ({
-    FilmList: (props: FilmListMockProps) => {
-        mocks.filmList(props);
-
-        return (
-            <div>
-                {props.pageTitle}
-                <div data-testid="page">{props.page}</div>
-                <div data-testid="page-size">{props.pageSize}</div>
-                <div data-testid="total-pages">{props.totalPages}</div>
-                {props.films.map(film => (
-                    <div key={film.id}>{film.title}</div>
-                ))}
-            </div>
-        );
-    },
-}));
+import {FilmBrowser, type FilmBrowserSearchState} from "./FilmBrowser.tsx";
 
 const film: FilmBasic = {
     id: 1,
@@ -53,15 +23,9 @@ const filmsData: Page<FilmBasic> = {
     page: 0,
 };
 
-const createSearch = (overrides: Partial<FilmListSearchState> = {}): FilmListSearchState => ({
-    filmFilter: {
-        page: 0,
-        genres: [],
-        countries: [],
-        sort: [],
-    },
+const createSearch = (overrides: Partial<FilmBrowserSearchState> = {}): FilmBrowserSearchState => ({
     pageParam: 1,
-    view: "grid",
+    view: "list",
     yearFrom: undefined,
     yearTo: undefined,
     genres: [],
@@ -80,29 +44,48 @@ const createSearch = (overrides: Partial<FilmListSearchState> = {}): FilmListSea
     ...overrides,
 });
 
+function renderScreen(element: ReactElement) {
+    return render(
+        <MemoryRouter>
+            {element}
+        </MemoryRouter>
+    );
+}
+
 beforeEach(() => {
     vi.clearAllMocks();
 });
 
-describe("FilmListScreen", () => {
+describe("FilmBrowser", () => {
     it("forwards list data", () => {
-        render(
-            <FilmListScreen
+        const {container} = renderScreen(
+            <FilmBrowser
                 filmsData={filmsData}
                 search={createSearch()}
             />
         );
 
-        expect(screen.getByText("Test Film")).toBeInTheDocument();
-        expect(screen.getByTestId("page")).toHaveTextContent("1");
-        expect(screen.getByTestId("total-pages")).toHaveTextContent("3");
+        expect(screen.getByText("Test Film (2000)")).toBeInTheDocument();
+        expect(container.querySelector(".list-item-number")).toHaveTextContent("1");
+        expect(screen.getByTitle("Last page: 3")).toBeInTheDocument();
+    });
+
+    it("uses the current page to offset displayed list indexes", () => {
+        const {container} = renderScreen(
+            <FilmBrowser
+                filmsData={filmsData}
+                search={createSearch({pageParam: 2})}
+            />
+        );
+
+        expect(container.querySelector(".list-item-number")).toHaveTextContent("21");
     });
 
     it("corrects the URL page when it is out of bound", async () => {
         const setPage = vi.fn();
 
-        render(
-            <FilmListScreen
+        renderScreen(
+            <FilmBrowser
                 filmsData={{
                     ...filmsData,
                     totalPages: 2,
