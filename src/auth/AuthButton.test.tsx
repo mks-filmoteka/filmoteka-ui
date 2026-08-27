@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     authenticated: true,
     login: vi.fn(),
     logout: vi.fn(),
+    useProfile: vi.fn(),
     profile: {
         email: "test@example.com",
         displayName: "Test User"
@@ -26,9 +27,7 @@ vi.mock("./useAuth.ts", () => ({
 }));
 
 vi.mock("../features/profile/queries/useProfile.ts", () => ({
-    useProfile: () => ({
-        data: mocks.profile
-    })
+    useProfile: mocks.useProfile
 }));
 
 vi.mock("../features/profile/components/ProfileDetails.tsx", () => ({
@@ -53,6 +52,9 @@ beforeEach(() => {
         email: "test@example.com",
         displayName: "Test User"
     };
+    mocks.useProfile.mockReturnValue({
+        data: mocks.profile
+    });
 });
 
 describe("AuthButton", () => {

@@ -17,6 +17,14 @@ type FilmFormMockProps = {
     apiError?: {message: string};
 };
 
+type FilmDetailsMockProps = {
+    data: {id: number; title: string};
+    isAdmin: boolean;
+    onEdit: () => void;
+    onDelete: () => void;
+    onOpenCollections?: () => void;
+};
+
 const mocks = vi.hoisted(() => ({
     useFilm: vi.fn(),
     useUpdateFilm: vi.fn(),
@@ -71,18 +79,14 @@ vi.mock("react-router", async () => {
     };
 });
 
-vi.mock("../components/FilmDetails.tsx", () => ({
-    FilmDetails: ({
+vi.mock("../components/FilmDetails.tsx", () => {
+    const FilmDetails = ({
         data,
+        isAdmin,
         onEdit,
         onDelete,
         onOpenCollections,
-    }: {
-        data: {id: number; title: string};
-        onEdit: () => void;
-        onDelete: () => void;
-        onOpenCollections?: () => void;
-    }) => (
+    }: FilmDetailsMockProps) => (
         <div>
             <h1>{data.title}</h1>
             {onOpenCollections && (
@@ -90,15 +94,21 @@ vi.mock("../components/FilmDetails.tsx", () => ({
                     Collections
                 </button>
             )}
-            <button title="Edit" onClick={onEdit}>
-                Edit
-            </button>
-            <button title="Delete" onClick={onDelete}>
-                Delete
-            </button>
+            {isAdmin && (
+                <>
+                    <button title="Edit" onClick={onEdit}>
+                        Edit
+                    </button>
+                    <button title="Delete" onClick={onDelete}>
+                        Delete
+                    </button>
+                </>
+            )}
         </div>
-    ),
-}));
+    );
+
+    return {FilmDetails};
+});
 
 vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
     CollectionsPopup: ({

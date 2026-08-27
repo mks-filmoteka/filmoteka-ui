@@ -4,8 +4,8 @@ import {SORT_BY, SORT_DIR} from "../constants/constants.ts";
 type Props = {
     filterOpen: boolean;
     setFilterOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    sortParams: { by?: string, dir?: string }[];
-    setSort: (sort: { by?: string; dir?: string; }[]) => void
+    sortParams: SortParam[];
+    setSort: (sort: SortParam[]) => void
     view: string;
     setView: (view: string) => void;
     onSave?: () => void;
@@ -13,6 +13,18 @@ type Props = {
     saveDisabled?: boolean;
     cancelDisabled?: boolean;
 };
+
+type SortParam = {
+    by?: string;
+    dir?: string;
+};
+
+function getSortIndicator(sort: SortParam | undefined) {
+    if (!sort) {
+        return "⇅";
+    }
+    return sort.dir === SORT_DIR[0] ? "↑" : "↓";
+}
 
 export function ListToolbar(props: Readonly<Props>) {
     const {
@@ -41,6 +53,8 @@ export function ListToolbar(props: Readonly<Props>) {
     };
     const titleSort = sortParams.find(s => s.by === SORT_BY[0]);
     const yearSort = sortParams.find(s => s.by === SORT_BY[1]);
+    const titleSortIndicator = getSortIndicator(titleSort);
+    const yearSortIndicator = getSortIndicator(yearSort);
 
     return (
         <div className="navigation toolbar">
@@ -60,13 +74,13 @@ export function ListToolbar(props: Readonly<Props>) {
                     className={titleSort ? "active" : ""}
                     onClick={() => toggleSort(SORT_BY[0])}
                 >
-                    Title {titleSort ? titleSort.dir === SORT_DIR[0] ? "↑" : "↓" : "⇅"}
+                    Title {titleSortIndicator}
                 </button>
                 <button
                     className={yearSort ? "active" : ""}
                     onClick={() => toggleSort(SORT_BY[1])}
                 >
-                    Year {yearSort ? yearSort.dir === SORT_DIR[0] ? "↑" : "↓" : "⇅"}
+                    Year {yearSortIndicator}
                 </button>
             </div>
 
