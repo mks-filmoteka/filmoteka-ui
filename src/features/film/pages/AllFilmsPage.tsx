@@ -1,15 +1,13 @@
-import {useState} from "react";
+import {useNavigate} from "react-router";
 import {useAuth} from "../../../auth/useAuth.ts";
-import {FilmFormController} from "../components/FilmFormController.tsx";
 import {FilmListScreen} from "../components/FilmListScreen.tsx";
-import {useCreateFilm} from "../queries/useCreateFilm.ts";
 import {useFilmListSearchState} from "../queries/useFilmListSearchState.ts";
 import {useFilms} from "../queries/useFilms.ts";
+import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 
 function AllFilmsPage() {
+    const navigate = useNavigate();
     const isAdmin = useAuth().isAdmin;
-    const [isCreating, setIsCreating] = useState(false);
-    const createFilm = useCreateFilm();
     const search = useFilmListSearchState();
     const filmsQuery = useFilms(search.filmFilter);
 
@@ -19,27 +17,26 @@ function AllFilmsPage() {
     if (filmsQuery.error) {
         return <h1>Error loading films: {filmsQuery.error.message}</h1>;
     }
-    if (isAdmin && isCreating) {
-        return (
-            <FilmFormController
-                confirmMessage="Confirm create film?"
-                isPending={createFilm.isPending}
-                onCancel={() => setIsCreating(false)}
-                onSave={(request, options) => createFilm.mutate({request}, options)}
-            />
-        );
-    }
 
     return (
-        <FilmListScreen
-            filmsData={filmsQuery.data}
-            search={search}
-            title="Films"
-            titleAction={isAdmin ? {
-                title: "Add new film",
-                onClick: () => setIsCreating(true)
-            } : undefined}
-        />
+        <div>
+            <PageHeader
+                title="Films"
+                controls={isAdmin && (
+                    <button
+                        title="Add new film"
+                        onClick={() => navigate("/films/new")}
+                    >
+                        ✚
+                    </button>
+                )}
+            />
+            <hr/>
+            <FilmListScreen
+                filmsData={filmsQuery.data}
+                search={search}
+            />
+        </div>
     );
 }
 

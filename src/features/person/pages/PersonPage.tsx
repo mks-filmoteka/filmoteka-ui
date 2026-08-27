@@ -8,13 +8,14 @@ import {useAuth} from "../../../auth/useAuth.ts";
 import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {useRequiredId} from "../../../shared/queries/useRequiredParam.ts";
+import {useRequiredId} from "../../../shared/utils/useRequiredId.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import type {AxiosError} from "axios";
+import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
-    const id = useRequiredId("id");
+    const id = useRequiredId();
     const {data, isLoading, error} = usePerson(type, id);
     const isAdmin = useAuth().isAdmin;
     const [isEditing, setIsEditing] = useState(false);
@@ -76,82 +77,62 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         .sort(sorting);
 
     const pageTitle = (
-        <div className="page-title">
-            {isEditing ? (
+        <PageHeader
+            title={isEditing ? (
+                <TextInput
+                    id={"name-edit"}
+                    ariaLabel="edit name"
+                    value={form.name}
+                    maxLength={100}
+                    onChange={(value) =>
+                        setForm(prev => ({
+                            ...prev,
+                            name: value
+                        }))
+                    }
+                    regex={INPUT_RULES.name}
+                    placeholder="Edit name"
+                />
+            ) : data?.name}
+            meta={type}
+            controls={isEditing ? (
                 <>
-                    {/*TITLE OR EDIT INPUT*/}
-                    <h1>
-                        <TextInput
-                            id={"name-edit"}
-                            ariaLabel="edit name"
-                            value={form.name}
-                            maxLength={100}
-                            onChange={(value) =>
-                                setForm(prev => ({
-                                    ...prev,
-                                    name: value
-                                }))
-                            }
-                            regex={INPUT_RULES.name}
-                            placeholder="Edit name"
-                        />
-                    </h1>
-                    {apiError && (
-                        <div style={{ color: "red" }}>
-                            <div>{apiError.message}</div>
-                            <div>
-                                {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                                    <div key={detail.field}>{detail.field}: {detail.message}</div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    <div>
-                        {type}
-
-                        {/*SAVE BUTTON*/}
-                        <div className="page-title-controls">
-                            <button
-                                onClick={handleSave}
-                                disabled={!isChanged || updatePerson.isPending || isInvalid}
-                            >
-                                ✔
-                            </button>
-
-                            {/*CANCEL BUTTON*/}
-                            <button onClick={() => {
-                                setIsEditing(false);
-                                setForm({name: data?.name ?? ""});
-                            }}>
-                                ✖
-                            </button>
-                        </div>
-                    </div>
+                    <button
+                        onClick={handleSave}
+                        disabled={!isChanged || updatePerson.isPending || isInvalid}
+                    >
+                        ✔
+                    </button>
+                    <button onClick={() => {
+                        setIsEditing(false);
+                        setForm({name: data?.name ?? ""});
+                    }}>
+                        ✖
+                    </button>
                 </>
-            ) : (
-                <>
-                    <h1>{data?.name}</h1>
-                    <div>
-                        {type}
-                        <div className="page-title-controls">
-
-                            {/*EDIT BUTTON*/}
-                            {isAdmin && data && (
-                                <button
-                                    title={"Edit"}
-                                    onClick={() => {
-                                        setIsEditing(true);
-                                        setForm({name: data.name});
-                                    }}
-                                >
-                                    ✎
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </>
+            ) : isAdmin && data && (
+                <button
+                    title={"Edit"}
+                    onClick={() => {
+                        setIsEditing(true);
+                        setForm({name: data.name});
+                    }}
+                >
+                    ✎
+                </button>
             )}
-        </div>
+        >
+            {isEditing && apiError && (
+                <div style={{color: "red"}}>
+                    <div>{apiError.message}</div>
+                    <div>
+                        {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
+                            <div key={detail.field}>{detail.field}: {detail.message}</div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </PageHeader>
     );
 
     if (isLoading) return <h1>Loading...</h1>;
@@ -159,29 +140,32 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     if (!data) return <h1>{type} not found</h1>;
 
     return (
-        <FilmList
-            films={films}
-            pageTitle={pageTitle}
-            page={0}
-            pageSize={0}
-            totalPages={0}
-            setPage={() => {}}
-            view={view}
-            setView={setView}
-            filterOpen={filterOpen}
-            setFilterOpen={setFilterOpen}
-            genres={genres}
-            setGenres={setGenres}
-            countries={countries}
-            setCountries={setCountries}
-            yearFrom={yearFrom}
-            yearTo={yearTo}
-            setYearFrom={setYearFrom}
-            setYearTo={setYearTo}
-            resetYears={resetYears}
-            sortParams={sortParams}
-            setSort={setSort}
-        />
+        <div>
+            {pageTitle}
+            <hr/>
+            <FilmList
+                films={films}
+                page={0}
+                pageSize={0}
+                totalPages={0}
+                setPage={() => {}}
+                view={view}
+                setView={setView}
+                filterOpen={filterOpen}
+                setFilterOpen={setFilterOpen}
+                genres={genres}
+                setGenres={setGenres}
+                countries={countries}
+                setCountries={setCountries}
+                yearFrom={yearFrom}
+                yearTo={yearTo}
+                setYearFrom={setYearFrom}
+                setYearTo={setYearTo}
+                resetYears={resetYears}
+                sortParams={sortParams}
+                setSort={setSort}
+            />
+        </div>
     );
 }
 

@@ -9,7 +9,7 @@ import "../../../shared/styles/list.css";
 
 type Props = {
     films: FilmBasic[];
-    pageTitle: React.JSX.Element;
+    pageTitle?: React.JSX.Element;
     page: number;
     totalPages: number;
     pageSize: number;
@@ -96,8 +96,12 @@ export function FilmList(props: Readonly<Props>) {
 
     return (
         <div>
-            {pageTitle}
-            <hr/>
+            {pageTitle && (
+                <>
+                    {pageTitle}
+                    <hr/>
+                </>
+            )}
 
             {/* FILTER POPUP */}
             <FilterPopup

@@ -5,94 +5,62 @@ import {getFileUrl} from "../../media/api/mediaApi.ts";
 
 type Props = {
     data: Film;
-    isAdmin: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
-    onOpenCollections?: () => void;
 };
 
 export function FilmDetails(props: Readonly<Props>) {
-    const { data, isAdmin, onEdit, onDelete, onOpenCollections } = props;
+    const { data } = props;
     return (
-        <>
-            <div className="page-title">
-                <h1>{data.title} ({data.releaseYear})</h1>
-                <div>
-                    {data.genres[0] ?? ""}
-                    <div className="page-title-controls">
-                        {onOpenCollections && (
-                            <button title="Collections" onClick={onOpenCollections}>
-                                ★
-                            </button>
-                        )}
-                        {isAdmin && (
-                            <>
-                                <button title="Edit" onClick={onEdit}>
-                                    ✎
-                                </button>
-                                <button title="Delete" onClick={onDelete}>
-                                    🗑
-                                </button>
-                            </>
-                        )}
+        <div className="main-grid">
+            <Poster
+                src={data.posterName ? getFileUrl(data.posterName) : null}
+                alt={data.title}
+            />
+            <div>
+                <p>{data.description}</p>
+                <div className="details-column">
+                    <div>
+                        <span>Year</span>
+                        {data.releaseYear}
                     </div>
-                </div>
-            </div>
 
-            <hr />
-
-            <div className="main-grid">
-                <Poster
-                    src={data.posterName ? getFileUrl(data.posterName) : null}
-                    alt={data.title}
-                />
-                <div>
-                    <p>{data.description}</p>
-                    <div className="details-column">
-                        <div>
-                            <span>Year</span>
-                            {data.releaseYear}
-                        </div>
-
-                        <div>
-                            <span>Country</span>
-                            {data.countries.join(", ")}
-                        </div>
-
-                        <div>
-                            <span>Genre</span>
-                            {data.genres.join(", ")}
-                        </div>
-
-                        <div>
-                            <span>Director</span>
-                            {data.directors.map((director) => (
-                                <Link
-                                    key={director.id}
-                                    to={`/people/director/${director.id}`}
-                                    className="person-link person-link--line"
-                                >
-                                    {director.name}
-                                </Link>
-                            ))}
-                        </div>
+                    <div>
+                        <span>Country</span>
+                        {data.countries.join(", ")}
                     </div>
-                </div>
-                <div>
-                    <p><span>Cast</span></p>
-                    <div className="people-column">
-                        {data.actors.map((actor) => (
+
+                    <div>
+                        <span>Genre</span>
+                        {data.genres.join(", ")}
+                    </div>
+
+                    <div>
+                        <span>Director</span>
+                        {data.directors.map((director) => (
                             <Link
-                                key={actor.id}
-                                to={`/people/actor/${actor.id}`}
-                                className="person-link"
+                                key={director.id}
+                                to={`/people/director/${director.id}`}
+                                className="person-link person-link--line"
                             >
-                                {actor.name}
+                                {director.name}
                             </Link>
                         ))}
                     </div>
                 </div>
             </div>
-        </>
+            <div>
+                <p><span>Cast</span></p>
+                <div className="people-column">
+                    {data.actors.map((actor) => (
+                        <Link
+                            key={actor.id}
+                            to={`/people/actor/${actor.id}`}
+                            className="person-link"
+                        >
+                            {actor.name}
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </div>
     );
 }

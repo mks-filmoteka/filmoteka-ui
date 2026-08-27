@@ -93,6 +93,7 @@ function PosterUpload(props: Readonly<Props>) {
                     <Poster src={posterUrl} alt={alt}/>
                 )}
                 <button
+                    type="button"
                     className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
                     onClick={() => inputRef.current?.click()}
                     onDragEnter={(event) => {
@@ -114,6 +115,7 @@ function PosterUpload(props: Readonly<Props>) {
 
                 {(value || posterFile) && (
                     <button
+                        type="button"
                         className="poster-remove-button"
                         onClick={handleRemove}
                         disabled={disabled}

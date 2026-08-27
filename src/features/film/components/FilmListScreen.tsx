@@ -14,23 +14,14 @@ type FilmSelectionProps = {
     selectionDisabled?: boolean;
 };
 
-type TitleAction = {
-    title: string;
-    onClick: () => void;
-};
-
 type Props = FilmSelectionProps & {
     filmsData?: Page<FilmBasic>;
-    title?: string;
-    titleAction?: TitleAction;
     search: FilmListSearchState;
 };
 
 export function FilmListScreen(props: Readonly<Props>) {
     const {
         filmsData,
-        title,
-        titleAction,
         search,
         onSave,
         onCancel,
@@ -44,24 +35,6 @@ export function FilmListScreen(props: Readonly<Props>) {
     const totalPages = filmsData?.totalPages ?? 0;
     const pageSize = filmsData?.size ?? 1;
     const page = Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1));
-    const pageTitle = (
-        <div className="page-title">
-            <h1>{title}</h1>
-            <div>
-                <div></div>
-                <div className="page-title-controls">
-                    {titleAction && (
-                        <button
-                            title={titleAction.title}
-                            onClick={titleAction.onClick}
-                        >
-                            ✚
-                        </button>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
 
     useEffect(() => {
         if (filmsData && totalPages > 0 && pageParam > totalPages) {
@@ -72,7 +45,6 @@ export function FilmListScreen(props: Readonly<Props>) {
     return (
         <FilmList
             films={filmsData?.content ?? []}
-            pageTitle={pageTitle}
             page={page}
             pageSize={pageSize}
             totalPages={totalPages}
