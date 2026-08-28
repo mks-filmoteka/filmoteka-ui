@@ -55,6 +55,14 @@ vi.mock("../features/profile/components/ProfileDetails.tsx", () => ({
     )
 }));
 
+vi.mock("../features/collection/components/CollectionsPopup.tsx", () => ({
+    CollectionsPopup: ({onClose}: {onClose: () => void}) => (
+        <div role="dialog" aria-label="Collections">
+            <button onClick={onClose}>close collections</button>
+        </div>
+    )
+}));
+
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.authenticated = true;
@@ -78,6 +86,20 @@ describe("AppLayout", () => {
         expect(screen.getByText("test@example.com")).toBeInTheDocument();
         fireEvent.click(screen.getByText("close profile"));
         expect(screen.queryByRole("dialog", {name: "Profile details"})).not.toBeInTheDocument();
+    });
+
+    it("keeps layout popups mutually exclusive", () => {
+        render(<AppLayout/>);
+
+        fireEvent.click(screen.getByTitle("Collections"));
+
+        expect(screen.getByRole("dialog", {name: "Collections"})).toBeInTheDocument();
+        expect(screen.queryByRole("dialog", {name: "Profile details"})).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", {name: "Test User"}));
+
+        expect(screen.queryByRole("dialog", {name: "Collections"})).not.toBeInTheDocument();
+        expect(screen.getByRole("dialog", {name: "Profile details"})).toBeInTheDocument();
     });
 
     it("does not render a profile details placeholder without profile data", () => {

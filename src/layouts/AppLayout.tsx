@@ -9,17 +9,21 @@ import {useProfile} from "../features/profile/queries/useProfile.ts";
 import {ProfileDetails} from "../features/profile/components/ProfileDetails.tsx";
 import {IconButton} from "../shared/components/IconButton.tsx";
 
+type ActivePopup = "collections" | "profile";
+
 export function AppLayout() {
     const navigate = useNavigate();
     const {authenticated} = useAuth();
     const {data: profile} = useProfile();
     const [search, setSearch] = useState("");
-    const [collectionsOpen, setCollectionsOpen] = useState(false);
-    const [profileOpen, setProfileOpen] = useState(false);
+    const [activePopup, setActivePopup] = useState<ActivePopup>();
     const [showHeader, setShowHeader] = useState(true);
     const previousScrollY = useRef(0);
-    const openProfileDetails = () => setProfileOpen(true);
-    const closeProfileDetails = () => setProfileOpen(false);
+    const toggleCollections = () => {
+        setActivePopup(current => current === "collections" ? undefined : "collections");
+    };
+    const openProfileDetails = () => setActivePopup("profile");
+    const closePopup = () => setActivePopup(undefined);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -48,7 +52,7 @@ export function AppLayout() {
                             <IconButton
                                 icon="collection"
                                 label="Collections"
-                                onClick={() => setCollectionsOpen(prev => !prev)}
+                                onClick={toggleCollections}
                             />
                         )}
                     </div>
@@ -108,13 +112,13 @@ export function AppLayout() {
                     </div>
                 </div>
             </header>
-            {authenticated && collectionsOpen && (
-                <CollectionsPopup onClose={() => setCollectionsOpen(false)}/>
+            {authenticated && activePopup === "collections" && (
+                <CollectionsPopup onClose={closePopup}/>
             )}
-            {authenticated && profileOpen && profile && (
+            {authenticated && activePopup === "profile" && profile && (
                 <ProfileDetails
                     profile={profile}
-                    onClose={closeProfileDetails}
+                    onClose={closePopup}
                 />
             )}
             <main>
