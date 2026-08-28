@@ -7,6 +7,7 @@ import {useFilms} from "../../film/queries/useFilms.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {useFilmApiParams} from "../../film/queries/useFilmApiParams.ts";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 function CollectionPage() {
     const collectionId = useRequiredId();
@@ -47,12 +48,11 @@ function CollectionPage() {
             <PageHeader
                 title={collection?.name}
                 controls={!collectionFilmEditor.isEditing && (
-                    <button
-                        title={`Add films to ${collection?.name}`}
+                    <IconButton
+                        icon="create"
+                        label={`Add films to ${collection?.name}`}
                         onClick={collectionFilmEditor.startEditing}
-                    >
-                        ✚
-                    </button>
+                    />
                 )}
             />
             <hr/>

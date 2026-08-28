@@ -1,6 +1,7 @@
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {YEARS} from "../constants/constants.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 export type SelectRow<T extends string> = {
     id: string;
@@ -90,13 +91,11 @@ export function SelectArrayField<T extends string>(props: Readonly<SelectArrayFi
                             ))}
                         </select>
 
-                        <button
-                            type="button"
-                            title={`Remove ${label.toLowerCase()}`}
+                        <IconButton
+                            icon="cancel"
+                            label={`Remove ${label.toLowerCase()}`}
                             onClick={() => onRemove(row.id)}
-                        >
-                            ✖
-                        </button>
+                        />
                     </div>
                 ))}
 
@@ -136,14 +135,12 @@ export function PersonNameArrayField(props: Readonly<PersonNameArrayFieldProps>)
                         regex={INPUT_RULES.name}
                         onChange={(value) => onChange(row.id, value)}
                     />
-                    <button
-                        type="button"
-                        title={`Remove ${ariaLabelPrefix} ${position}`}
+                    <IconButton
+                        icon="cancel"
+                        label={`Remove ${ariaLabelPrefix} ${position}`}
                         onClick={() => onRemove(row.id)}
                         disabled={rows.length <= 1}
-                    >
-                        ✖
-                    </button>
+                    />
                 </div>
             ))}
             {rows.length < maxRows && (

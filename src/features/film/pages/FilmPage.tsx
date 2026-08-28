@@ -10,6 +10,7 @@ import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 import {CollectionsPopup} from "../../collection/components/CollectionsPopup.tsx";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 function FilmPage() {
     const navigate = useNavigate();
@@ -52,18 +53,24 @@ function FilmPage() {
                 controls={(
                     <>
                         {authenticated && (
-                            <button title="Collections" onClick={() => setCollectionsOpen(true)}>
-                                ★
-                            </button>
+                            <IconButton
+                                icon="collection"
+                                label="Collections"
+                                onClick={() => setCollectionsOpen(true)}
+                            />
                         )}
                         {isAdmin && (
                             <>
-                                <button title="Edit" onClick={() => navigate(`/films/${id}/edit`)}>
-                                    ✎
-                                </button>
-                                <button title="Delete" onClick={handleDelete}>
-                                    🗑
-                                </button>
+                                <IconButton
+                                    icon="edit"
+                                    label="Edit"
+                                    onClick={() => navigate(`/films/${id}/edit`)}
+                                />
+                                <IconButton
+                                    icon="delete"
+                                    label="Delete"
+                                    onClick={handleDelete}
+                                />
                             </>
                         )}
                     </>

@@ -14,6 +14,7 @@ import type {ApiError} from "../../../shared/types/ApiError.ts";
 import type {AxiosError} from "axios";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     const id = useRequiredId();
@@ -118,29 +119,30 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
             meta={type}
             controls={isEditing ? (
                 <>
-                    <button
+                    <IconButton
+                        icon="accept"
+                        label="Save"
                         onClick={handleSave}
                         disabled={!isChanged || updatePerson.isPending || isInvalid}
-                    >
-                        ✔
-                    </button>
-                    <button onClick={() => {
-                        setIsEditing(false);
-                        setForm({name: data?.name ?? ""});
-                    }}>
-                        ✖
-                    </button>
+                    />
+                    <IconButton
+                        icon="cancel"
+                        label="Cancel"
+                        onClick={() => {
+                            setIsEditing(false);
+                            setForm({name: data?.name ?? ""});
+                        }}
+                    />
                 </>
             ) : isAdmin && data && (
-                <button
-                    title={"Edit"}
+                <IconButton
+                    icon="edit"
+                    label="Edit"
                     onClick={() => {
                         setIsEditing(true);
                         setForm({name: data.name});
                     }}
-                >
-                    ✎
-                </button>
+                />
             )}
         >
             {isEditing && <ApiErrorMessage error={apiError}/>}

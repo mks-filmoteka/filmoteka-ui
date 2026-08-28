@@ -10,6 +10,7 @@ import {useRemoveFilm} from "../queries/useRemoveFilm.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {Collection} from "../types/collection.ts";
 import type {CollectionRequest} from "../types/collectionRequest.ts";
@@ -177,20 +178,18 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
                             onChange={setCollectionName}
                             onEnter={handleCreate}
                         />
-                        <button
-                            title="Save"
+                        <IconButton
+                            icon="accept"
+                            label="Save"
                             onClick={handleCreate}
                             disabled={!collectionName.trim() || createCollection.isPending}
-                        >
-                            ✔
-                        </button>
-                        <button
-                            title="Cancel"
+                        />
+                        <IconButton
+                            icon="cancel"
+                            label="Cancel"
                             onClick={resetCreateForm}
                             disabled={createCollection.isPending}
-                        >
-                            ✖
-                        </button>
+                        />
                     </div>
                 )}
 
@@ -209,24 +208,22 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
                                     onChange={(name) => setForm({name})}
                                     onEnter={handleUpdate}
                                 />
-                                <button
-                                    title="Save"
+                                <IconButton
+                                    icon="accept"
+                                    label="Save"
                                     onClick={handleUpdate}
                                     disabled={
                                         !form.name.trim() ||
                                         form.name.trim() === collection.name.trim() ||
                                         updateCollection.isPending
                                     }
-                                >
-                                    ✔
-                                </button>
-                                <button
-                                    title="Cancel"
+                                />
+                                <IconButton
+                                    icon="cancel"
+                                    label="Cancel"
                                     onClick={resetEditForm}
                                     disabled={updateCollection.isPending}
-                                >
-                                    ✖
-                                </button>
+                                />
                             </>
                         ) : (
                             <>
@@ -239,45 +236,41 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
                                 </button>
                                 {isFilmManagement ? (
                                     <>
-                                        <button
-                                            title="add film"
+                                        <IconButton
+                                            icon="add"
+                                            label="add film"
                                             onClick={() => handleAddFilm(collection.id)}
                                             disabled={
                                                 collectionHasFilm(collection) ||
                                                 addFilm.isPending ||
                                                 removeFilm.isPending
                                             }
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            title="remove film"
+                                        />
+                                        <IconButton
+                                            icon="remove"
+                                            label="remove film"
                                             onClick={() => handleRemoveFilm(collection.id)}
                                             disabled={
                                                 !collectionHasFilm(collection) ||
                                                 addFilm.isPending ||
                                                 removeFilm.isPending
                                             }
-                                        >
-                                            -
-                                        </button>
+                                        />
                                     </>
                                 ) : (
                                     <>
-                                        <button
-                                            title="rename"
+                                        <IconButton
+                                            icon="edit"
+                                            label="rename"
                                             onClick={() => startEditing(collection)}
                                             disabled={updateCollection.isPending || deleteCollection.isPending}
-                                        >
-                                            ✎
-                                        </button>
-                                        <button
-                                            title="delete"
+                                        />
+                                        <IconButton
+                                            icon="delete"
+                                            label="delete"
                                             onClick={() => handleDelete(collection.id)}
                                             disabled={updateCollection.isPending || deleteCollection.isPending}
-                                        >
-                                            🗑
-                                        </button>
+                                        />
                                     </>
                                 )}
                             </>
@@ -300,13 +293,12 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
                 <div className="filter-section-header">
                     <span>Collections</span>
                     {!isFilmManagement && (
-                        <button
-                            title="Create new collection"
+                        <IconButton
+                            icon="create"
+                            label="Create new collection"
                             onClick={startCreating}
                             disabled={isCreating || isLoading || !!error || createCollection.isPending}
-                        >
-                            ✚
-                        </button>
+                        />
                     )}
                 </div>
 

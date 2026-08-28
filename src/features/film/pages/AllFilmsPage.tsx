@@ -5,6 +5,7 @@ import {useFilms} from "../queries/useFilms.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {useFilmApiParams} from "../queries/useFilmApiParams.ts";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 function AllFilmsPage() {
     const navigate = useNavigate();
@@ -24,12 +25,11 @@ function AllFilmsPage() {
             <PageHeader
                 title="Films"
                 controls={isAdmin && (
-                    <button
-                        title="Add new film"
+                    <IconButton
+                        icon="create"
+                        label="Add new film"
                         onClick={() => navigate("/films/new")}
-                    >
-                        ✚
-                    </button>
+                    />
                 )}
             />
             <hr/>

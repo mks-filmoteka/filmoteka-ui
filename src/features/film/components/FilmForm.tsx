@@ -14,6 +14,7 @@ import {GENRES} from "../types/genre.ts";
 import {fillRequest} from "../utils/formState.ts";
 import {PersonNameArrayField, ReleaseYearField, SelectArrayField} from "./FilmFormFields.tsx";
 import {useFilmFormState} from "../queries/useFilmFormState.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 export type FilmFormSaveOptions = {
     onSuccess: () => void;
@@ -114,12 +115,17 @@ export function FilmForm(props: Readonly<Props>) {
                 <div>
                     <div>{filmForm.requestForm.genres[0] ?? ""}</div>
                     <div className="page-title-controls">
-                        <button type="submit" title="Save film" disabled={saveDisabled}>
-                            ✔
-                        </button>
-                        <button type="button" title="Cancel film" onClick={handleCancel}>
-                            ✖
-                        </button>
+                        <IconButton
+                            type="submit"
+                            icon="accept"
+                            label="Save film"
+                            disabled={saveDisabled}
+                        />
+                        <IconButton
+                            icon="cancel"
+                            label="Cancel film"
+                            onClick={handleCancel}
+                        />
                     </div>
                 </div>
             </div>

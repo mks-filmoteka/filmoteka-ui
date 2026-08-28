@@ -7,6 +7,7 @@ import {keycloak} from "../auth/keycloak.ts";
 import {CollectionsPopup} from "../features/collection/components/CollectionsPopup.tsx";
 import {useProfile} from "../features/profile/queries/useProfile.ts";
 import {ProfileDetails} from "../features/profile/components/ProfileDetails.tsx";
+import {IconButton} from "../shared/components/IconButton.tsx";
 
 export function AppLayout() {
     const navigate = useNavigate();
@@ -44,12 +45,11 @@ export function AppLayout() {
                             <img src="/favicon.svg" alt="Home" className="home-button-img"/>
                         </button>
                         {authenticated && (
-                            <button
+                            <IconButton
+                                icon="collection"
+                                label="Collections"
                                 onClick={() => setCollectionsOpen(prev => !prev)}
-                                title="Collections"
-                            >
-                                ★
-                            </button>
+                            />
                         )}
                     </div>
 
@@ -74,12 +74,12 @@ export function AppLayout() {
                             }}
                         />
                         {search !== "" && (
-                            <button
+                            <IconButton
+                                icon="clear"
+                                label="Clear search"
                                 className="input-clear"
                                 onClick={() => setSearch("")}
-                            >
-                                ×
-                            </button>
+                            />
                         )}
                     </div>
                     <div className="header-right">
@@ -93,16 +93,17 @@ export function AppLayout() {
                             </button>
                         )}
                         {authenticated ? (
-                            <button
+                            <IconButton
+                                icon="power"
+                                label="Logout"
                                 onClick={() => keycloak.logout({redirectUri: globalThis.location.origin})}
-                                title="Logout"
-                            >
-                                ⏻
-                            </button>
+                            />
                         ) : (
-                            <button onClick={() => keycloak.login()} title="Login">
-                                ⏻
-                            </button>
+                            <IconButton
+                                icon="power"
+                                label="Login"
+                                onClick={() => keycloak.login()}
+                            />
                         )}
                     </div>
                 </div>

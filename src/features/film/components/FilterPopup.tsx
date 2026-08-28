@@ -4,6 +4,7 @@ import {useState} from "react";
 import "../../../shared/styles/popup.css";
 import {GENRES} from "../types/genre.ts";
 import {COUNTRIES} from "../types/country.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     filterOpen: boolean;
@@ -64,13 +65,15 @@ export function FilterPopup(props: Readonly<Props>) {
                 <div className="filter-options">
                     <div className="filter-section-header">
                         <span>Release year:</span>
-                        <button onClick={() => {
-                            resetYears();
-                            setYearFromInput("");
-                            setYearToInput("");
-                        }}>
-                            ↺
-                        </button>
+                        <IconButton
+                            icon="reset"
+                            label="Reset release year"
+                            onClick={() => {
+                                resetYears();
+                                setYearFromInput("");
+                                setYearToInput("");
+                            }}
+                        />
                     </div>
 
                     {/* YEAR FROM */}

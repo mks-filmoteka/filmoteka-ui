@@ -8,6 +8,7 @@ import "../../../shared/styles/popup.css";
 import "../../../shared/styles/details.css";
 import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
 import type {UserProfile} from "../types/userProfile.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     profile: UserProfile;
@@ -104,25 +105,25 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                             <div className="page-title-controls">
                                 {isEditing ? (
                                     <>
-                                        <button
-                                            title="Save display name"
+                                        <IconButton
+                                            icon="accept"
+                                            label="Save display name"
                                             onClick={handleSave}
                                             disabled={!isChanged || isInvalid || updateProfile.isPending}
-                                        >
-                                            ✔
-                                        </button>
-                                        <button
-                                            title="Cancel display name edit"
+                                        />
+                                        <IconButton
+                                            icon="cancel"
+                                            label="Cancel display name edit"
                                             onClick={cancelEditing}
                                             disabled={updateProfile.isPending}
-                                        >
-                                            ✖
-                                        </button>
+                                        />
                                     </>
                                 ) : (
-                                    <button title="Edit display name" onClick={startEditing}>
-                                        ✎
-                                    </button>
+                                    <IconButton
+                                        icon="edit"
+                                        label="Edit display name"
+                                        onClick={startEditing}
+                                    />
                                 )}
                             </div>
                         </div>

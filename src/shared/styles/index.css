@@ -125,6 +125,24 @@ button {
     transition: background 0.3s ease;
 }
 
+.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.icon-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
 button:hover {
     transform: scale(1.3);
     box-shadow: 0 0 10px var(--text-color-f);
