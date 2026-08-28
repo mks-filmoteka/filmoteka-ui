@@ -9,6 +9,7 @@ import {useNavigate} from "react-router";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 import {CollectionsPopup} from "../../collection/components/CollectionsPopup.tsx";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 
 function FilmPage() {
     const navigate = useNavigate();
@@ -40,7 +41,7 @@ function FilmPage() {
     };
 
     if (isLoading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error loading film: {error.message}</h1>;
+    if (error) return <ApiErrorMessage error={error} message="Error loading film"/>;
     if (!data) return <h1>Film not found</h1>;
 
     return (

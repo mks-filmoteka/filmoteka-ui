@@ -6,6 +6,7 @@ import {useCollectionFilms} from "../../film/queries/useCollectionFilms.ts";
 import {useFilms} from "../../film/queries/useFilms.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {useFilmApiParams} from "../../film/queries/useFilmApiParams.ts";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 
 function CollectionPage() {
     const collectionId = useRequiredId();
@@ -35,10 +36,10 @@ function CollectionPage() {
         return <h1>Loading...</h1>;
     }
     if (selectedCollectionQuery.error) {
-        return <h1>Error loading collection: {selectedCollectionQuery.error.message}</h1>;
+        return <ApiErrorMessage error={selectedCollectionQuery.error} message="Error loading collection"/>;
     }
     if (activeFilmsQuery.error) {
-        return <h1>Error loading films: {activeFilmsQuery.error.message}</h1>;
+        return <ApiErrorMessage error={activeFilmsQuery.error} message="Error loading films"/>;
     }
 
     return (

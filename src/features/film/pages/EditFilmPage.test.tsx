@@ -129,7 +129,7 @@ describe("EditFilmPage", () => {
         });
         rerender(<EditFilmPage/>);
 
-        expect(screen.getByRole("heading", {name: "Error loading film: Request failed"})).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toHaveTextContent("Error loading film: Request failed");
 
         mocks.useFilm.mockReturnValueOnce({
             data: undefined,

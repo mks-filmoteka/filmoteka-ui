@@ -13,6 +13,7 @@ import type {PersonRequest} from "../types/personRequest.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import type {AxiosError} from "axios";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
     const id = useRequiredId();
@@ -142,21 +143,12 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
                 </button>
             )}
         >
-            {isEditing && apiError && (
-                <div style={{color: "red"}}>
-                    <div>{apiError.message}</div>
-                    <div>
-                        {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                            <div key={detail.field}>{detail.field}: {detail.message}</div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {isEditing && <ApiErrorMessage error={apiError}/>}
         </PageHeader>
     );
 
     if (isLoading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error loading {type}: {error.message}</h1>;
+    if (error) return <ApiErrorMessage error={error} message={`Error loading ${type}`}/>;
     if (!data) return <h1>{type} not found</h1>;
 
     return (

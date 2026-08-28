@@ -1,6 +1,7 @@
 import type {AxiosError} from "axios";
 import {type SubmitEvent as ReactSubmitEvent, useState} from "react";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
@@ -401,16 +402,7 @@ export function FilmForm(props: Readonly<Props>) {
                     </div>
                 </div>
             </div>
-            {apiError && (
-                <div style={{color: "red"}}>
-                    <div>{apiError.message}</div>
-                    <div>
-                        {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                            <div key={detail.field}>{detail.field}: {detail.message}</div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <ApiErrorMessage error={apiError}/>
         </form>
     );
 }

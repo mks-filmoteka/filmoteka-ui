@@ -5,6 +5,7 @@ import {useFilm} from "../queries/useFilm.ts";
 import {useUpdateFilm} from "../queries/useUpdateFilm.ts";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
 import {isFormChanged} from "../utils/formState.ts";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 
 function EditFilmPage() {
     const id = useRequiredId();
@@ -17,7 +18,7 @@ function EditFilmPage() {
         return <h1>Loading...</h1>;
     }
     if (filmQuery.error) {
-        return <h1>Error loading film: {filmQuery.error.message}</h1>;
+        return <ApiErrorMessage error={filmQuery.error} message="Error loading film"/>;
     }
     if (!filmQuery.data) {
         return <h1>Film not found</h1>;

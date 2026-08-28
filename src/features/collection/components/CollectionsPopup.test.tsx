@@ -172,7 +172,7 @@ describe("CollectionsPopup", () => {
         };
         rerender(<CollectionsPopup onClose={mocks.onClose}/>);
 
-        expect(screen.getByRole("heading", {name: "Error loading collections: Request failed"})).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toHaveTextContent("Error loading collections: Request failed");
     });
 
     it("creates a collection from the inline input", () => {

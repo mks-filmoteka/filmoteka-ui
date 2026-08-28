@@ -1,6 +1,7 @@
 import {useState} from "react";
 import type {AxiosError} from "axios";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import "../../../shared/styles/popup.css";
@@ -128,16 +129,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                     </div>
                 </div>
 
-                {apiError && (
-                    <div style={{ color: "red" }}>
-                        <div>{apiError.message}</div>
-                        <div>
-                            {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                                <div key={detail.field}>{detail.field}: {detail.message}</div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <ApiErrorMessage error={apiError}/>
             </div>
         </div>
     );
