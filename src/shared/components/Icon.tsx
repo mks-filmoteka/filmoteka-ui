@@ -21,7 +21,8 @@ const ICONS = {
     reset: "↺",
     sort: "⇅",
     sortAsc: "↑",
-    sortDesc: "↓"
+    sortDesc: "↓",
+    film: "🎬"
 } as const;
 
 export type IconName = keyof typeof ICONS;
