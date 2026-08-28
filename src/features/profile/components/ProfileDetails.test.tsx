@@ -34,20 +34,15 @@ beforeEach(() => {
 });
 
 describe("ProfileDetails", () => {
-    it("renders profile details and closes from the overlay", () => {
+    it("renders profile details and closes from the backdrop button", () => {
         const onClose = vi.fn();
-        const {container} = render(<ProfileDetails profile={profile} onClose={onClose}/>);
+        render(<ProfileDetails profile={profile} onClose={onClose}/>);
 
         expect(screen.getByText("Profile details")).toBeInTheDocument();
         expect(screen.getByText("test@example.com")).toBeInTheDocument();
         expect(screen.getByText("Test User")).toBeInTheDocument();
 
-        const overlay = container.querySelector<HTMLElement>(".popup-overlay");
-        if (!overlay) {
-            throw new Error("Expected profile overlay");
-        }
-
-        fireEvent.click(overlay);
+        fireEvent.click(screen.getByLabelText("Close profile details"));
         expect(onClose).toHaveBeenCalledTimes(1);
     });
 

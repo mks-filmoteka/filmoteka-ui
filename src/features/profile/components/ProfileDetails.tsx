@@ -4,6 +4,7 @@ import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {getApiError} from "../../../shared/api/apiError.ts";
+import {Dialog} from "../../../shared/components/Dialog.tsx";
 import "../../../shared/styles/popup.css";
 import "../../../shared/styles/details.css";
 import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
@@ -56,81 +57,71 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
     };
 
     return (
-        <div
-            className="popup-overlay"
-            onClick={onClose}
-            onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                    onClose();
-                }
-            }}
-            role="presentation"
+        <Dialog
+            label="Profile details"
+            closeLabel="Close profile details"
+            onClose={onClose}
         >
-            <div
-                className="popup"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <div className="filter-section-header">
-                    <span>Profile details</span>
+            <div className="filter-section-header">
+                <span>Profile details</span>
+            </div>
+
+            <hr/>
+
+            <div className="details-column profile-details">
+                <div>
+                    <span>Email</span>
+                    {profile.email}
                 </div>
 
-                <hr/>
+                <div>
+                    <span>Display name</span>
+                    <div className="array-editor-row">
+                        {isEditing ? (
+                            <TextInput
+                                id="profile-display-name"
+                                ariaLabel="edit display name"
+                                value={displayName}
+                                onChange={setDisplayName}
+                                maxLength={100}
+                                regex={INPUT_RULES.name}
+                                placeholder="Display name"
+                                disabled={updateProfile.isPending}
+                                onEnter={handleSave}
+                            />
+                        ) : (
+                            <>{profile.displayName}</>
+                        )}
 
-                <div className="details-column profile-details">
-                    <div>
-                        <span>Email</span>
-                        {profile.email}
-                    </div>
-
-                    <div>
-                        <span>Display name</span>
-                        <div className="array-editor-row">
+                        <div className="page-title-controls">
                             {isEditing ? (
-                                <TextInput
-                                    id="profile-display-name"
-                                    ariaLabel="edit display name"
-                                    value={displayName}
-                                    onChange={setDisplayName}
-                                    maxLength={100}
-                                    regex={INPUT_RULES.name}
-                                    placeholder="Display name"
-                                    disabled={updateProfile.isPending}
-                                    onEnter={handleSave}
-                                />
-                            ) : (
-                                <>{profile.displayName}</>
-                            )}
-
-                            <div className="page-title-controls">
-                                {isEditing ? (
-                                    <>
-                                        <IconButton
-                                            icon="accept"
-                                            label="Save display name"
-                                            onClick={handleSave}
-                                            disabled={!isChanged || isInvalid || updateProfile.isPending}
-                                        />
-                                        <IconButton
-                                            icon="cancel"
-                                            label="Cancel display name edit"
-                                            onClick={cancelEditing}
-                                            disabled={updateProfile.isPending}
-                                        />
-                                    </>
-                                ) : (
+                                <>
                                     <IconButton
-                                        icon="edit"
-                                        label="Edit display name"
-                                        onClick={startEditing}
+                                        icon="accept"
+                                        label="Save display name"
+                                        onClick={handleSave}
+                                        disabled={!isChanged || isInvalid || updateProfile.isPending}
                                     />
-                                )}
-                            </div>
+                                    <IconButton
+                                        icon="cancel"
+                                        label="Cancel display name edit"
+                                        onClick={cancelEditing}
+                                        disabled={updateProfile.isPending}
+                                    />
+                                </>
+                            ) : (
+                                <IconButton
+                                    icon="edit"
+                                    label="Edit display name"
+                                    onClick={startEditing}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
-
-                <ApiErrorMessage error={apiError}/>
             </div>
-        </div>
+
+            <ApiErrorMessage error={apiError}/>
+        </Dialog>
     );
 }

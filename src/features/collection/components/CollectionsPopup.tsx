@@ -11,6 +11,7 @@ import {getApiError} from "../../../shared/api/apiError.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {IconButton} from "../../../shared/components/IconButton.tsx";
+import {Dialog} from "../../../shared/components/Dialog.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {Collection} from "../types/collection.ts";
 import type {CollectionRequest} from "../types/collectionRequest.ts";
@@ -281,30 +282,26 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     }
 
     return (
-        <div className="popup-overlay">
-            <button
-                className="popup-backdrop-button"
-                aria-label="Close collections"
-                title="Close"
-                onClick={closePopup}
-            />
-            <div className="popup" role="dialog" aria-label="Collections">
-                <div className="filter-section-header">
-                    <span>Collections</span>
-                    {!isFilmManagement && (
-                        <IconButton
-                            icon="create"
-                            label="Create new collection"
-                            onClick={startCreating}
-                            disabled={isCreating || isLoading || !!error || createCollection.isPending}
-                        />
-                    )}
-                </div>
-
-                {collectionsContent}
-
-                <ApiErrorMessage error={apiError}/>
+        <Dialog
+            label="Collections"
+            closeLabel="Close collections"
+            onClose={closePopup}
+        >
+            <div className="filter-section-header">
+                <span>Collections</span>
+                {!isFilmManagement && (
+                    <IconButton
+                        icon="create"
+                        label="Create new collection"
+                        onClick={startCreating}
+                        disabled={isCreating || isLoading || !!error || createCollection.isPending}
+                    />
+                )}
             </div>
-        </div>
+
+            {collectionsContent}
+
+            <ApiErrorMessage error={apiError}/>
+        </Dialog>
     );
 }
