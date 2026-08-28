@@ -2,6 +2,10 @@ import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import './shared/styles/index.css'
+import './shared/styles/details.css'
+import './shared/styles/item.css'
+import './shared/styles/list.css'
+import './shared/styles/dialog.css'
 import App from './App.tsx'
 import {keycloak} from "./auth/keycloak.ts";
 

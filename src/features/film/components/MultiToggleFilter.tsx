@@ -18,7 +18,7 @@ export function MultiToggleFilter({title, options, selected, onToggle, onReset}:
     };
     return (
         <div className="filter-options">
-            <div className="filter-section-header">
+            <div className="dialog-section-header">
                 <span>{title}:</span>
                 <IconButton
                     icon="reset"

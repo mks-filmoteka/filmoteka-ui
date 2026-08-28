@@ -1,5 +1,4 @@
 import {useFilm} from "../queries/useFilm.ts";
-import "../../../shared/styles/details.css";
 import {useAuth} from "../../../auth/useAuth.ts";
 import {useState} from "react";
 import {useRequiredId} from "../../../shared/utils/useRequiredId.ts";

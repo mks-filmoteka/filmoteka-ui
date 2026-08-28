@@ -81,19 +81,6 @@
     color: var(--text-color);
 }
 
-.input-clear {
-    position: absolute;
-    background: none;
-    right: 2px;
-    cursor: pointer;
-    padding: 3px 3px;
-    color: var(--text-color-f);
-}
-
-.input-clear:hover {
-    box-shadow: none;
-}
-
 @media (max-width: 660px) {
     .card-grid {
         grid-template-columns: repeat(3, 1fr);

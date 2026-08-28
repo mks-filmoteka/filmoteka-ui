@@ -1,7 +1,6 @@
 import type {FilmBasic} from "../types/filmBasic.ts";
 import FilmListItem from "./FilmListItem.tsx";
 import FilmCard from "./FilmCard.tsx";
-import "../../../shared/styles/list.css";
 
 type Props = {
     films: FilmBasic[];

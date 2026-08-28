@@ -181,6 +181,7 @@ body button:disabled {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+    min-width: 0;
 }
 
 .header-hidden {
@@ -203,6 +204,16 @@ body button:disabled {
 .home-button-img {
     width: 28px;
     height: 28px;
+}
+
+.profile-name-button {
+    max-width: 100%;
+    min-width: 0;
+    height: 28px;
+    padding: 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .page-title {
@@ -229,7 +240,7 @@ body button:disabled {
 
 .page-title-controls {
     display: flex;
-    width: contain;
+    flex: 0 0 auto;
     gap: 4px;
 }
 

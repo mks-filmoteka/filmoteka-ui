@@ -1,7 +1,6 @@
 import {MultiToggleFilter} from "./MultiToggleFilter.tsx";
 import {DropdownFilter} from "./DropdownFilter.tsx";
 import {useState} from "react";
-import "../../../shared/styles/popup.css";
 import {GENRES} from "../types/genre.ts";
 import {COUNTRIES} from "../types/country.ts";
 import {IconButton} from "../../../shared/components/IconButton.tsx";
@@ -51,7 +50,7 @@ export function FilterPopup(props: Readonly<Props>) {
 
             {/* RELEASE YEAR FILTER SECTION */}
             <div className="filter-options">
-                <div className="filter-section-header">
+                <div className="dialog-section-header">
                     <span>Release year:</span>
                     <IconButton
                         icon="reset"

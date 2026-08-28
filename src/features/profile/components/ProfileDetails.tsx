@@ -5,8 +5,6 @@ import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
 import {getApiError} from "../../../shared/api/apiError.ts";
 import {Dialog} from "../../../shared/components/Dialog.tsx";
-import "../../../shared/styles/popup.css";
-import "../../../shared/styles/details.css";
 import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
 import type {UserProfile} from "../types/userProfile.ts";
 import {IconButton} from "../../../shared/components/IconButton.tsx";
@@ -62,7 +60,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
             closeLabel="Close profile details"
             onClose={onClose}
         >
-            <div className="filter-section-header">
+            <div className="dialog-section-header">
                 <span>Profile details</span>
             </div>
 

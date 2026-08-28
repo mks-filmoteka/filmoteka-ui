@@ -1,7 +1,6 @@
 import type {FilmBasic} from "../types/filmBasic.ts";
 import {useNavigate} from "react-router";
 import Poster from "../../media/components/Poster.tsx";
-import "../../../shared/styles/item.css";
 import {getFileUrl} from "../../media/api/mediaApi.ts";
 
 type Props = {

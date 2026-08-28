@@ -1,4 +1,4 @@
-.popup {
+.dialog-panel {
     position: absolute;
     max-width: 490px;
     width: 40%;
@@ -9,7 +9,7 @@
     z-index: 1;
 }
 
-.popup-overlay {
+.dialog-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -19,7 +19,7 @@
     z-index: 1100;
 }
 
-.popup-backdrop-button {
+.dialog-backdrop-button {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -28,7 +28,7 @@
     border-radius: 0;
 }
 
-.popup-backdrop-button:hover {
+.dialog-backdrop-button:hover {
     transform: none;
     box-shadow: none;
 }
@@ -53,7 +53,7 @@
     padding: 2px 5px;
 }
 
-.filter-section-header {
+.dialog-section-header {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -62,7 +62,7 @@
     padding: 0 20px;
 }
 
-.filter-section-header button {
+.dialog-section-header button {
     text-align: center;
     background: var(--bg);
     height: 28px;
@@ -143,19 +143,19 @@
 }
 
 @media (max-width: 660px) {
-    .popup {
+    .dialog-panel {
         width: 70%;
     }
 }
 
 @media (max-width: 490px) {
-    .popup {
+    .dialog-panel {
         width: 90%;
     }
 }
 
 @media (max-width: 320px) {
-    .popup {
+    .dialog-panel {
         padding: 1px;
         width: 100%;
     }

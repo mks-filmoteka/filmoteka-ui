@@ -15,9 +15,6 @@ import {Dialog} from "../../../shared/components/Dialog.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {Collection} from "../types/collection.ts";
 import type {CollectionRequest} from "../types/collectionRequest.ts";
-import "../../../shared/styles/popup.css";
-import "../../../shared/styles/item.css";
-import "../../../shared/styles/details.css";
 
 type Props = {
     onClose: () => void;
@@ -287,7 +284,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
             closeLabel="Close collections"
             onClose={closePopup}
         >
-            <div className="filter-section-header">
+            <div className="dialog-section-header">
                 <span>Collections</span>
                 {!isFilmManagement && (
                     <IconButton
