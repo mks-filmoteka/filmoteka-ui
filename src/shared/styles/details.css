@@ -75,3 +75,15 @@
     box-shadow: none;
 }
 
+@media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .main-grid > :first-child {
+        width: min(100%, 300px);
+        justify-self: center;
+    }
+}

@@ -5,7 +5,7 @@ import type {PersonRequest} from "../types/personRequest.ts";
 export function useUpdatePerson(type: "actor" | "director") {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({id, request}: { id: string; request: PersonRequest; }) =>
+        mutationFn: ({id, request}: { id: number; request: PersonRequest; }) =>
             updatePerson(type, id, request),
         onSuccess: (_, variables) =>
             queryClient.invalidateQueries({queryKey: ["person", type, variables.id]})

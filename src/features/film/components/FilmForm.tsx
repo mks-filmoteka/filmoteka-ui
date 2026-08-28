@@ -1,107 +1,130 @@
-import type {FilmRequest} from "../types/filmRequest.ts";
-import React from "react";
+import {type ChangeEvent, type SubmitEvent as ReactSubmitEvent, useState} from "react";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {type Genre, GENRES} from "../types/genre.ts";
-import {YEARS} from "../constants/constants.ts";
-import {COUNTRIES, type Country} from "../types/country.ts";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {getApiError} from "../../../shared/api/apiError.ts";
+import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
+import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
+import {useUploadFile} from "../../media/queries/useUploadFile.ts";
+import {COUNTRIES} from "../types/country.ts";
+import type {Film} from "../types/film.ts";
+import type {FilmRequest} from "../types/filmRequest.ts";
+import {GENRES} from "../types/genre.ts";
+import {fillRequest} from "../utils/formState.ts";
+import {PersonNameArrayField, ReleaseYearField, SelectArrayField} from "./FilmFormFields.tsx";
+import {useFilmFormState} from "../queries/useFilmFormState.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
+
+export type FilmFormSaveOptions = {
+    onSuccess: () => void;
+    onError: (error: Error) => void;
+};
 
 type Props = {
-    form: FilmRequest;
-    setForm: React.Dispatch<React.SetStateAction<FilmRequest>>;
+    confirmMessage: string;
     onCancel: () => void;
-    onSave: () => void;
-    apiError?: ApiError | Error;
+    onSave: (request: FilmRequest, options: FilmFormSaveOptions) => void;
+    initialFilm?: Film;
     isPending?: boolean;
-    isChanged?: boolean;
-    posterFile: File | null;
-    setPosterFile: (file: File | null) => void;
+    isChanged: (form: FilmRequest, posterFile: File | null) => boolean;
 };
-type ArrayField = "actors" | "directors" | "genres" | "countries";
-type ArrayFieldValue = string | Genre | Country;
 
 export function FilmForm(props: Readonly<Props>) {
-    const {form, setForm, onSave, onCancel, apiError, isPending, isChanged, posterFile, setPosterFile} = props;
+    const {confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged} = props;
+    const uploadPoster = useUploadFile();
+    const deletePoster = useDeleteFile();
+    const filmForm = useFilmFormState(initialFilm);
+    const [posterFile, setPosterFile] = useState<File | null>(null);
+    const [apiError, setApiError] = useState<ApiError | Error>();
+    const pending = !!isPending || uploadPoster.isPending;
+    const saveDisabled =
+        !isChanged(filmForm.requestForm, posterFile) || pending || filmForm.isInvalid;
 
-    const updateItem =
-        (type: ArrayField, index: number, value: ArrayFieldValue) => {
-            setForm(prev => ({
-                ...prev,
-                [type]: prev[type].map((item, i) => {
-                    if (i !== index) {
-                        return item;
-                    }
-                    if (type === "genres" || type === "countries") {
-                        return value;
-                    }
-                    return {name: value};
-                })
-            }));
+    const resetForm = () => {
+        filmForm.resetForm();
+        setPosterFile(null);
+        setApiError(undefined);
     };
 
-    const removeItem =
-        (type: ArrayField, index: number) => {
-            setForm(prev => ({
-                ...prev,
-                [type]: prev[type].filter((_, i) => i !== index)
-            }));
-        };
+    const handleError = (error: Error, uploadedPosterName?: string) => {
+        if (uploadedPosterName) {
+            deletePoster.mutate(uploadedPosterName);
+        }
+        setApiError(getApiError(error));
+    };
 
-    const addItem =
-        (type: ArrayField) => {
-            setForm(prev => {
-                let param;
-                if (type === "genres") {
-                    param = GENRES.find(g => !form.genres.includes(g));
-                } else if (type === "countries") {
-                    param = COUNTRIES.find(g => !form.countries.includes(g));
-                } else param = {name: ""};
-                return {
-                    ...prev,
-                    [type]: [...prev[type], param]
-                };
-            });
-        };
+    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
+        onSave(request, {
+            onSuccess: resetForm,
+            onError: (error: Error) => handleError(error, uploadedPosterName)
+        });
+    };
 
-    const isInvalid =
-        !form.title.trim() ||
-        !form.description.trim() ||
-        form.releaseYear < 1888 || form.releaseYear > 2100 ||
-        form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
-        form.actors.some(a => !a.name.trim()) ||
-        form.directors.some(d => !d.name.trim());
+    const handleSubmit = (event: ReactSubmitEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (saveDisabled) return;
+        if (!confirm(confirmMessage)) return;
+
+        const request = fillRequest(filmForm.requestForm);
+        if (!posterFile) {
+            saveFilm(request);
+            return;
+        }
+
+        uploadPoster.mutate(
+            posterFile,
+            {
+                onSuccess: (uploadedPoster) => {
+                    saveFilm({
+                        ...request,
+                        posterName: uploadedPoster.fileName
+                    }, uploadedPoster.fileName);
+                },
+                onError: (error: Error) => handleError(error)
+            }
+        );
+    };
+
+    const handleCancel = () => {
+        resetForm();
+        onCancel();
+    };
+
+    const handleDescriptionChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+        event.target.style.height = "auto";
+        event.target.style.height = `${event.target.scrollHeight}px`;
+        filmForm.setDescription(event.target.value);
+    };
 
     return (
-        <>
+        <form onSubmit={handleSubmit}>
             <div className="page-title">
                 <h1>
                     <TextInput
-                        id={"form-title"}
+                        id="form-title"
                         ariaLabel="form title"
-                        value={form.title}
+                        value={filmForm.form.title}
                         maxLength={255}
-                        onChange={(value) =>
-                            setForm(prev => ({
-                                ...prev,
-                                title: value
-                            }))
-                        }
+                        onChange={filmForm.setTitle}
                         regex={INPUT_RULES.title}
                         placeholder="title"
-                    />({form.releaseYear})
+                    />({filmForm.form.releaseYear})
                 </h1>
                 <div>
-                    <div>{form.genres[0] ?? ""}</div>
+                    <div>{filmForm.requestForm.genres[0] ?? ""}</div>
                     <div className="page-title-controls">
-                        <button onClick={onSave} disabled={!(isChanged ?? true) || isPending || isInvalid}>
-                            ✔
-                        </button>
-
-                        <button onClick={onCancel}>
-                            ✖
-                        </button>
+                        <IconButton
+                            type="submit"
+                            icon="accept"
+                            label="Save film"
+                            disabled={saveDisabled}
+                        />
+                        <IconButton
+                            icon="cancel"
+                            label="Cancel film"
+                            onClick={handleCancel}
+                        />
                     </div>
                 </div>
             </div>
@@ -111,175 +134,68 @@ export function FilmForm(props: Readonly<Props>) {
             <div className="main-grid">
                 <div>
                     <PosterUpload
-                        value={form.posterName}
-                        alt={form.title || "Film poster"}
-                        onChange={(posterName) =>
-                            setForm(prev => ({
-                                ...prev,
-                                posterName,
-                            }))
-                        }
+                        value={filmForm.form.posterName}
+                        alt={filmForm.form.title || "Film poster"}
+                        onChange={filmForm.setPosterName}
                         posterFile={posterFile}
                         setPosterFile={setPosterFile}
-                        disabled={isPending}
+                        disabled={pending}
                     />
                 </div>
 
                 <div>
                     <p>
                         <textarea
-                            id={"form-description"}
+                            id="form-description"
                             aria-label="form description"
-                            value={form.description}
+                            value={filmForm.form.description}
                             maxLength={1000}
-                            onChange={(e) => {
-                                e.target.style.height = "auto";
-                                e.target.style.height = `${e.target.scrollHeight}px`;
-                                setForm(prev => ({
-                                    ...prev,
-                                    description: e.target.value
-                                }))
-                            }}
+                            onChange={handleDescriptionChange}
                             placeholder="description"
                         />
                     </p>
 
                     <div className="details-column">
-                        <div>
-                            <span>Year</span>
-                            <div className="array-editor">
-                                <div className="array-editor-row">
-                                    <select
-                                        value={form.releaseYear}
-                                        onChange={(e) =>
-                                            setForm(prev => ({
-                                                ...prev,
-                                                releaseYear: Number(e.target.value)
-                                            }))
-                                        }
-                                    >
-                                        <option value={0} disabled>
-                                            select
-                                        </option>
-                                        {YEARS.map(y => (
-                                            <option key={y} value={y}>
-                                                {y}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <ReleaseYearField
+                            value={filmForm.form.releaseYear}
+                            onChange={filmForm.setReleaseYear}
+                        />
 
-                        <div>
-                            <span>Country</span>
-                            <div className="array-editor">
-                                {form.countries.map((country, index) => (
-                                    <div key={index} className="array-editor-row">
-                                        <select
-                                            value={country}
-                                            onChange={(e) =>
-                                                updateItem("countries", index, e.target.value)
-                                            }
-                                        >
-                                            {COUNTRIES.map(g => (
-                                                <option
-                                                    key={g}
-                                                    value={g}
-                                                    disabled={form.countries.includes(g)}
-                                                >
-                                                    {g}
-                                                </option>
-                                            ))}
-                                        </select>
+                        <SelectArrayField
+                            label="Country"
+                            rows={filmForm.form.countries}
+                            options={COUNTRIES}
+                            addLabel="+ Add country"
+                            maxRows={5}
+                            onAdd={filmForm.addCountry}
+                            onChange={filmForm.updateCountry}
+                            onRemove={filmForm.removeCountry}
+                        />
 
-                                        <button
-                                            onClick={() => removeItem("countries", index)}
-                                        >
-                                            ✖
-                                        </button>
-
-                                    </div>
-                                ))}
-
-                                {form.countries.length < 5 && (
-                                    <button onClick={() => addItem("countries")}>
-                                        + Add country
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div>
-                            <span>Genre</span>
-                            <div className="array-editor">
-                                {form.genres.map((genre, index) => (
-                                    <div key={index} className="array-editor-row">
-                                        <select
-                                            value={genre}
-                                            onChange={(e) =>
-                                                updateItem("genres", index, e.target.value)
-                                            }
-                                        >
-                                            {GENRES.map(g => (
-                                                <option
-                                                    key={g}
-                                                    value={g}
-                                                    disabled={form.genres.includes(g)}
-                                                >
-                                                    {g}
-                                                </option>
-                                            ))}
-                                        </select>
-
-                                        <button
-                                            onClick={() => removeItem("genres", index)}
-                                        >
-                                            ✖
-                                        </button>
-
-                                    </div>
-                                ))}
-
-                                {form.genres.length < 5 && (
-                                    <button onClick={() => addItem("genres")}>
-                                        + Add genre
-                                    </button>
-                                )}
-                            </div>
-                        </div>
+                        <SelectArrayField
+                            label="Genre"
+                            rows={filmForm.form.genres}
+                            options={GENRES}
+                            addLabel="+ Add genre"
+                            maxRows={5}
+                            onAdd={filmForm.addGenre}
+                            onChange={filmForm.updateGenre}
+                            onRemove={filmForm.removeGenre}
+                        />
 
                         <div>
                             <span>Director</span>
-
-                            <div className="array-editor">
-                                {form.directors.map((director, index) => (
-                                    <div key={index} className="array-editor-row">
-                                        <TextInput
-                                            id={`director-${index}`}
-                                            ariaLabel={`director ${index}`}
-                                            value={director.name}
-                                            maxLength={100}
-                                            placeholder={"Director name"}
-                                            regex={INPUT_RULES.name}
-                                            onChange={(value) =>
-                                                updateItem("directors", index, value)
-                                            }
-                                        />
-                                        <button
-                                            onClick={() => removeItem("directors", index)}
-                                            disabled={form.directors.length <= 1}
-                                        >
-                                            ✖
-                                        </button>
-                                    </div>
-                                ))}
-                                {form.directors.length < 5 && (
-                                    <button onClick={() => addItem("directors")}>
-                                        + Add director
-                                    </button>
-                                )}
-                            </div>
+                            <PersonNameArrayField
+                                rows={filmForm.form.directors}
+                                inputIdPrefix="director"
+                                ariaLabelPrefix="director"
+                                placeholder="Director name"
+                                addLabel="+ Add director"
+                                maxRows={5}
+                                onAdd={filmForm.addDirector}
+                                onChange={filmForm.updateDirector}
+                                onRemove={filmForm.removeDirector}
+                            />
                         </div>
                     </div>
                 </div>
@@ -287,47 +203,21 @@ export function FilmForm(props: Readonly<Props>) {
                 <div>
                     <p><span>Cast</span></p>
                     <div className="people-column">
-                        <div className="array-editor">
-                            {form.actors.map((actor, index) => (
-                                <div key={index} className="array-editor-row">
-                                    <TextInput
-                                        id={`actor-${index}`}
-                                        ariaLabel={`actor ${index}`}
-                                        value={actor.name}
-                                        maxLength={100}
-                                        placeholder={"Actor name"}
-                                        regex={INPUT_RULES.name}
-                                        onChange={(value) =>
-                                            updateItem("actors", index, value)
-                                        }
-                                    />
-                                    <button
-                                        onClick={() => removeItem("actors", index)}
-                                        disabled={form.actors.length <= 1}
-                                    >
-                                        ✖
-                                    </button>
-                                </div>
-                            ))}
-                            {form.actors.length < 20 && (
-                                <button onClick={() => addItem("actors")}>
-                                    + Add actor
-                                </button>
-                            )}
-                        </div>
+                        <PersonNameArrayField
+                            rows={filmForm.form.actors}
+                            inputIdPrefix="actor"
+                            ariaLabelPrefix="actor"
+                            placeholder="Actor name"
+                            addLabel="+ Add actor"
+                            maxRows={20}
+                            onAdd={filmForm.addActor}
+                            onChange={filmForm.updateActor}
+                            onRemove={filmForm.removeActor}
+                        />
                     </div>
                 </div>
             </div>
-            {apiError && (
-                <div style={{ color: "red" }}>
-                    <div>{apiError.message}</div>
-                    <div>
-                        {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                            <div key={detail.field}>{detail.field}: {detail.message}</div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </>
+            <ApiErrorMessage error={apiError}/>
+        </form>
     );
 }

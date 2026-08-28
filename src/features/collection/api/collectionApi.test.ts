@@ -32,7 +32,7 @@ const mockedUserClient = userClient as unknown as {
 };
 
 const collection: Collection = {
-    id: "1",
+    id: 1,
     name: "Favorites",
     filmIds: [1, 2]
 };
@@ -58,7 +58,7 @@ describe("collectionApi", () => {
     it("returns a collection by id", async () => {
         mockedUserClient.get.mockResolvedValue({data: collection});
 
-        await expect(getCollection("1")).resolves.toBe(collection);
+        await expect(getCollection(1)).resolves.toBe(collection);
 
         expect(mockedUserClient.get).toHaveBeenCalledWith("/film-lists/1");
     });
@@ -68,7 +68,7 @@ describe("collectionApi", () => {
         mockedUserClient.put.mockResolvedValue({data: collection});
 
         await expect(createCollection(request)).resolves.toBe(collection);
-        await expect(updateCollection("1", request)).resolves.toBe(collection);
+        await expect(updateCollection(1, request)).resolves.toBe(collection);
 
         expect(mockedUserClient.post).toHaveBeenCalledWith("/film-lists", request);
         expect(mockedUserClient.put).toHaveBeenCalledWith("/film-lists/1", request);
@@ -77,7 +77,7 @@ describe("collectionApi", () => {
     it("deletes a collection by id", async () => {
         mockedUserClient.delete.mockResolvedValue({data: {deleted: true}});
 
-        await expect(deleteCollection("1")).resolves.toBeUndefined();
+        await expect(deleteCollection(1)).resolves.toBeUndefined();
 
         expect(mockedUserClient.delete).toHaveBeenCalledWith("/film-lists/1");
     });
@@ -85,7 +85,7 @@ describe("collectionApi", () => {
     it("adds a film to a collection", async () => {
         mockedUserClient.put.mockResolvedValue({data: collection});
 
-        await expect(addFilm("1", "2")).resolves.toBe(collection);
+        await expect(addFilm(1, 2)).resolves.toBe(collection);
 
         expect(mockedUserClient.put).toHaveBeenCalledWith("/film-lists/1/films/2");
     });
@@ -93,7 +93,7 @@ describe("collectionApi", () => {
     it("removes a film from a collection", async () => {
         mockedUserClient.delete.mockResolvedValue({data: undefined});
 
-        await expect(removeFilm("1", "2")).resolves.toBeUndefined();
+        await expect(removeFilm(1, 2)).resolves.toBeUndefined();
 
         expect(mockedUserClient.delete).toHaveBeenCalledWith("/film-lists/1/films/2");
     });
@@ -105,7 +105,7 @@ describe("collectionApi", () => {
         };
         mockedUserClient.patch.mockResolvedValue({data: collection});
 
-        await expect(updateCollectionFilms("1", filmsRequest)).resolves.toBe(collection);
+        await expect(updateCollectionFilms(1, filmsRequest)).resolves.toBe(collection);
 
         expect(mockedUserClient.patch).toHaveBeenCalledWith(
             "/film-lists/1/films",

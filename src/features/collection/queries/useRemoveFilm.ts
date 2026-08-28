@@ -4,7 +4,7 @@ import {removeFilm} from "../api/collectionApi.ts";
 export function useRemoveFilm() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({collectionId, filmId}: { collectionId: string; filmId: string }) =>
+        mutationFn: ({collectionId, filmId}: { collectionId: number; filmId: number }) =>
             removeFilm(collectionId, filmId),
         onSuccess: (_, variables) => Promise.all([
             queryClient.invalidateQueries({queryKey: ["collections"]}),

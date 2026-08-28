@@ -1,12 +1,13 @@
 import {useState} from "react";
-import type {AxiosError} from "axios";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
-import "../../../shared/styles/popup.css";
-import "../../../shared/styles/details.css";
+import {getApiError} from "../../../shared/api/apiError.ts";
+import {Dialog} from "../../../shared/components/Dialog.tsx";
 import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
 import type {UserProfile} from "../types/userProfile.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     profile: UserProfile;
@@ -47,98 +48,78 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                     setIsEditing(false);
                 },
                 onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
+                    setApiError(getApiError(error));
                 }
             }
         );
     };
 
     return (
-        <div
-            className="popup-overlay"
-            onClick={onClose}
-            onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                    onClose();
-                }
-            }}
-            role="presentation"
+        <Dialog
+            label="Profile details"
+            closeLabel="Close profile details"
+            onClose={onClose}
         >
-            <div
-                className="popup"
-                onClick={(event) => event.stopPropagation()}
-            >
-                <div className="filter-section-header">
-                    <span>Profile details</span>
-                </div>
-
-                <hr/>
-
-                <div className="details-column profile-details">
-                    <div>
-                        <span>Email</span>
-                        {profile.email}
-                    </div>
-
-                    <div>
-                        <span>Display name</span>
-                        <div className="array-editor-row">
-                            {isEditing ? (
-                                <TextInput
-                                    id="profile-display-name"
-                                    ariaLabel="edit display name"
-                                    value={displayName}
-                                    onChange={setDisplayName}
-                                    maxLength={100}
-                                    regex={INPUT_RULES.name}
-                                    placeholder="Display name"
-                                    disabled={updateProfile.isPending}
-                                    onEnter={handleSave}
-                                />
-                            ) : (
-                                <>{profile.displayName}</>
-                            )}
-
-                            <div className="page-title-controls">
-                                {isEditing ? (
-                                    <>
-                                        <button
-                                            title="Save display name"
-                                            onClick={handleSave}
-                                            disabled={!isChanged || isInvalid || updateProfile.isPending}
-                                        >
-                                            ✔
-                                        </button>
-                                        <button
-                                            title="Cancel display name edit"
-                                            onClick={cancelEditing}
-                                            disabled={updateProfile.isPending}
-                                        >
-                                            ✖
-                                        </button>
-                                    </>
-                                ) : (
-                                    <button title="Edit display name" onClick={startEditing}>
-                                        ✎
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {apiError && (
-                    <div style={{ color: "red" }}>
-                        <div>{apiError.message}</div>
-                        <div>
-                            {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                                <div key={detail.field}>{detail.field}: {detail.message}</div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+            <div className="dialog-section-header">
+                <span>Profile details</span>
             </div>
-        </div>
+
+            <hr/>
+
+            <div className="details-column profile-details">
+                <div>
+                    <span>Email</span>
+                    {profile.email}
+                </div>
+
+                <div>
+                    <span>Display name</span>
+                    <div className="array-editor-row">
+                        {isEditing ? (
+                            <TextInput
+                                id="profile-display-name"
+                                ariaLabel="edit display name"
+                                value={displayName}
+                                onChange={setDisplayName}
+                                maxLength={100}
+                                regex={INPUT_RULES.name}
+                                placeholder="Display name"
+                                disabled={updateProfile.isPending}
+                                onEnter={handleSave}
+                            />
+                        ) : (
+                            <>{profile.displayName}</>
+                        )}
+
+                        <div className="page-title-controls">
+                            {isEditing ? (
+                                <>
+                                    <IconButton
+                                        icon="accept"
+                                        label="Save display name"
+                                        onClick={handleSave}
+                                        disabled={!isChanged || isInvalid || updateProfile.isPending}
+                                    />
+                                    <IconButton
+                                        icon="cancel"
+                                        label="Cancel display name edit"
+                                        onClick={cancelEditing}
+                                        disabled={updateProfile.isPending}
+                                    />
+                                </>
+                            ) : (
+                                <IconButton
+                                    icon="edit"
+                                    label="Edit display name"
+                                    onClick={startEditing}
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ApiErrorMessage error={apiError}/>
+        </Dialog>
     );
 }

@@ -1,132 +1,246 @@
-import {fireEvent, render, screen} from "@testing-library/react";
-import {type Dispatch, type SetStateAction, useState} from "react";
-import {describe, expect, it, vi} from "vitest";
-import type {FilmRequest} from "../types/filmRequest";
-import {FilmForm} from "./FilmForm";
+import {fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {beforeEach, describe, expect, it, vi} from "vitest";
+import type {Film} from "../types/film.ts";
+import type {FilmRequest} from "../types/filmRequest.ts";
+import {FilmForm} from "./FilmForm.tsx";
 
-const validForm: FilmRequest = {
+type MutationOptions<TData = unknown> = {
+    onSuccess?: (data: TData) => void;
+    onError?: (error: Error) => void;
+};
+
+const mocks = vi.hoisted(() => ({
+    useUploadFile: vi.fn(),
+    uploadFileMutate: vi.fn(),
+    useDeleteFile: vi.fn(),
+    deleteFileMutate: vi.fn(),
+}));
+
+vi.mock("../../media/queries/useUploadFile.ts", () => ({
+    useUploadFile: mocks.useUploadFile,
+}));
+
+vi.mock("../../media/queries/useDeleteFile.ts", () => ({
+    useDeleteFile: mocks.useDeleteFile,
+}));
+
+const film: Film = {
+    id: 1,
     title: "Test Title",
     releaseYear: 2000,
-    countries: ["United States"],
-    description: "Test description.",
-    posterName: null,
-    genres: ["Action"],
+    countries: ["Poland"],
+    description: "Test description",
+    posterName: "old.jpg",
+    genres: ["Drama"],
+    actors: [{id: 1, name: "Test Actor"}],
+    directors: [{id: 2, name: "Test Director"}],
+};
+
+const validRequest: FilmRequest = {
+    title: "Test Title",
+    releaseYear: 2000,
+    countries: ["Poland"],
+    description: "Test description",
+    posterName: "old.jpg",
+    genres: ["Drama"],
     actors: [{name: "Test Actor"}],
     directors: [{name: "Test Director"}],
 };
 
-function getTitleControlButton(container: HTMLElement, index: number) {
-    const buttons = container.querySelectorAll<HTMLButtonElement>(".page-title-controls button");
-    const button = buttons[index];
-    if (!button) {
-        throw new Error(`Title control button ${index} not found`);
+const apiError = Object.assign(new Error("Save failed"), {
+    response: {
+        data: {
+            message: "Validation failed",
+            errorDetails: [{field: "title", message: "Required"}],
+        },
+    },
+});
+
+function renderFilmForm(props: {
+    initialFilm?: Film;
+    isPending?: boolean;
+    isChanged?: (form: FilmRequest, posterFile: File | null) => boolean;
+    onCancel?: () => void;
+    onSave?: (
+        request: FilmRequest,
+        options: {onSuccess: () => void; onError: (error: Error) => void}
+    ) => void;
+} = {}) {
+    const onCancel = props.onCancel ?? vi.fn();
+    const onSave = props.onSave ?? vi.fn();
+
+    return {
+        ...render(
+            <FilmForm
+                confirmMessage="Confirm save film?"
+                initialFilm={props.initialFilm}
+                isPending={props.isPending}
+                isChanged={props.isChanged ?? (() => true)}
+                onCancel={onCancel}
+                onSave={onSave}
+            />
+        ),
+        onCancel,
+        onSave,
+    };
+}
+
+function fillRequiredFields(container: HTMLElement) {
+    fireEvent.change(screen.getByLabelText("form title"), {
+        target: {value: "Filled Film"},
+    });
+    fireEvent.change(screen.getByLabelText("form description"), {
+        target: {value: "Filled description"},
+    });
+
+    const yearSelect = container.querySelector<HTMLSelectElement>("select");
+    if (!yearSelect) {
+        throw new Error("Year select not found");
+    }
+    fireEvent.change(yearSelect, {target: {value: "2000"}});
+
+    fireEvent.click(screen.getByText("+ Add country"));
+    fireEvent.click(screen.getByText("+ Add genre"));
+    fireEvent.click(screen.getByText("+ Add actor"));
+    fireEvent.change(screen.getByLabelText("actor 0"), {
+        target: {value: "Actor"},
+    });
+    fireEvent.click(screen.getByText("+ Add director"));
+    fireEvent.change(screen.getByLabelText("director 0"), {
+        target: {value: "Director"},
+    });
+}
+
+function selectPoster(container: HTMLElement) {
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]');
+    if (!input) {
+        throw new Error("Poster input not found");
     }
 
-    return button;
+    fireEvent.change(input, {
+        target: {
+            files: [new File(["poster"], "replacement.jpg", {type: "image/jpeg"})],
+        },
+    });
 }
 
-function FilmFormHarness({
-    initialForm = validForm,
-    onSave = vi.fn(),
-    onCancel = vi.fn(),
-    isChanged,
-    isPending,
-}: {
-    initialForm?: FilmRequest;
-    onSave?: () => void;
-    onCancel?: () => void;
-    isChanged?: boolean;
-    isPending?: boolean;
-}) {
-    const [form, setForm] = useState<FilmRequest>(initialForm);
-    const [posterFile, setPosterFile] = useState<File | null>(null);
+beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubGlobal("confirm", vi.fn(() => true));
+    Object.defineProperty(URL, "createObjectURL", {
+        configurable: true,
+        value: vi.fn(() => "blob:poster"),
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+        configurable: true,
+        value: vi.fn(),
+    });
 
-    return (
-        <FilmForm
-            form={form}
-            setForm={setForm as Dispatch<SetStateAction<FilmRequest>>}
-            onSave={onSave}
-            onCancel={onCancel}
-            posterFile={posterFile}
-            setPosterFile={setPosterFile}
-            isChanged={isChanged}
-            isPending={isPending}
-        />
+    mocks.useUploadFile.mockReturnValue({
+        mutate: mocks.uploadFileMutate,
+        isPending: false,
+    });
+    mocks.useDeleteFile.mockReturnValue({
+        mutate: mocks.deleteFileMutate,
+    });
+    mocks.uploadFileMutate.mockImplementation(
+        (_file: File, options?: MutationOptions<{fileName: string}>) => {
+            options?.onSuccess?.({fileName: "new.jpg"});
+        }
     );
-}
+});
 
 describe("FilmForm", () => {
     it("disables save when required fields are invalid", () => {
-        const invalidForm = {
-            ...validForm,
-            title: " ",
-        };
+        renderFilmForm();
 
-        const {container} = render(<FilmFormHarness initialForm={invalidForm} />);
-
-        expect(getTitleControlButton(container, 0)).toBeDisabled();
+        expect(screen.getByTitle("Save film")).toBeDisabled();
     });
 
     it("disables save when nothing changed or a save is pending", () => {
-        const {container, rerender} = render(<FilmFormHarness isChanged={false} />);
-
-        expect(getTitleControlButton(container, 0)).toBeDisabled();
-
-        rerender(<FilmFormHarness isChanged isPending />);
-
-        expect(getTitleControlButton(container, 0)).toBeDisabled();
-    });
-
-    it("calls save and cancel handlers from title controls", () => {
-        const onSave = vi.fn();
-        const onCancel = vi.fn();
-
-        const {container} = render(
-            <FilmFormHarness onSave={onSave} onCancel={onCancel} isChanged />
+        const {rerender} = render(
+            <FilmForm
+                confirmMessage="Confirm save film?"
+                initialFilm={film}
+                isChanged={() => false}
+                onCancel={vi.fn()}
+                onSave={vi.fn()}
+            />
         );
 
-        fireEvent.click(getTitleControlButton(container, 0));
-        fireEvent.click(getTitleControlButton(container, 1));
+        expect(screen.getByTitle("Save film")).toBeDisabled();
 
-        expect(onSave).toHaveBeenCalledTimes(1);
-        expect(onCancel).toHaveBeenCalledTimes(1);
+        rerender(
+            <FilmForm
+                confirmMessage="Confirm save film?"
+                initialFilm={film}
+                isChanged={() => true}
+                isPending
+                onCancel={vi.fn()}
+                onSave={vi.fn()}
+            />
+        );
+
+        expect(screen.getByTitle("Save film")).toBeDisabled();
     });
 
-    it("updates text fields and dynamic person rows", () => {
-        render(<FilmFormHarness />);
-
-        fireEvent.change(screen.getByLabelText("actor 0"), {
-            target: {value: "Updated Test Actor"},
+    it("submits a filled request after confirmation", async () => {
+        const onSave = vi.fn((_request: FilmRequest, options: {onSuccess: () => void}) => {
+            options.onSuccess();
         });
-        fireEvent.click(screen.getByText("+ Add actor"));
-        fireEvent.click(screen.getByText("+ Add director"));
+        const {container} = renderFilmForm({onSave});
 
-        expect(screen.getByLabelText("actor 0")).toHaveValue("Updated Test Actor");
-        expect(screen.getByLabelText("actor 1")).toHaveValue("");
-        expect(screen.getByLabelText("director 1")).toHaveValue("");
+        fillRequiredFields(container);
+        fireEvent.click(screen.getByTitle("Save film"));
+
+        await waitFor(() => {
+            expect(confirm).toHaveBeenCalledWith("Confirm save film?");
+            expect(onSave).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    title: "Filled Film",
+                    releaseYear: 2000,
+                    description: "Filled description",
+                    actors: [{name: "Actor"}],
+                    directors: [{name: "Director"}],
+                }),
+                expect.any(Object)
+            );
+        });
     });
 
-    it("adds and removes genre and country rows", () => {
-        const {container} = render(<FilmFormHarness />);
+    it("calls cancel after resetting local state", () => {
+        const onCancel = vi.fn();
+        renderFilmForm({initialFilm: film, onCancel});
 
-        fireEvent.click(screen.getByText("+ Add country"));
-        fireEvent.click(screen.getByText("+ Add genre"));
+        fireEvent.change(screen.getByLabelText("form title"), {
+            target: {value: "Changed title"},
+        });
+        fireEvent.click(screen.getByTitle("Cancel film"));
 
-        expect(container.querySelectorAll("select")).toHaveLength(5);
+        expect(onCancel).toHaveBeenCalledTimes(1);
+        expect(screen.getByLabelText("form title")).toHaveValue(validRequest.title);
+    });
 
-        const detailSections = container.querySelectorAll<HTMLElement>(".details-column > div");
-        const countrySection = detailSections[1];
-        const genreSection = detailSections[2];
-        const countryRemove = countrySection.querySelector<HTMLButtonElement>(".array-editor-row button");
-        const genreRemove = genreSection.querySelector<HTMLButtonElement>(".array-editor-row button");
+    it("deletes an uploaded poster when save fails", async () => {
+        const onSave = vi.fn((_request: FilmRequest, options: {onError: (error: Error) => void}) => {
+            options.onError(apiError);
+        });
+        const {container} = renderFilmForm({
+            initialFilm: film,
+            isChanged: (_form, posterFile) => posterFile !== null,
+            onSave,
+        });
 
-        if (!countryRemove || !genreRemove) {
-            throw new Error("Expected country and genre remove buttons");
-        }
+        selectPoster(container);
+        fireEvent.click(screen.getByTitle("Save film"));
 
-        fireEvent.click(countryRemove);
-        fireEvent.click(genreRemove);
-
-        expect(container.querySelectorAll("select")).toHaveLength(3);
+        await waitFor(() => {
+            expect(onSave).toHaveBeenCalledWith(
+                expect.objectContaining({posterName: "new.jpg"}),
+                expect.any(Object)
+            );
+            expect(mocks.deleteFileMutate).toHaveBeenCalledWith("new.jpg");
+            expect(screen.getByText("Validation failed")).toBeInTheDocument();
+        });
     });
 });

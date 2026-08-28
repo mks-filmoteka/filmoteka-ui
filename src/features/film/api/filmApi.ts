@@ -43,7 +43,7 @@ export async function getCollectionFilms(filter: CollectionFilmFilter) {
     return response.data;
 }
 
-export async function getFilmById(id: string) {
+export async function getFilmById(id: number) {
     const response = await catalogClient.get<Film>(`/films/${id}`);
     return response.data;
 }
@@ -53,12 +53,12 @@ export async function createFilm(request: FilmRequest) {
     return response.data;
 }
 
-export async function updateFilm(id: string, request: FilmRequest) {
+export async function updateFilm(id: number, request: FilmRequest) {
     const response = await catalogClient.put<Film>(`/films/${id}`, request);
     return response.data;
 }
 
-export async function deleteFilm(id: string) {
+export async function deleteFilm(id: number) {
     const response = await catalogClient.delete(`/films/${id}`);
     return response.data;
 }

@@ -1,11 +1,13 @@
 import * as React from "react";
 import {SORT_BY, SORT_DIR} from "../constants/constants.ts";
+import {Icon, type IconName} from "../../../shared/components/Icon.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     filterOpen: boolean;
     setFilterOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    sortParams: { by?: string, dir?: string }[];
-    setSort: (sort: { by?: string; dir?: string; }[]) => void
+    sortParams: SortParam[];
+    setSort: (sort: SortParam[]) => void
     view: string;
     setView: (view: string) => void;
     onSave?: () => void;
@@ -13,6 +15,18 @@ type Props = {
     saveDisabled?: boolean;
     cancelDisabled?: boolean;
 };
+
+type SortParam = {
+    by?: string;
+    dir?: string;
+};
+
+function getSortIndicator(sort: SortParam | undefined): IconName {
+    if (!sort) {
+        return "sort";
+    }
+    return sort.dir === SORT_DIR[0] ? "sortAsc" : "sortDesc";
+}
 
 export function ListToolbar(props: Readonly<Props>) {
     const {
@@ -41,18 +55,19 @@ export function ListToolbar(props: Readonly<Props>) {
     };
     const titleSort = sortParams.find(s => s.by === SORT_BY[0]);
     const yearSort = sortParams.find(s => s.by === SORT_BY[1]);
+    const titleSortIndicator = getSortIndicator(titleSort);
+    const yearSortIndicator = getSortIndicator(yearSort);
 
     return (
         <div className="navigation toolbar">
 
             {/* FILTRATION */}
-            <button
+            <IconButton
+                icon="filter"
+                label="Filters"
                 onClick={() => setFilterOpen(prev => !prev)}
-                title="Filters"
-                className={filterOpen ? "active" : ""}
-            >
-                ⚶
-            </button>
+                className={filterOpen ? "active" : undefined}
+            />
 
             {/* SORT */}
             <div className="sort-section">
@@ -60,53 +75,49 @@ export function ListToolbar(props: Readonly<Props>) {
                     className={titleSort ? "active" : ""}
                     onClick={() => toggleSort(SORT_BY[0])}
                 >
-                    Title {titleSort ? titleSort.dir === SORT_DIR[0] ? "↑" : "↓" : "⇅"}
+                    Title <Icon name={titleSortIndicator}/>
                 </button>
                 <button
                     className={yearSort ? "active" : ""}
                     onClick={() => toggleSort(SORT_BY[1])}
                 >
-                    Year {yearSort ? yearSort.dir === SORT_DIR[0] ? "↑" : "↓" : "⇅"}
+                    Year <Icon name={yearSortIndicator}/>
                 </button>
             </div>
 
             {onSave && onCancel && (
                 <>
-                    <button
-                        title="Save films"
+                    <IconButton
+                        icon="accept"
+                        label="Save films"
                         onClick={onSave}
                         disabled={saveDisabled}
-                    >
-                        ✔
-                    </button>
-                    <button
+                    />
+                    <IconButton
+                        icon="cancel"
+                        label="Cancel films"
                         style={{marginRight: "30px"}}
-                        title="Cancel films"
                         onClick={onCancel}
                         disabled={cancelDisabled}
-                    >
-                        ✖
-                    </button>
+                    />
                 </>
             )}
 
             {/* VIEW */}
-            <button
+            <IconButton
+                icon="list"
+                label="List view"
                 onClick={() => setView("list")}
-                title="List view"
-                className={view === "list" ? "active" : ""}
-            >
-                ☰
-            </button>
+                className={view === "list" ? "active" : undefined}
+            />
 
-            <button
+            <IconButton
+                icon="grid"
+                label="Grid view"
                 onClick={() => setView("grid")}
-                title="Grid view"
                 style={{paddingRight: "1px"}}
-                className={view === "grid" ? "active" : ""}
-            >
-                ▦
-            </button>
+                className={view === "grid" ? "active" : undefined}
+            />
         </div>
     );
 }

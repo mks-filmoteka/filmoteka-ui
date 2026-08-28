@@ -1,18 +1,29 @@
 import {Outlet, useNavigate} from "react-router";
 import {useEffect, useRef, useState} from "react";
-import {AuthButton} from "../auth/AuthButton.tsx";
 import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
 import {TextInput} from "../shared/components/TextInput.tsx";
 import {useAuth} from "../auth/useAuth.ts";
+import {keycloak} from "../auth/keycloak.ts";
 import {CollectionsPopup} from "../features/collection/components/CollectionsPopup.tsx";
+import {useProfile} from "../features/profile/queries/useProfile.ts";
+import {ProfileDetails} from "../features/profile/components/ProfileDetails.tsx";
+import {IconButton} from "../shared/components/IconButton.tsx";
+
+type ActivePopup = "collections" | "profile";
 
 export function AppLayout() {
     const navigate = useNavigate();
     const {authenticated} = useAuth();
+    const {data: profile} = useProfile();
     const [search, setSearch] = useState("");
-    const [collectionsOpen, setCollectionsOpen] = useState(false);
+    const [activePopup, setActivePopup] = useState<ActivePopup>();
     const [showHeader, setShowHeader] = useState(true);
     const previousScrollY = useRef(0);
+    const toggleCollections = () => {
+        setActivePopup(current => current === "collections" ? undefined : "collections");
+    };
+    const openProfileDetails = () => setActivePopup("profile");
+    const closePopup = () => setActivePopup(undefined);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -28,6 +39,7 @@ export function AppLayout() {
         window.addEventListener("scroll", handleScroll, {passive: true});
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
     return (
         <div className={showHeader ? "layout-header" : "layout-header layout-header-hidden"}>
             <header className={showHeader ? "" : "header-hidden"}>
@@ -37,12 +49,11 @@ export function AppLayout() {
                             <img src="/favicon.svg" alt="Home" className="home-button-img"/>
                         </button>
                         {authenticated && (
-                            <button
-                                onClick={() => setCollectionsOpen(prev => !prev)}
-                                title="Collections"
-                            >
-                                ★
-                            </button>
+                            <IconButton
+                                icon="collection"
+                                label="Collections"
+                                onClick={toggleCollections}
+                            />
                         )}
                     </div>
 
@@ -67,21 +78,48 @@ export function AppLayout() {
                             }}
                         />
                         {search !== "" && (
-                            <button
+                            <IconButton
+                                icon="clear"
+                                label="Clear search"
                                 className="input-clear"
                                 onClick={() => setSearch("")}
-                            >
-                                ×
-                            </button>
+                            />
                         )}
                     </div>
                     <div className="header-right">
-                        <AuthButton/>
+                        {authenticated && profile && (
+                            <button
+                                className="profile-name-button"
+                                onClick={openProfileDetails}
+                                title="Profile details"
+                            >
+                                {profile.displayName}
+                            </button>
+                        )}
+                        {authenticated ? (
+                            <IconButton
+                                icon="power"
+                                label="Logout"
+                                onClick={() => keycloak.logout({redirectUri: globalThis.location.origin})}
+                            />
+                        ) : (
+                            <IconButton
+                                icon="power"
+                                label="Login"
+                                onClick={() => keycloak.login()}
+                            />
+                        )}
                     </div>
                 </div>
             </header>
-            {authenticated && collectionsOpen && (
-                <CollectionsPopup onClose={() => setCollectionsOpen(false)}/>
+            {authenticated && activePopup === "collections" && (
+                <CollectionsPopup onClose={closePopup}/>
+            )}
+            {authenticated && activePopup === "profile" && profile && (
+                <ProfileDetails
+                    profile={profile}
+                    onClose={closePopup}
+                />
             )}
             <main>
                 <Outlet/>

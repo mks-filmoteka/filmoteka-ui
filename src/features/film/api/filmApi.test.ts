@@ -85,7 +85,7 @@ describe("filmApi", () => {
     it("unwraps single film responses", async () => {
         mockedApiClient.get.mockResolvedValue({data: film});
 
-        await expect(getFilmById("1")).resolves.toBe(film);
+        await expect(getFilmById(1)).resolves.toBe(film);
 
         expect(mockedApiClient.get).toHaveBeenCalledWith("/films/1");
     });
@@ -136,7 +136,7 @@ describe("filmApi", () => {
         mockedApiClient.put.mockResolvedValue({data: film});
 
         await expect(createFilm(request)).resolves.toBe(film);
-        await expect(updateFilm("1", request)).resolves.toBe(film);
+        await expect(updateFilm(1, request)).resolves.toBe(film);
 
         expect(mockedApiClient.post).toHaveBeenCalledWith("/films", request);
         expect(mockedApiClient.put).toHaveBeenCalledWith("/films/1", request);
@@ -145,7 +145,7 @@ describe("filmApi", () => {
     it("deletes a film by id and returns the response body", async () => {
         mockedApiClient.delete.mockResolvedValue({data: {deleted: true}});
 
-        await expect(deleteFilm("1")).resolves.toEqual({deleted: true});
+        await expect(deleteFilm(1)).resolves.toEqual({deleted: true});
 
         expect(mockedApiClient.delete).toHaveBeenCalledWith("/films/1");
     });

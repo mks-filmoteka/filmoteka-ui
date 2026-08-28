@@ -2,6 +2,7 @@ import {MAX_YEAR, MIN_YEAR, YEARS} from "../constants/constants.ts";
 import {useEffect, useRef, useState} from "react";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     id?: string;
@@ -72,16 +73,16 @@ export function DropdownFilter({id, value, placeholder, inputValue, setValue, se
                 }}
             />
             {(value !== undefined || inputValue !== "") && (
-                <button
+                <IconButton
+                    icon="clear"
+                    label="Clear year"
                     className="input-clear"
                     onClick={(e) => {
                         e.stopPropagation();
                         setValue();
                         setInputValue("");
                     }}
-                >
-                    ×
-                </button>
+                />
             )}
             {open && (
                 <div

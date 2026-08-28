@@ -22,6 +22,7 @@ export function useCollectionFilms(filter: CollectionFilmFilter, enabled = true)
         ],
         enabled: enabled && ids.length > 0,
         queryFn: () => getCollectionFilms(filter),
-        placeholderData: (previousData) => ids.length > 0 ? previousData : undefined
+        placeholderData: (previousData) =>
+            ids.length > 0 ? previousData : undefined
     });
 }

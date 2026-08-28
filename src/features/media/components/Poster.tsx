@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {Icon} from "../../../shared/components/Icon.tsx";
 
 type Props = {
     src?: string | null;
@@ -18,7 +19,7 @@ function Poster({src, alt}: Readonly<Props>) {
         return (
             <div className="poster-wrapper">
                 <div className="poster-placeholder">
-                    🎬
+                    <Icon name="film"/>
                 </div>
             </div>
         );
@@ -30,7 +31,7 @@ function Poster({src, alt}: Readonly<Props>) {
         return (
             <div className="poster-wrapper">
                 <div className="poster-placeholder">
-                    🎬
+                    <Icon name="film"/>
                 </div>
             </div>
         );
@@ -40,7 +41,7 @@ function Poster({src, alt}: Readonly<Props>) {
         <div className="poster-wrapper">
             {!currentImageState.loaded && (
                 <div className="poster-placeholder">
-                    🎬
+                    <Icon name="film"/>
                 </div>
             )}
             <img

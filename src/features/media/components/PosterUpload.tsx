@@ -1,6 +1,8 @@
 import {type ChangeEvent, type DragEvent, useEffect, useRef, useState} from "react";
 import {getFileUrl} from "../api/mediaApi.ts";
 import Poster from "./Poster.tsx";
+import {Icon} from "../../../shared/components/Icon.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     value?: string | null;
@@ -93,6 +95,7 @@ function PosterUpload(props: Readonly<Props>) {
                     <Poster src={posterUrl} alt={alt}/>
                 )}
                 <button
+                    type="button"
                     className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
                     onClick={() => inputRef.current?.click()}
                     onDragEnter={(event) => {
@@ -108,18 +111,18 @@ function PosterUpload(props: Readonly<Props>) {
                     disabled={disabled}
                 >
                     <div className="poster-placeholder">
-                        ✚
+                        <Icon name="create"/>
                     </div>
                 </button>
 
                 {(value || posterFile) && (
-                    <button
+                    <IconButton
+                        icon="delete"
+                        label="Remove poster"
                         className="poster-remove-button"
                         onClick={handleRemove}
                         disabled={disabled}
-                    >
-                        🗑
-                    </button>
+                    />
                 )}
             </div>
 

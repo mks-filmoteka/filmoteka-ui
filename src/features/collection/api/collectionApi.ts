@@ -8,7 +8,7 @@ export async function getCollections() {
     return response.data;
 }
 
-export async function getCollection(id: string): Promise<Collection> {
+export async function getCollection(id: number): Promise<Collection> {
     const response = await userClient.get<Collection>(`/film-lists/${id}`);
     return response.data;
 }
@@ -18,26 +18,26 @@ export async function createCollection(request: CollectionRequest) {
     return response.data;
 }
 
-export async function updateCollection(id: string, request: CollectionRequest) {
+export async function updateCollection(id: number, request: CollectionRequest) {
     const response = await userClient.put<Collection>(`/film-lists/${id}`, request);
     return response.data;
 }
 
-export async function deleteCollection(id: string) {
+export async function deleteCollection(id: number) {
     await userClient.delete(`/film-lists/${id}`);
 }
 
-export async function addFilm(collectionId: string, filmId: string) {
+export async function addFilm(collectionId: number, filmId: number) {
     const response =
         await userClient.put<Collection>(`/film-lists/${collectionId}/films/${filmId}`);
     return response.data;
 }
 
-export async function removeFilm(collectionId: string, filmId: string) {
+export async function removeFilm(collectionId: number, filmId: number) {
     await userClient.delete(`/film-lists/${collectionId}/films/${filmId}`);
 }
 
-export async function updateCollectionFilms(id: string, request: CollectionFilmsRequest) {
+export async function updateCollectionFilms(id: number, request: CollectionFilmsRequest) {
     const response =
         await userClient.patch<Collection>(`/film-lists/${id}/films`, request);
     return response.data;

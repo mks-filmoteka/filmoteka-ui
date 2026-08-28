@@ -4,7 +4,7 @@ import {deleteCollection} from "../api/collectionApi.ts";
 export function useDeleteCollection() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) =>
+        mutationFn: (id: number) =>
             deleteCollection(id),
         onSuccess: () =>
             queryClient.invalidateQueries({queryKey: ["collections"]})

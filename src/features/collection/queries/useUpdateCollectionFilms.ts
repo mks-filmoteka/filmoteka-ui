@@ -6,7 +6,7 @@ export function useUpdateCollectionFilms() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (
-            {collectionId, request}: { collectionId: string; request: CollectionFilmsRequest }
+            {collectionId, request}: { collectionId: number; request: CollectionFilmsRequest }
         ) => updateCollectionFilms(collectionId, request),
         onSuccess: (collection, variables) => {
             if (collection) {

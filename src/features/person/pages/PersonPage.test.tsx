@@ -1,5 +1,4 @@
 import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import type {ReactElement} from "react";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import type {FilmBasic} from "../../film/types/filmBasic";
 import type {Person} from "../types/person";
@@ -28,50 +27,44 @@ type SearchParamsReturn = {
     setSort: (sort: {by?: string; dir?: string}[]) => void;
 };
 
-type FilmListMockProps = {
+type FilmBrowserMockProps = {
     films: FilmBasic[];
-    pageTitle: ReactElement;
 };
 
 const mocks = vi.hoisted(() => ({
-    usePersonQuery: vi.fn(),
+    usePerson: vi.fn(),
+    useUpdatePerson: vi.fn(),
     updatePersonMutate: vi.fn(),
     useFilmSearchParams: vi.fn(),
 }));
 
-vi.mock("../queries/usePersonQuery.ts", () => ({
-    usePersonQuery: mocks.usePersonQuery,
+vi.mock("../queries/usePerson.ts", () => ({
+    usePerson: mocks.usePerson,
 }));
 
 vi.mock("../queries/useUpdatePerson.ts", () => ({
-    useUpdatePerson: () => ({
-        mutate: mocks.updatePersonMutate,
-        isPending: false,
-    }),
+    useUpdatePerson: mocks.useUpdatePerson,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
     useAuth: () => ({isAdmin: true}),
 }));
 
-vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
-    useRequiredParam: () => "7",
+vi.mock("../../../shared/utils/useRequiredId.ts", () => ({
+    useRequiredId: () => 7,
 }));
 
 vi.mock("../../film/queries/useFilmSearchParams.ts", () => ({
     useFilmSearchParams: mocks.useFilmSearchParams,
 }));
 
-vi.mock("../../film/components/FilmList.tsx", () => ({
-    FilmList: ({films, pageTitle}: FilmListMockProps) => (
-        <div>
-            {pageTitle}
-            <ol>
-                {films.map(film => (
-                    <li key={film.id}>{film.title}</li>
-                ))}
-            </ol>
-        </div>
+vi.mock("../../film/components/FilmBrowser.tsx", () => ({
+    FilmBrowser: ({films}: FilmBrowserMockProps) => (
+        <ol>
+            {films.map(film => (
+                <li key={film.id}>{film.title}</li>
+            ))}
+        </ol>
     ),
 }));
 
@@ -138,10 +131,14 @@ beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("confirm", vi.fn(() => true));
 
-    mocks.usePersonQuery.mockReturnValue({
+    mocks.usePerson.mockReturnValue({
         data: person,
         isLoading: false,
         error: null,
+    });
+    mocks.useUpdatePerson.mockReturnValue({
+        mutate: mocks.updatePersonMutate,
+        isPending: false,
     });
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
     mocks.updatePersonMutate.mockImplementation(
@@ -163,7 +160,7 @@ describe("PersonPage", () => {
 
         expect(mocks.updatePersonMutate).toHaveBeenCalledWith(
             {
-                id: "7",
+                id: 7,
                 request: {name: "Updated Test Person"},
             },
             expect.any(Object)

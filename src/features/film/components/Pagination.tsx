@@ -1,3 +1,5 @@
+import {IconButton} from "../../../shared/components/IconButton.tsx";
+
 type Props = {
     page: number;
     totalPages: number;
@@ -23,16 +25,18 @@ export function Pagination(props: Readonly<Props>) {
 
     return (
         <div className="navigation pagination">
-            <button onClick={firstPage} title="First page">
-                ❚❰
-            </button>
-            <button
+            <IconButton
+                icon="first"
+                label="First page"
+                onClick={firstPage}
+            />
+            <IconButton
+                icon="previous"
+                label="Previous page"
                 onClick={previousPage}
                 disabled={!canGoBack}
                 style={{marginRight: "10px"}}
-            >
-                ❰
-            </button>
+            />
             {pages.map(p => (
                 <button
                     key={p}
@@ -42,19 +46,18 @@ export function Pagination(props: Readonly<Props>) {
                     {p}
                 </button>
             ))}
-            <button
+            <IconButton
+                icon="next"
+                label="Next page"
                 onClick={nextPage}
                 disabled={!canGoForward}
                 style={{marginLeft: "10px"}}
-            >
-                ❱
-            </button>
-            <button
+            />
+            <IconButton
+                icon="last"
+                label={`Last page: ${totalPages}`}
                 onClick={lastPage}
-                title={`Last page: ${totalPages}`}
-            >
-                ❱❚
-            </button>
+            />
         </div>
     );
 }

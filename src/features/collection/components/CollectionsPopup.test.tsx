@@ -9,32 +9,28 @@ type MutationOptions = {
 
 const mocks = vi.hoisted(() => ({
     navigate: vi.fn(),
+    useNavigate: vi.fn(),
     onClose: vi.fn(),
     useCollections: vi.fn(),
-    createCollection: {
-        mutate: vi.fn(),
-        isPending: false
-    },
-    updateCollection: {
-        mutate: vi.fn(),
-        isPending: false
-    },
-    deleteCollection: {
-        mutate: vi.fn(),
-        isPending: false
-    },
-    addFilm: {
-        mutate: vi.fn(),
-        isPending: false
-    },
-    removeFilm: {
-        mutate: vi.fn(),
-        isPending: false
-    },
+    useCreateCollection: vi.fn(),
+    createCollectionMutate: vi.fn(),
+    createCollectionIsPending: false,
+    useUpdateCollection: vi.fn(),
+    updateCollectionMutate: vi.fn(),
+    updateCollectionIsPending: false,
+    useDeleteCollection: vi.fn(),
+    deleteCollectionMutate: vi.fn(),
+    deleteCollectionIsPending: false,
+    useAddFilm: vi.fn(),
+    addFilmMutate: vi.fn(),
+    addFilmIsPending: false,
+    useRemoveFilm: vi.fn(),
+    removeFilmMutate: vi.fn(),
+    removeFilmIsPending: false,
     collectionsQuery: {
         data: [
-            {id: "7", name: "Favorites", filmIds: [1, 2]},
-            {id: "9", name: "Watch later", filmIds: [3]}
+            {id: 7, name: "Favorites", filmIds: [1, 2]},
+            {id: 9, name: "Watch later", filmIds: [3]}
         ],
         isLoading: false,
         error: null as Error | null
@@ -46,30 +42,30 @@ vi.mock("../queries/useCollections.ts", () => ({
 }));
 
 vi.mock("../queries/useCreateCollection.ts", () => ({
-    useCreateCollection: () => mocks.createCollection
+    useCreateCollection: mocks.useCreateCollection
 }));
 
 vi.mock("../queries/useUpdateCollection.ts", () => ({
-    useUpdateCollection: () => mocks.updateCollection
+    useUpdateCollection: mocks.useUpdateCollection
 }));
 
 vi.mock("../queries/useDeleteCollection.ts", () => ({
-    useDeleteCollection: () => mocks.deleteCollection
+    useDeleteCollection: mocks.useDeleteCollection
 }));
 
 vi.mock("../queries/useAddFilm.ts", () => ({
-    useAddFilm: () => mocks.addFilm
+    useAddFilm: mocks.useAddFilm
 }));
 
 vi.mock("../queries/useRemoveFilm.ts", () => ({
-    useRemoveFilm: () => mocks.removeFilm
+    useRemoveFilm: mocks.useRemoveFilm
 }));
 
 vi.mock("react-router", async () => {
     const actual = await vi.importActual<typeof import("react-router")>("react-router");
     return {
         ...actual,
-        useNavigate: () => mocks.navigate
+        useNavigate: mocks.useNavigate
     };
 });
 
@@ -78,31 +74,52 @@ beforeEach(() => {
     vi.stubGlobal("confirm", vi.fn(() => true));
     mocks.collectionsQuery = {
         data: [
-            {id: "7", name: "Favorites", filmIds: [1, 2]},
-            {id: "9", name: "Watch later", filmIds: [3]}
+            {id: 7, name: "Favorites", filmIds: [1, 2]},
+            {id: 9, name: "Watch later", filmIds: [3]}
         ],
         isLoading: false,
         error: null
     };
+    mocks.useNavigate.mockReturnValue(mocks.navigate);
     mocks.useCollections.mockImplementation(() => mocks.collectionsQuery);
-    mocks.createCollection.isPending = false;
-    mocks.updateCollection.isPending = false;
-    mocks.deleteCollection.isPending = false;
-    mocks.addFilm.isPending = false;
-    mocks.removeFilm.isPending = false;
-    mocks.createCollection.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+    mocks.createCollectionIsPending = false;
+    mocks.updateCollectionIsPending = false;
+    mocks.deleteCollectionIsPending = false;
+    mocks.addFilmIsPending = false;
+    mocks.removeFilmIsPending = false;
+    mocks.useCreateCollection.mockImplementation(() => ({
+        mutate: mocks.createCollectionMutate,
+        isPending: mocks.createCollectionIsPending
+    }));
+    mocks.useUpdateCollection.mockImplementation(() => ({
+        mutate: mocks.updateCollectionMutate,
+        isPending: mocks.updateCollectionIsPending
+    }));
+    mocks.useDeleteCollection.mockImplementation(() => ({
+        mutate: mocks.deleteCollectionMutate,
+        isPending: mocks.deleteCollectionIsPending
+    }));
+    mocks.useAddFilm.mockImplementation(() => ({
+        mutate: mocks.addFilmMutate,
+        isPending: mocks.addFilmIsPending
+    }));
+    mocks.useRemoveFilm.mockImplementation(() => ({
+        mutate: mocks.removeFilmMutate,
+        isPending: mocks.removeFilmIsPending
+    }));
+    mocks.createCollectionMutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
-    mocks.updateCollection.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+    mocks.updateCollectionMutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
-    mocks.deleteCollection.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+    mocks.deleteCollectionMutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
-    mocks.addFilm.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+    mocks.addFilmMutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
-    mocks.removeFilm.mutate.mockImplementation((_variables, options?: MutationOptions) => {
+    mocks.removeFilmMutate.mockImplementation((_variables, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
 });
@@ -155,7 +172,7 @@ describe("CollectionsPopup", () => {
         };
         rerender(<CollectionsPopup onClose={mocks.onClose}/>);
 
-        expect(screen.getByRole("heading", {name: "Error loading collections: Request failed"})).toBeInTheDocument();
+        expect(screen.getByRole("alert")).toHaveTextContent("Error loading collections: Request failed");
     });
 
     it("creates a collection from the inline input", () => {
@@ -167,7 +184,7 @@ describe("CollectionsPopup", () => {
         });
         fireEvent.click(screen.getByTitle("Save"));
 
-        expect(mocks.createCollection.mutate).toHaveBeenCalledWith(
+        expect(mocks.createCollectionMutate).toHaveBeenCalledWith(
             {request: {name: "Weekend films 2026"}},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
@@ -186,8 +203,8 @@ describe("CollectionsPopup", () => {
         });
         fireEvent.click(screen.getByTitle("Save"));
 
-        expect(mocks.updateCollection.mutate).toHaveBeenCalledWith(
-            {id: "7", request: {name: "Updated Favorites"}},
+        expect(mocks.updateCollectionMutate).toHaveBeenCalledWith(
+            {id: 7, request: {name: "Updated Favorites"}},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
@@ -202,8 +219,8 @@ describe("CollectionsPopup", () => {
         fireEvent.click(screen.getAllByTitle("delete")[1]);
 
         expect(globalThis.confirm).toHaveBeenCalledWith("Confirm delete collection?");
-        expect(mocks.deleteCollection.mutate).toHaveBeenCalledWith(
-            "9",
+        expect(mocks.deleteCollectionMutate).toHaveBeenCalledWith(
+            9,
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
@@ -228,15 +245,15 @@ describe("CollectionsPopup", () => {
         fireEvent.click(addButtons[1]);
         fireEvent.click(removeButtons[0]);
 
-        expect(mocks.addFilm.mutate).toHaveBeenCalledWith(
-            {collectionId: "9", filmId: "2"},
+        expect(mocks.addFilmMutate).toHaveBeenCalledWith(
+            {collectionId: 9, filmId: 2},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)
             })
         );
-        expect(mocks.removeFilm.mutate).toHaveBeenCalledWith(
-            {collectionId: "7", filmId: "2"},
+        expect(mocks.removeFilmMutate).toHaveBeenCalledWith(
+            {collectionId: 7, filmId: 2},
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function)

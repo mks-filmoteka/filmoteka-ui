@@ -1,5 +1,5 @@
 export interface Collection {
-    id: string;
+    id: number;
     name: string;
     filmIds: number[];
 }

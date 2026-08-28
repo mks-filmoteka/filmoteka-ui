@@ -5,23 +5,18 @@ import FilmPage from "./FilmPage";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
     onSettled?: () => void;
 };
 
-type FilmFormMockProps = {
-    onSave: () => void;
-    onCancel: () => void;
-    setPosterFile: (file: File | null) => void;
-    posterFile: File | null;
-    apiError?: {message: string};
+type FilmDetailsMockProps = {
+    data: {id: number; title: string};
 };
 
 const mocks = vi.hoisted(() => ({
     useFilm: vi.fn(),
-    updateFilmMutate: vi.fn(),
+    useDeleteFilm: vi.fn(),
     deleteFilmMutate: vi.fn(),
-    uploadFileMutate: vi.fn(),
+    useDeleteFile: vi.fn(),
     deleteFileMutate: vi.fn(),
     navigate: vi.fn(),
     authenticated: true,
@@ -31,29 +26,12 @@ vi.mock("../queries/useFilm.ts", () => ({
     useFilm: mocks.useFilm,
 }));
 
-vi.mock("../queries/useUpdateFilm.ts", () => ({
-    useUpdateFilm: () => ({
-        mutate: mocks.updateFilmMutate,
-        isPending: false,
-    }),
-}));
-
 vi.mock("../queries/useDeleteFilm.ts", () => ({
-    useDeleteFilm: () => ({
-        mutate: mocks.deleteFilmMutate,
-    }),
-}));
-
-vi.mock("../../media/queries/useUploadFile.ts", () => ({
-    useUploadFile: () => ({
-        mutate: mocks.uploadFileMutate,
-    }),
+    useDeleteFilm: mocks.useDeleteFilm,
 }));
 
 vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: () => ({
-        mutate: mocks.deleteFileMutate,
-    }),
+    useDeleteFile: mocks.useDeleteFile,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -63,8 +41,8 @@ vi.mock("../../../auth/useAuth.ts", () => ({
     }),
 }));
 
-vi.mock("../../../shared/queries/useRequiredParam.ts", () => ({
-    useRequiredParam: () => "1",
+vi.mock("../../../shared/utils/useRequiredId.ts", () => ({
+    useRequiredId: () => 1,
 }));
 
 vi.mock("react-router", async () => {
@@ -76,70 +54,27 @@ vi.mock("react-router", async () => {
     };
 });
 
-vi.mock("../components/FilmDetails.tsx", () => ({
-    FilmDetails: ({
-        data,
-        onEdit,
-        onDelete,
-        onOpenCollections,
-    }: {
-        data: {id: number; title: string};
-        onEdit: () => void;
-        onDelete: () => void;
-        onOpenCollections?: () => void;
-    }) => (
+vi.mock("../components/FilmDetails.tsx", () => {
+    const FilmDetails = ({data}: FilmDetailsMockProps) => (
         <div>
-            <h1>{data.title}</h1>
-            {onOpenCollections && (
-                <button title="Collections" onClick={onOpenCollections}>
-                    Collections
-                </button>
-            )}
-            <button title="Edit" onClick={onEdit}>
-                Edit
-            </button>
-            <button title="Delete" onClick={onDelete}>
-                Delete
-            </button>
+            <span>{data.title}</span>
         </div>
-    ),
-}));
+    );
+
+    return {FilmDetails};
+});
 
 vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
     CollectionsPopup: ({
         filmId,
         onClose,
     }: {
-        filmId: number | string;
+        filmId: number;
         onClose: () => void;
     }) => (
         <div role="dialog" aria-label="Collections">
             <span>film {filmId}</span>
             <button onClick={onClose}>close collections</button>
-        </div>
-    ),
-}));
-
-vi.mock("../components/FilmForm.tsx", () => ({
-    FilmForm: ({
-        onSave,
-        onCancel,
-        setPosterFile,
-        posterFile,
-        apiError,
-    }: FilmFormMockProps) => (
-        <div>
-            <button
-                onClick={() =>
-                    setPosterFile(new File(["poster"], "replacement.jpg", {type: "image/jpeg"}))
-                }
-            >
-                select poster
-            </button>
-            <button onClick={onSave}>save film</button>
-            <button onClick={onCancel}>cancel film</button>
-            <div data-testid="poster-file">{posterFile?.name ?? ""}</div>
-            {apiError && <div>{apiError.message}</div>}
         </div>
     ),
 }));
@@ -156,15 +91,6 @@ const film: Film = {
     directors: [{id: 2, name: "Test Director"}],
 };
 
-const apiError = Object.assign(new Error("Update failed"), {
-    response: {
-        data: {
-            message: "Validation failed",
-            errorDetails: [{field: "title", message: "Required"}],
-        },
-    },
-});
-
 beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("confirm", vi.fn(() => true));
@@ -175,18 +101,14 @@ beforeEach(() => {
         isLoading: false,
         error: null,
     });
-    mocks.uploadFileMutate.mockImplementation(
-        (_file: File, options?: MutationOptions<{fileName: string}>) => {
-            options?.onSuccess?.({fileName: "new.jpg"});
-        }
-    );
-    mocks.updateFilmMutate.mockImplementation(
-        (_variables: unknown, options?: MutationOptions) => {
-            options?.onSuccess?.({});
-        }
-    );
+    mocks.useDeleteFilm.mockReturnValue({
+        mutate: mocks.deleteFilmMutate,
+    });
+    mocks.useDeleteFile.mockReturnValue({
+        mutate: mocks.deleteFileMutate,
+    });
     mocks.deleteFilmMutate.mockImplementation(
-        (_id: string, options?: MutationOptions) => {
+        (_id: number, options?: MutationOptions) => {
             options?.onSuccess?.({});
         }
     );
@@ -210,45 +132,12 @@ describe("FilmPage", () => {
         expect(screen.queryByRole("dialog", {name: "Collections"})).not.toBeInTheDocument();
     });
 
-    it("deletes the newly uploaded poster when updating the film fails", async () => {
-        mocks.updateFilmMutate.mockImplementation(
-            (_variables: unknown, options?: MutationOptions) => {
-                options?.onError?.(apiError);
-            }
-        );
-
+    it("navigates to the film edit page", () => {
         render(<FilmPage />);
 
         fireEvent.click(screen.getByTitle("Edit"));
-        fireEvent.click(screen.getByText("select poster"));
-        fireEvent.click(screen.getByText("save film"));
 
-        await waitFor(() => {
-            expect(mocks.deleteFileMutate).toHaveBeenCalledWith("new.jpg");
-        });
-        expect(mocks.deleteFileMutate).not.toHaveBeenCalledWith("old.jpg");
-        expect(screen.getByText("Validation failed")).toBeInTheDocument();
-        expect(screen.getByText("save film")).toBeInTheDocument();
-    });
-
-    it("deletes the old poster after a successful poster replacement", async () => {
-        render(<FilmPage />);
-
-        fireEvent.click(screen.getByTitle("Edit"));
-        fireEvent.click(screen.getByText("select poster"));
-        fireEvent.click(screen.getByText("save film"));
-
-        await waitFor(() => {
-            expect(mocks.updateFilmMutate).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: "1",
-                    request: expect.objectContaining({posterName: "new.jpg"}),
-                }),
-                expect.any(Object)
-            );
-        });
-        expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg");
-        expect(mocks.deleteFileMutate).not.toHaveBeenCalledWith("new.jpg");
+        expect(mocks.navigate).toHaveBeenCalledWith("/films/1/edit");
     });
 
     it("navigates back to the film list after deleted film poster cleanup settles", async () => {
@@ -257,7 +146,7 @@ describe("FilmPage", () => {
         fireEvent.click(screen.getByTitle("Delete"));
 
         await waitFor(() => {
-            expect(mocks.deleteFilmMutate).toHaveBeenCalledWith("1", expect.any(Object));
+            expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
             expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg", expect.any(Object));
             expect(mocks.navigate).toHaveBeenCalledWith("/films");
         });

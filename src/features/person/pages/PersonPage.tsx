@@ -1,21 +1,24 @@
-import {usePersonQuery} from "../queries/usePersonQuery.ts";
+import {usePerson} from "../queries/usePerson.ts";
 import {useState} from "react";
 import {useFilmSearchParams} from "../../film/queries/useFilmSearchParams.ts";
-import {FilmList} from "../../film/components/FilmList.tsx";
+import {FilmBrowser} from "../../film/components/FilmBrowser.tsx";
 import type {FilmBasic} from "../../film/types/filmBasic.ts";
 import {SORT_BY, SORT_DIR} from "../../film/constants/constants.ts";
 import {useAuth} from "../../../auth/useAuth.ts";
 import {useUpdatePerson} from "../queries/useUpdatePerson.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {useRequiredParam} from "../../../shared/queries/useRequiredParam.ts";
+import {useRequiredId} from "../../../shared/utils/useRequiredId.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
-import type {AxiosError} from "axios";
+import {getApiError} from "../../../shared/api/apiError.ts";
+import {PageHeader} from "../../../shared/components/PageHeader.tsx";
+import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
+import {IconButton} from "../../../shared/components/IconButton.tsx";
 
 function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
-    const id = useRequiredParam("id");
-    const {data, isLoading, error} = usePersonQuery(type, id);
+    const id = useRequiredId();
+    const {data, isLoading, error} = usePerson(type, id);
     const isAdmin = useAuth().isAdmin;
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState<PersonRequest>({name: ""});
@@ -30,8 +33,7 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
             {
                 onSuccess: () => setIsEditing(false),
                 onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
+                    setApiError(getApiError(error));
                 }
             }
         );
@@ -75,113 +77,90 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
         .filter(filtering)
         .sort(sorting);
 
-    const pageTitle = (
-        <div className="page-title">
-            {isEditing ? (
+    const browserSearch = {
+        pageParam: 1,
+        view,
+        yearFrom,
+        yearTo,
+        genres,
+        countries,
+        sortParams,
+        filterOpen,
+        setPage: () => {},
+        setView,
+        setGenres,
+        setYearFrom,
+        setYearTo,
+        resetYears,
+        setCountries,
+        setSort,
+        setFilterOpen
+    };
+
+    const pageHeader = (
+        <PageHeader
+            title={isEditing ? (
+                <TextInput
+                    id={"name-edit"}
+                    ariaLabel="edit name"
+                    value={form.name}
+                    maxLength={100}
+                    onChange={(value) =>
+                        setForm(prev => ({
+                            ...prev,
+                            name: value
+                        }))
+                    }
+                    regex={INPUT_RULES.name}
+                    placeholder="Edit name"
+                />
+            ) : data?.name}
+            meta={type}
+            controls={isEditing ? (
                 <>
-                    {/*TITLE OR EDIT INPUT*/}
-                    <h1>
-                        <TextInput
-                            id={"name-edit"}
-                            ariaLabel="edit name"
-                            value={form.name}
-                            maxLength={100}
-                            onChange={(value) =>
-                                setForm(prev => ({
-                                    ...prev,
-                                    name: value
-                                }))
-                            }
-                            regex={INPUT_RULES.name}
-                            placeholder="Edit name"
-                        />
-                    </h1>
-                    {apiError && (
-                        <div style={{ color: "red" }}>
-                            <div>{apiError.message}</div>
-                            <div>
-                                {"errorDetails" in apiError && apiError.errorDetails?.map((detail) => (
-                                    <div key={detail.field}>{detail.field}: {detail.message}</div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    <div>
-                        {type}
-
-                        {/*SAVE BUTTON*/}
-                        <div className="page-title-controls">
-                            <button
-                                onClick={handleSave}
-                                disabled={!isChanged || updatePerson.isPending || isInvalid}
-                            >
-                                ✔
-                            </button>
-
-                            {/*CANCEL BUTTON*/}
-                            <button onClick={() => {
-                                setIsEditing(false);
-                                setForm({name: data?.name ?? ""});
-                            }}>
-                                ✖
-                            </button>
-                        </div>
-                    </div>
+                    <IconButton
+                        icon="accept"
+                        label="Save"
+                        onClick={handleSave}
+                        disabled={!isChanged || updatePerson.isPending || isInvalid}
+                    />
+                    <IconButton
+                        icon="cancel"
+                        label="Cancel"
+                        onClick={() => {
+                            setIsEditing(false);
+                            setForm({name: data?.name ?? ""});
+                        }}
+                    />
                 </>
-            ) : (
-                <>
-                    <h1>{data?.name}</h1>
-                    <div>
-                        {type}
-                        <div className="page-title-controls">
-
-                            {/*EDIT BUTTON*/}
-                            {isAdmin && data && (
-                                <button
-                                    title={"Edit"}
-                                    onClick={() => {
-                                        setIsEditing(true);
-                                        setForm({name: data.name});
-                                    }}
-                                >
-                                    ✎
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </>
+            ) : isAdmin && data && (
+                <IconButton
+                    icon="edit"
+                    label="Edit"
+                    onClick={() => {
+                        setIsEditing(true);
+                        setForm({name: data.name});
+                    }}
+                />
             )}
-        </div>
+        >
+            {isEditing && <ApiErrorMessage error={apiError}/>}
+        </PageHeader>
     );
 
     if (isLoading) return <h1>Loading...</h1>;
-    if (error) return <h1>Error loading {type}: {error.message}</h1>;
+    if (error) return <ApiErrorMessage error={error} message={`Error loading ${type}`}/>;
     if (!data) return <h1>{type} not found</h1>;
 
     return (
-        <FilmList
-            films={films}
-            pageTitle={pageTitle}
-            page={0}
-            pageSize={0}
-            totalPages={0}
-            setPage={() => {}}
-            view={view}
-            setView={setView}
-            filterOpen={filterOpen}
-            setFilterOpen={setFilterOpen}
-            genres={genres}
-            setGenres={setGenres}
-            countries={countries}
-            setCountries={setCountries}
-            yearFrom={yearFrom}
-            yearTo={yearTo}
-            setYearFrom={setYearFrom}
-            setYearTo={setYearTo}
-            resetYears={resetYears}
-            sortParams={sortParams}
-            setSort={setSort}
-        />
+        <div>
+            {pageHeader}
+            <hr/>
+            <FilmBrowser
+                films={films}
+                search={browserSearch}
+            />
+        </div>
     );
 }
 
