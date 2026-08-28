@@ -1,9 +1,11 @@
 import {fireEvent, render, screen} from "@testing-library/react";
 import {beforeEach, describe, expect, it, vi} from "vitest";
-import {AuthButton} from "./AuthButton.tsx";
+import {AppLayout} from "./AppLayout.tsx";
 
 const mocks = vi.hoisted(() => ({
     authenticated: true,
+    navigate: vi.fn(),
+    useNavigate: vi.fn(),
     login: vi.fn(),
     logout: vi.fn(),
     useProfile: vi.fn(),
@@ -13,14 +15,22 @@ const mocks = vi.hoisted(() => ({
     } as {email: string; displayName: string} | undefined
 }));
 
-vi.mock("./keycloak.ts", () => ({
+vi.mock("react-router", async () => {
+    const actual = await vi.importActual<typeof import("react-router")>("react-router");
+    return {
+        ...actual,
+        useNavigate: mocks.useNavigate
+    };
+});
+
+vi.mock("../auth/keycloak.ts", () => ({
     keycloak: {
         login: mocks.login,
         logout: mocks.logout
     }
 }));
 
-vi.mock("./useAuth.ts", () => ({
+vi.mock("../auth/useAuth.ts", () => ({
     useAuth: () => ({
         authenticated: mocks.authenticated
     })
@@ -52,14 +62,15 @@ beforeEach(() => {
         email: "test@example.com",
         displayName: "Test User"
     };
+    mocks.useNavigate.mockReturnValue(mocks.navigate);
     mocks.useProfile.mockReturnValue({
         data: mocks.profile
     });
 });
 
-describe("AuthButton", () => {
-    it("opens profile details", () => {
-        render(<AuthButton/>);
+describe("AppLayout", () => {
+    it("renders profile details from the layout", () => {
+        render(<AppLayout/>);
 
         expect(screen.queryByRole("dialog", {name: "Profile details"})).not.toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", {name: "Test User"}));
@@ -69,10 +80,32 @@ describe("AuthButton", () => {
         expect(screen.queryByRole("dialog", {name: "Profile details"})).not.toBeInTheDocument();
     });
 
-    it("keeps login behavior for unauthenticated users", () => {
+    it("does not render a profile details placeholder without profile data", () => {
+        mocks.useProfile.mockReturnValue({
+            data: undefined
+        });
+
+        render(<AppLayout/>);
+
+        expect(screen.queryByText("Profile details")).not.toBeInTheDocument();
+        expect(screen.queryByTitle("Profile details")).not.toBeInTheDocument();
+    });
+
+    it("logs out authenticated users from the layout", () => {
+        render(<AppLayout/>);
+
+        fireEvent.click(screen.getByTitle("Logout"));
+
+        expect(mocks.logout).toHaveBeenCalledWith({redirectUri: globalThis.location.origin});
+    });
+
+    it("logs in unauthenticated users from the layout", () => {
         mocks.authenticated = false;
-        render(<AuthButton/>);
+
+        render(<AppLayout/>);
+
         fireEvent.click(screen.getByTitle("Login"));
+
         expect(mocks.login).toHaveBeenCalledTimes(1);
     });
 });
