@@ -11,7 +11,7 @@ import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import {useRequiredId} from "../../../shared/utils/useRequiredId.ts";
 import type {PersonRequest} from "../types/personRequest.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
-import type {AxiosError} from "axios";
+import {getApiError} from "../../../shared/api/apiError.ts";
 import {PageHeader} from "../../../shared/components/PageHeader.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {IconButton} from "../../../shared/components/IconButton.tsx";
@@ -33,8 +33,7 @@ function PersonPage({type}: Readonly<{ type: "actor" | "director" }>) {
             {
                 onSuccess: () => setIsEditing(false),
                 onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
+                    setApiError(getApiError(error));
                 }
             }
         );

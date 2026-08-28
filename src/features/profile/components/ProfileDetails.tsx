@@ -1,9 +1,9 @@
 import {useState} from "react";
-import type {AxiosError} from "axios";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {getApiError} from "../../../shared/api/apiError.ts";
 import "../../../shared/styles/popup.css";
 import "../../../shared/styles/details.css";
 import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
@@ -49,8 +49,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                     setIsEditing(false);
                 },
                 onError: (error: Error) => {
-                    const err = error as AxiosError<ApiError>;
-                    setApiError(err.response?.data ?? error);
+                    setApiError(getApiError(error));
                 }
             }
         );

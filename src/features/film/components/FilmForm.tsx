@@ -1,8 +1,8 @@
-import type {AxiosError} from "axios";
 import {type ChangeEvent, type SubmitEvent as ReactSubmitEvent, useState} from "react";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {getApiError} from "../../../shared/api/apiError.ts";
 import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
 import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
@@ -51,8 +51,7 @@ export function FilmForm(props: Readonly<Props>) {
         if (uploadedPosterName) {
             deletePoster.mutate(uploadedPosterName);
         }
-        const err = error as AxiosError<ApiError>;
-        setApiError(err.response?.data ?? error);
+        setApiError(getApiError(error));
     };
 
     const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {

@@ -1,6 +1,5 @@
 import {useState} from "react";
 import {useNavigate} from "react-router";
-import type {AxiosError} from "axios";
 import {useCollections} from "../queries/useCollections.ts";
 import {useCreateCollection} from "../queries/useCreateCollection.ts";
 import {useUpdateCollection} from "../queries/useUpdateCollection.ts";
@@ -8,6 +7,7 @@ import {useDeleteCollection} from "../queries/useDeleteCollection.ts";
 import {useAddFilm} from "../queries/useAddFilm.ts";
 import {useRemoveFilm} from "../queries/useRemoveFilm.ts";
 import type {ApiError} from "../../../shared/types/ApiError.ts";
+import {getApiError} from "../../../shared/api/apiError.ts";
 import {TextInput} from "../../../shared/components/TextInput.tsx";
 import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
 import {IconButton} from "../../../shared/components/IconButton.tsx";
@@ -85,8 +85,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     };
 
     const handleApiError = (error: Error) => {
-        const err = error as AxiosError<ApiError>;
-        setApiError(err.response?.data ?? error);
+        setApiError(getApiError(error));
     };
 
     const handleCreate = () => {
