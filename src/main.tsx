@@ -17,7 +17,17 @@ if (!rootElement) {
     throw new Error("Root element not found");
 }
 
-await keycloak.init({onLoad: "check-sso", pkceMethod: "S256"});
+try {
+    await keycloak.init({
+        onLoad: "check-sso",
+        pkceMethod: "S256",
+        silentCheckSsoRedirectUri: `${globalThis.location.origin}/silent-check-sso.html`,
+        silentCheckSsoFallback: false,
+    });
+} catch (error) {
+    console.error("Keycloak initialization failed. Continuing as guest.", error);
+    keycloak.clearToken();
+}
 
 createRoot(rootElement).render(
     <StrictMode>
