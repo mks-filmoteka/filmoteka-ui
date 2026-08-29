@@ -10,7 +10,8 @@ const ACCESS_TOKEN = "access-token";
 const keycloakMock = vi.hoisted(() => ({
     authenticated: false,
     token: undefined as string | undefined,
-    updateToken: vi.fn(async () => true)
+    updateToken: vi.fn(async () => true),
+    clearToken: vi.fn()
 }));
 
 vi.mock("../../auth/keycloak.ts", () => ({
@@ -23,6 +24,11 @@ beforeEach(() => {
     keycloakMock.token = undefined;
     keycloakMock.updateToken.mockReset();
     keycloakMock.updateToken.mockResolvedValue(true);
+    keycloakMock.clearToken.mockReset();
+    keycloakMock.clearToken.mockImplementation(() => {
+        keycloakMock.authenticated = false;
+        keycloakMock.token = undefined;
+    });
 });
 
 afterEach(() => {
@@ -102,6 +108,51 @@ describe("api clients", () => {
         expect(keycloakMock.updateToken).toHaveBeenNthCalledWith(1, 30);
         expect(keycloakMock.updateToken).toHaveBeenNthCalledWith(2, 30);
         expect(keycloakMock.updateToken).toHaveBeenNthCalledWith(3, 30);
+    });
+
+    it("removes a stale authorization header when refresh leaves no token", async () => {
+        keycloakMock.authenticated = true;
+        keycloakMock.token = undefined;
+        const {addAuthInterceptor} = await import("./client");
+        const requestUse = vi.fn();
+        const client = {interceptors: {request: {use: requestUse}}} as unknown as AxiosInstance;
+
+        addAuthInterceptor(client);
+
+        const interceptor = requestUse.mock.calls[0][0] as (config: InternalAxiosRequestConfig) =>
+            Promise<InternalAxiosRequestConfig>;
+        const config = await interceptor({
+            headers: new AxiosHeaders({"Authorization": "Bearer stale-token"})
+        } as InternalAxiosRequestConfig);
+
+        expect(keycloakMock.updateToken).toHaveBeenCalledWith(30);
+        expect(keycloakMock.clearToken).not.toHaveBeenCalled();
+        expect(config.headers.get("Authorization")).toBeUndefined();
+    });
+
+    it("clears the keycloak token and removes authorization when token refresh fails", async () => {
+        keycloakMock.authenticated = true;
+        keycloakMock.token = ACCESS_TOKEN;
+        keycloakMock.updateToken.mockRejectedValue(new Error("Refresh failed"));
+        const {addAuthInterceptor} = await import("./client");
+        const requestUse = vi.fn();
+        const client = {interceptors: {request: {use: requestUse}}} as unknown as AxiosInstance;
+
+        addAuthInterceptor(client);
+
+        const interceptor = requestUse.mock.calls[0][0] as (config: InternalAxiosRequestConfig) =>
+            Promise<InternalAxiosRequestConfig>;
+        const config = await interceptor({
+            headers: new AxiosHeaders({
+                "Accept": "application/json",
+                "Authorization": "Bearer stale-token"
+            })
+        } as InternalAxiosRequestConfig);
+
+        expect(keycloakMock.updateToken).toHaveBeenCalledWith(30);
+        expect(keycloakMock.clearToken).toHaveBeenCalledOnce();
+        expect(config.headers.get("Accept")).toBe("application/json");
+        expect(config.headers.get("Authorization")).toBeUndefined();
     });
 
     it("normalizes existing request headers before setting a correlation id", async () => {

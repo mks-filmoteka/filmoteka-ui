@@ -31,8 +31,22 @@ export function addAuthInterceptor(client: AxiosInstance) {
         if (!keycloak.authenticated) {
             return config;
         }
-        await keycloak.updateToken(30);
-        config.headers.Authorization = `Bearer ${keycloak.token}`;
+
+        config.headers = AxiosHeaders.from(config.headers);
+
+        try {
+            await keycloak.updateToken(30);
+
+            if (keycloak.token) {
+                config.headers.set("Authorization", `Bearer ${keycloak.token}`);
+            } else {
+                config.headers.delete("Authorization");
+            }
+        } catch {
+            keycloak.clearToken();
+            config.headers.delete("Authorization");
+        }
+
         return config;
     });
 }
