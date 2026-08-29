@@ -1,10 +1,12 @@
-import {keycloak} from "./keycloak.ts";
-
+import {useContext} from "react";
+import {AuthContext} from "./authContext.ts";
 
 export function useAuth() {
-    return {
-        authenticated: keycloak.authenticated,
-        isUser: keycloak.hasRealmRole("USER"),
-        isAdmin: keycloak.hasRealmRole("ADMIN"),
-    };
+    const auth = useContext(AuthContext);
+
+    if (!auth) {
+        throw new Error("useAuth must be used inside AuthProvider");
+    }
+
+    return auth;
 }
