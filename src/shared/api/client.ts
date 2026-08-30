@@ -9,14 +9,17 @@ export const CORRELATION_ID_HEADER = "X-Correlation-Id";
 export const catalogClient = axios.create({baseURL: CATALOG_API_URL});
 addCorrelationIdInterceptor(catalogClient);
 addAuthInterceptor(catalogClient);
+addUnauthorizedInterceptor(catalogClient);
 
 export const mediaClient = axios.create({baseURL: MEDIA_API_URL});
 addCorrelationIdInterceptor(mediaClient);
 addAuthInterceptor(mediaClient);
+addUnauthorizedInterceptor(mediaClient);
 
 export const userClient = axios.create({baseURL: USER_API_URL})
 addCorrelationIdInterceptor(userClient);
 addAuthInterceptor(userClient);
+addUnauthorizedInterceptor(userClient);
 
 export function addCorrelationIdInterceptor(client: AxiosInstance) {
     client.interceptors.request.use((config) => {
@@ -49,4 +52,14 @@ export function addAuthInterceptor(client: AxiosInstance) {
 
         return config;
     });
+}
+
+export function addUnauthorizedInterceptor(client: AxiosInstance) {
+    client.interceptors.response.use(response => response, error => {
+            if (axios.isAxiosError(error) && error.response?.status === 401 && keycloak.authenticated) {
+                keycloak.clearToken();
+            }
+            return Promise.reject(error);
+        }
+    );
 }

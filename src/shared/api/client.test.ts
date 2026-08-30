@@ -203,4 +203,20 @@ describe("api clients", () => {
         expect(config.headers.get("Accept")).toBe("application/json");
         expect(config.headers.get("Authorization")).toBeUndefined();
     });
+
+    it("clears authentication after an authenticated 401 response", async () => {
+        keycloakMock.authenticated = true;
+
+        const {addUnauthorizedInterceptor} = await import("./client");
+        const responseUse = vi.fn();
+        const client = {interceptors: {response: {use: responseUse}}} as unknown as AxiosInstance;
+
+        addUnauthorizedInterceptor(client);
+
+        const rejectedInterceptor = responseUse.mock.calls[0][1] as (error: unknown) => Promise<never>;
+        const error = {isAxiosError: true, response: {status: 401}};
+
+        await expect(rejectedInterceptor(error)).rejects.toBe(error);
+        expect(keycloakMock.clearToken).toHaveBeenCalledOnce();
+    });
 });

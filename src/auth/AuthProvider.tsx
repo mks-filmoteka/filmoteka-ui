@@ -1,6 +1,6 @@
 import {useEffect, useState, type ReactNode} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import {keycloak} from "./keycloak.ts";
+import {initializeKeycloak, keycloak} from "./keycloak.ts";
 import {AuthContext, type AuthState} from "./authContext.ts";
 
 interface AuthProviderProps {
@@ -11,6 +11,7 @@ function readAuthState(): AuthState {
     const authenticated = keycloak.authenticated;
 
     return {
+        status: authenticated ? "authenticated" : "guest",
         authenticated,
         isUser: authenticated && keycloak.hasRealmRole("USER"),
         isAdmin: authenticated && keycloak.hasRealmRole("ADMIN"),
@@ -19,11 +20,21 @@ function readAuthState(): AuthState {
 
 export function AuthProvider({children}: Readonly<AuthProviderProps>) {
     const queryClient = useQueryClient();
-    const [authState, setAuthState] = useState(readAuthState);
+
+    const [authState, setAuthState] = useState<AuthState>({
+        status: "checking",
+        authenticated: false,
+        isUser: false,
+        isAdmin: false,
+    });
 
     useEffect(() => {
+        let active = true;
+
         const synchronizeAuthState = () => {
-            setAuthState(readAuthState());
+            if (active) {
+                setAuthState(readAuthState());
+            }
         };
 
         const clearPrivateQueries = () => {
@@ -50,7 +61,20 @@ export function AuthProvider({children}: Readonly<AuthProviderProps>) {
         keycloak.onAuthLogout = handleAuthenticationLost;
         keycloak.onAuthRefreshError = handleRefreshError;
 
+        void initializeKeycloak()
+            .then(synchronizeAuthState)
+            .catch(error => {
+                if (!active) {
+                    return;
+                }
+                console.error("Keycloak initialization failed. Continuing as guest.", error);
+                keycloak.clearToken();
+                setAuthState({status: "unavailable", authenticated: false, isUser: false, isAdmin: false,});
+            });
+
         return () => {
+            active = false;
+
             keycloak.onAuthSuccess = undefined;
             keycloak.onAuthRefreshSuccess = undefined;
             keycloak.onAuthLogout = undefined;
