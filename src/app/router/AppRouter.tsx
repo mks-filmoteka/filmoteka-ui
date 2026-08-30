@@ -7,6 +7,7 @@ import AllFilmsPage from "../../features/film/pages/AllFilmsPage.tsx";
 import CreateFilmPage from "../../features/film/pages/CreateFilmPage.tsx";
 import EditFilmPage from "../../features/film/pages/EditFilmPage.tsx";
 import {AdminRoute} from "../../auth/AdminRoute.tsx";
+import {AuthRoute} from "../../auth/AuthRoute.tsx";
 
 function AppRouter() {
     return (
@@ -17,9 +18,12 @@ function AppRouter() {
 
                     <Route path="/films" element={<AllFilmsPage/>}/>
                     <Route path="/films/:id" element={<FilmPage/>}/>
-                    <Route path="/collections/:id" element={<CollectionPage/>}/>
                     <Route path="/people/actor/:id" element={<PersonPage type="actor"/>}/>
                     <Route path="/people/director/:id" element={<PersonPage type="director"/>}/>
+
+                    <Route element={<AuthRoute/>}>
+                        <Route path="/collections/:id" element={<CollectionPage/>}/>
+                    </Route>
 
                     <Route element={<AdminRoute/>}>
                         <Route path="/films/new" element={<CreateFilmPage/>}/>

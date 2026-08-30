@@ -7,7 +7,7 @@ import './shared/styles/item.css'
 import './shared/styles/list.css'
 import './shared/styles/dialog.css'
 import App from './App.tsx'
-import {keycloak} from "./auth/keycloak.ts";
+import {AuthProvider} from "./auth/AuthProvider.tsx";
 
 const queryClient = new QueryClient();
 const rootElement = document.getElementById('root');
@@ -16,12 +16,12 @@ if (!rootElement) {
     throw new Error("Root element not found");
 }
 
-await keycloak.init({onLoad: "check-sso", pkceMethod: "S256"});
-
 createRoot(rootElement).render(
     <StrictMode>
         <QueryClientProvider client={queryClient}>
-            <App/>
+            <AuthProvider>
+                <App/>
+            </AuthProvider>
         </QueryClientProvider>
     </StrictMode>
 )

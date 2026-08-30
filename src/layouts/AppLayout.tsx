@@ -13,7 +13,8 @@ type ActivePopup = "collections" | "profile";
 
 export function AppLayout() {
     const navigate = useNavigate();
-    const {authenticated} = useAuth();
+    const {status, authenticated} = useAuth();
+    const loginDisabled = status === "checking" || status === "unavailable";
     const {data: profile} = useProfile();
     const [search, setSearch] = useState("");
     const [activePopup, setActivePopup] = useState<ActivePopup>();
@@ -105,7 +106,8 @@ export function AppLayout() {
                         ) : (
                             <IconButton
                                 icon="power"
-                                label="Login"
+                                label={loginDisabled ? "Login unavailable" : "Login"}
+                                disabled={loginDisabled}
                                 onClick={() => keycloak.login()}
                             />
                         )}
