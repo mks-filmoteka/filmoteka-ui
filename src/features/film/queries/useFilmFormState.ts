@@ -1,11 +1,11 @@
-import {useState} from "react";
-import {MAX_YEAR, MIN_YEAR} from "../constants/constants.ts";
-import {COUNTRIES, type Country} from "../types/country.ts";
-import type {Film} from "../types/film.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import {GENRES, type Genre} from "../types/genre.ts";
-import {fillForm} from "../utils/formState.ts";
-import type {PersonNameRow, SelectRow} from "../components/FilmFormFields.tsx";
+import { useState } from "react";
+import { MAX_YEAR, MIN_YEAR } from "../constants/constants.ts";
+import { COUNTRIES, type Country } from "../types/country.ts";
+import type { Film } from "../types/film.ts";
+import type { FilmRequest } from "../types/filmRequest.ts";
+import { GENRES, type Genre } from "../types/genre.ts";
+import { fillForm } from "../utils/formState.ts";
+import type { PersonNameRow, SelectRow } from "../components/FilmFormFields.tsx";
 
 type FilmFormState = {
     nextRowId: number;
@@ -20,25 +20,30 @@ type FilmFormState = {
 };
 
 function isFormInvalid(form: FilmRequest) {
-    return !form.title.trim() ||
+    return (
+        !form.title.trim() ||
         !form.description.trim() ||
-        form.releaseYear < MIN_YEAR || form.releaseYear > MAX_YEAR ||
-        form.actors.length === 0 || form.directors.length === 0 || form.genres.length === 0 ||
-        form.actors.some(actor => !actor.name.trim()) ||
-        form.directors.some(director => !director.name.trim());
+        form.releaseYear < MIN_YEAR ||
+        form.releaseYear > MAX_YEAR ||
+        form.actors.length === 0 ||
+        form.directors.length === 0 ||
+        form.genres.length === 0 ||
+        form.actors.some((actor) => !actor.name.trim()) ||
+        form.directors.some((director) => !director.name.trim())
+    );
 }
 
 function createSelectRows<T extends string>(values: T[], createRowId: () => string): SelectRow<T>[] {
-    return values.map(value => ({
+    return values.map((value) => ({
         id: createRowId(),
-        value
+        value,
     }));
 }
 
-function createPersonRows(values: {name: string}[], createRowId: () => string): PersonNameRow[] {
-    return values.map(({name}) => ({
+function createPersonRows(values: { name: string }[], createRowId: () => string): PersonNameRow[] {
+    return values.map(({ name }) => ({
         id: createRowId(),
-        name
+        name,
     }));
 }
 
@@ -59,7 +64,7 @@ function createFilmFormState(form: FilmRequest): FilmFormState {
         posterName: form.posterName,
         genres,
         actors,
-        directors
+        directors,
     };
 }
 
@@ -67,12 +72,12 @@ function toFilmRequest(form: FilmFormState): FilmRequest {
     return {
         title: form.title,
         releaseYear: form.releaseYear,
-        countries: form.countries.map(country => country.value),
+        countries: form.countries.map((country) => country.value),
         description: form.description,
         posterName: form.posterName,
-        genres: form.genres.map(genre => genre.value),
-        actors: form.actors.map(actor => ({name: actor.name})),
-        directors: form.directors.map(director => ({name: director.name}))
+        genres: form.genres.map((genre) => genre.value),
+        actors: form.actors.map((actor) => ({ name: actor.name })),
+        directors: form.directors.map((director) => ({ name: director.name })),
     };
 }
 
@@ -80,28 +85,24 @@ function createNextRowId(form: FilmFormState) {
     return `film-form-row-${form.nextRowId}`;
 }
 
-function updateSelectRows<T extends string>(
-    rows: SelectRow<T>[],
-    rowId: string,
-    value: T
-): SelectRow<T>[] {
-    return rows.map(row => row.id === rowId ? {...row, value} : row);
+function updateSelectRows<T extends string>(rows: SelectRow<T>[], rowId: string, value: T): SelectRow<T>[] {
+    return rows.map((row) => (row.id === rowId ? { ...row, value } : row));
 }
 
 function updatePersonRows(rows: PersonNameRow[], rowId: string, name: string): PersonNameRow[] {
-    return rows.map(row => row.id === rowId ? {...row, name} : row);
+    return rows.map((row) => (row.id === rowId ? { ...row, name } : row));
 }
 
-function removeRow<T extends {id: string}>(rows: T[], rowId: string): T[] {
-    return rows.filter(row => row.id !== rowId);
+function removeRow<T extends { id: string }>(rows: T[], rowId: string): T[] {
+    return rows.filter((row) => row.id !== rowId);
 }
 
 function firstAvailableOption<T extends string>(
     options: readonly T[],
-    rows: ReadonlyArray<SelectRow<T>>
+    rows: ReadonlyArray<SelectRow<T>>,
 ): T | undefined {
-    const selectedValues = new Set(rows.map(row => row.value));
-    return options.find(option => !selectedValues.has(option));
+    const selectedValues = new Set(rows.map((row) => row.value));
+    return options.find((option) => !selectedValues.has(option));
 }
 
 export function useFilmFormState(initialFilm?: Film) {
@@ -112,7 +113,7 @@ export function useFilmFormState(initialFilm?: Film) {
     const resetForm = () => setForm(createInitialForm());
 
     const addCountry = () => {
-        setForm(prev => {
+        setForm((prev) => {
             const country = firstAvailableOption(COUNTRIES, prev.countries);
             if (!country) {
                 return prev;
@@ -120,13 +121,13 @@ export function useFilmFormState(initialFilm?: Film) {
             return {
                 ...prev,
                 nextRowId: prev.nextRowId + 1,
-                countries: [...prev.countries, {id: createNextRowId(prev), value: country}]
+                countries: [...prev.countries, { id: createNextRowId(prev), value: country }],
             };
         });
     };
 
     const addGenre = () => {
-        setForm(prev => {
+        setForm((prev) => {
             const genre = firstAvailableOption(GENRES, prev.genres);
             if (!genre) {
                 return prev;
@@ -134,7 +135,7 @@ export function useFilmFormState(initialFilm?: Film) {
             return {
                 ...prev,
                 nextRowId: prev.nextRowId + 1,
-                genres: [...prev.genres, {id: createNextRowId(prev), value: genre}]
+                genres: [...prev.genres, { id: createNextRowId(prev), value: genre }],
             };
         });
     };
@@ -144,39 +145,36 @@ export function useFilmFormState(initialFilm?: Film) {
         requestForm,
         isInvalid: isFormInvalid(requestForm),
         resetForm,
-        setTitle: (title: string) => setForm(prev => ({...prev, title})),
-        setReleaseYear: (releaseYear: number) => setForm(prev => ({...prev, releaseYear})),
-        setDescription: (description: string) => setForm(prev => ({...prev, description})),
-        setPosterName: (posterName?: string | null) => setForm(prev => ({...prev, posterName})),
+        setTitle: (title: string) => setForm((prev) => ({ ...prev, title })),
+        setReleaseYear: (releaseYear: number) => setForm((prev) => ({ ...prev, releaseYear })),
+        setDescription: (description: string) => setForm((prev) => ({ ...prev, description })),
+        setPosterName: (posterName?: string | null) => setForm((prev) => ({ ...prev, posterName })),
         addCountry,
         updateCountry: (rowId: string, country: Country) =>
-            setForm(prev => ({...prev, countries: updateSelectRows(prev.countries, rowId, country)})),
-        removeCountry: (rowId: string) =>
-            setForm(prev => ({...prev, countries: removeRow(prev.countries, rowId)})),
+            setForm((prev) => ({ ...prev, countries: updateSelectRows(prev.countries, rowId, country) })),
+        removeCountry: (rowId: string) => setForm((prev) => ({ ...prev, countries: removeRow(prev.countries, rowId) })),
         addGenre,
         updateGenre: (rowId: string, genre: Genre) =>
-            setForm(prev => ({...prev, genres: updateSelectRows(prev.genres, rowId, genre)})),
-        removeGenre: (rowId: string) =>
-            setForm(prev => ({...prev, genres: removeRow(prev.genres, rowId)})),
+            setForm((prev) => ({ ...prev, genres: updateSelectRows(prev.genres, rowId, genre) })),
+        removeGenre: (rowId: string) => setForm((prev) => ({ ...prev, genres: removeRow(prev.genres, rowId) })),
         addDirector: () =>
-            setForm(prev => ({
+            setForm((prev) => ({
                 ...prev,
                 nextRowId: prev.nextRowId + 1,
-                directors: [...prev.directors, {id: createNextRowId(prev), name: ""}]
+                directors: [...prev.directors, { id: createNextRowId(prev), name: "" }],
             })),
         updateDirector: (rowId: string, name: string) =>
-            setForm(prev => ({...prev, directors: updatePersonRows(prev.directors, rowId, name)})),
+            setForm((prev) => ({ ...prev, directors: updatePersonRows(prev.directors, rowId, name) })),
         removeDirector: (rowId: string) =>
-            setForm(prev => ({...prev, directors: removeRow(prev.directors, rowId)})),
+            setForm((prev) => ({ ...prev, directors: removeRow(prev.directors, rowId) })),
         addActor: () =>
-            setForm(prev => ({
+            setForm((prev) => ({
                 ...prev,
                 nextRowId: prev.nextRowId + 1,
-                actors: [...prev.actors, {id: createNextRowId(prev), name: ""}]
+                actors: [...prev.actors, { id: createNextRowId(prev), name: "" }],
             })),
         updateActor: (rowId: string, name: string) =>
-            setForm(prev => ({...prev, actors: updatePersonRows(prev.actors, rowId, name)})),
-        removeActor: (rowId: string) =>
-            setForm(prev => ({...prev, actors: removeRow(prev.actors, rowId)}))
+            setForm((prev) => ({ ...prev, actors: updatePersonRows(prev.actors, rowId, name) })),
+        removeActor: (rowId: string) => setForm((prev) => ({ ...prev, actors: removeRow(prev.actors, rowId) })),
     };
 }

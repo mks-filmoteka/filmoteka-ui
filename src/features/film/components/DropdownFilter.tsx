@@ -1,8 +1,8 @@
-import {MAX_YEAR, MIN_YEAR, YEARS} from "../constants/constants.ts";
-import {useEffect, useRef, useState} from "react";
-import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { MAX_YEAR, MIN_YEAR, YEARS } from "../constants/constants.ts";
+import { useEffect, useRef, useState } from "react";
+import { TextInput } from "../../../shared/components/TextInput.tsx";
+import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     id?: string;
@@ -13,7 +13,7 @@ type Props = {
     setValue: (v?: number) => void;
 };
 
-export function DropdownFilter({id, value, placeholder, inputValue, setValue, setInputValue}: Readonly<Props>) {
+export function DropdownFilter({ id, value, placeholder, inputValue, setValue, setInputValue }: Readonly<Props>) {
     const [open, setOpen] = useState(false);
     const yearDropdownRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -31,10 +31,7 @@ export function DropdownFilter({id, value, placeholder, inputValue, setValue, se
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (
-                wrapperRef.current &&
-                !wrapperRef.current.contains(event.target as Node)
-            ) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
                 setOpen(false);
             }
         };
@@ -45,10 +42,7 @@ export function DropdownFilter({id, value, placeholder, inputValue, setValue, se
     }, []);
 
     return (
-        <div
-            className="filter-year-picker"
-            ref={wrapperRef}
-        >
+        <div className="filter-year-picker" ref={wrapperRef}>
             <TextInput
                 id={id}
                 ariaLabel="filter years"
@@ -69,7 +63,7 @@ export function DropdownFilter({id, value, placeholder, inputValue, setValue, se
                 }}
                 onClick={(e) => {
                     e.stopPropagation();
-                    setOpen(o => !o);
+                    setOpen((o) => !o);
                 }}
             />
             {(value !== undefined || inputValue !== "") && (
@@ -85,16 +79,16 @@ export function DropdownFilter({id, value, placeholder, inputValue, setValue, se
                 />
             )}
             {open && (
-                <div
-                    ref={yearDropdownRef}
-                    className="filter-year-dropdown"
-                >
-                    {YEARS.map(y => (
-                        <div key={y} onClick={() => {
-                            setValue(y);
-                            setInputValue(String(y));
-                            setOpen(false);
-                        }}>
+                <div ref={yearDropdownRef} className="filter-year-dropdown">
+                    {YEARS.map((y) => (
+                        <div
+                            key={y}
+                            onClick={() => {
+                                setValue(y);
+                                setInputValue(String(y));
+                                setOpen(false);
+                            }}
+                        >
                             {y}
                         </div>
                     ))}

@@ -1,7 +1,7 @@
-import {render} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {FilmFormSaveOptions} from "../components/FilmForm.tsx";
-import type {FilmRequest} from "../types/filmRequest.ts";
+import { render } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { FilmFormSaveOptions } from "../components/FilmForm.tsx";
+import type { FilmRequest } from "../types/filmRequest.ts";
 import CreateFilmPage from "./CreateFilmPage.tsx";
 
 type FilmFormProps = {
@@ -40,7 +40,7 @@ vi.mock("../queries/useCreateFilm.ts", () => ({
 vi.mock("../components/FilmForm.tsx", () => ({
     FilmForm: (props: FilmFormProps) => {
         mocks.filmForm(props);
-        return <div data-testid="film-form"/>;
+        return <div data-testid="film-form" />;
     },
 }));
 
@@ -51,8 +51,8 @@ const request: FilmRequest = {
     description: "Test description",
     posterName: null,
     genres: ["Drama"],
-    actors: [{name: "Test Actor"}],
-    directors: [{name: "Test Director"}],
+    actors: [{ name: "Test Actor" }],
+    directors: [{ name: "Test Director" }],
 };
 
 function getFilmFormProps() {
@@ -73,7 +73,7 @@ beforeEach(() => {
 
 describe("CreateFilmPage", () => {
     it("configures FilmForm for create mode", () => {
-        render(<CreateFilmPage/>);
+        render(<CreateFilmPage />);
 
         const props = getFilmFormProps();
         expect(props.confirmMessage).toBe("Confirm create film?");
@@ -82,27 +82,25 @@ describe("CreateFilmPage", () => {
     });
 
     it("creates a film and navigates back to the film list", () => {
-        mocks.createFilmMutate.mockImplementation(
-            (_variables: unknown, options?: MutationOptions) => {
-                options?.onSuccess?.();
-            }
-        );
-        render(<CreateFilmPage/>);
+        mocks.createFilmMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
+            options?.onSuccess?.();
+        });
+        render(<CreateFilmPage />);
 
         const onSuccess = vi.fn();
         const onError = vi.fn();
-        getFilmFormProps().onSave(request, {onSuccess, onError});
+        getFilmFormProps().onSave(request, { onSuccess, onError });
 
         expect(mocks.createFilmMutate).toHaveBeenCalledWith(
-            {request},
-            expect.objectContaining({onSuccess: expect.any(Function), onError})
+            { request },
+            expect.objectContaining({ onSuccess: expect.any(Function), onError }),
         );
         expect(onSuccess).toHaveBeenCalledTimes(1);
         expect(mocks.navigate).toHaveBeenCalledWith("/films");
     });
 
     it("navigates back to the film list on cancel", () => {
-        render(<CreateFilmPage/>);
+        render(<CreateFilmPage />);
 
         getFilmFormProps().onCancel();
 

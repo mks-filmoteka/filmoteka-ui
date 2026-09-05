@@ -1,9 +1,9 @@
-import {catalogClient} from "../../../shared/api/client.ts";
-import type {Page} from "../types/page.ts";
-import type {FilmBasic} from "../types/filmBasic.ts";
-import type {Film} from "../types/film";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import type {CollectionFilmFilter, FilmFilter} from "../types/filmFilter.ts";
+import { catalogClient } from "../../../shared/api/client.ts";
+import type { Page } from "../types/page.ts";
+import type { FilmBasic } from "../types/filmBasic.ts";
+import type { Film } from "../types/film";
+import type { FilmRequest } from "../types/filmRequest.ts";
+import type { CollectionFilmFilter, FilmFilter } from "../types/filmFilter.ts";
 
 function createFilmFilter(
     page: number,
@@ -12,9 +12,9 @@ function createFilmFilter(
     yearTo: number | undefined,
     genres: string[] | undefined,
     countries: string[] | undefined,
-    sort: string[] | undefined
+    sort: string[] | undefined,
 ): FilmFilter {
-    return {page, title, yearFrom, yearTo, genres, countries, sort};
+    return { page, title, yearFrom, yearTo, genres, countries, sort };
 }
 
 export async function getFilms(
@@ -27,19 +27,19 @@ export async function getFilms(
     sort: string[] | undefined,
 ) {
     const filter = createFilmFilter(page, title, yearFrom, yearTo, genres, countries, sort);
-    const response =
-        await catalogClient.get<Page<FilmBasic>>("/films", {params: filter, paramsSerializer: {indexes: null}});
+    const response = await catalogClient.get<Page<FilmBasic>>("/films", {
+        params: filter,
+        paramsSerializer: { indexes: null },
+    });
     return response.data;
 }
 
 export async function getCollectionFilms(filter: CollectionFilmFilter) {
-    const {page, sort, ...request} = filter;
-    const response =
-        await catalogClient.post<Page<FilmBasic>>(
-            "/films/collection",
-            request,
-            {params: {page, sort}, paramsSerializer: {indexes: null}}
-        );
+    const { page, sort, ...request } = filter;
+    const response = await catalogClient.post<Page<FilmBasic>>("/films/collection", request, {
+        params: { page, sort },
+        paramsSerializer: { indexes: null },
+    });
     return response.data;
 }
 

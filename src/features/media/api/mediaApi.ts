@@ -1,5 +1,5 @@
-import {mediaClient, MEDIA_API_URL} from "../../../shared/api/client.ts";
-import type {MediaFile} from "../types/mediaFile.ts";
+import { mediaClient, MEDIA_API_URL } from "../../../shared/api/client.ts";
+import type { MediaFile } from "../types/mediaFile.ts";
 
 export async function uploadFile(file: File) {
     const formData = new FormData();

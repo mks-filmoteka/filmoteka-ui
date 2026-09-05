@@ -1,4 +1,4 @@
-import {useParams} from "react-router";
+import { useParams } from "react-router";
 
 const ID_PATTERN = /^[1-9]\d*$/;
 

@@ -1,7 +1,7 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {UserProfile} from "../types/userProfile.ts";
-import {ProfileDetails} from "./ProfileDetails.tsx";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { UserProfile } from "../types/userProfile.ts";
+import { ProfileDetails } from "./ProfileDetails.tsx";
 
 type MutationOptions = {
     onSuccess?: (profile: UserProfile) => void;
@@ -11,16 +11,16 @@ type MutationOptions = {
 const mocks = vi.hoisted(() => ({
     isPending: false,
     useUpdateProfile: vi.fn(),
-    updateProfileMutate: vi.fn()
+    updateProfileMutate: vi.fn(),
 }));
 
 vi.mock("../queries/useUpdateProfile.ts", () => ({
-    useUpdateProfile: mocks.useUpdateProfile
+    useUpdateProfile: mocks.useUpdateProfile,
 }));
 
 const profile: UserProfile = {
     email: "test@example.com",
-    displayName: "Test User"
+    displayName: "Test User",
 };
 
 beforeEach(() => {
@@ -28,15 +28,18 @@ beforeEach(() => {
     mocks.isPending = false;
     mocks.useUpdateProfile.mockReturnValue({
         isPending: mocks.isPending,
-        mutate: mocks.updateProfileMutate
+        mutate: mocks.updateProfileMutate,
     });
-    vi.stubGlobal("confirm", vi.fn(() => true));
+    vi.stubGlobal(
+        "confirm",
+        vi.fn(() => true),
+    );
 });
 
 describe("ProfileDetails", () => {
     it("renders profile details and closes from the backdrop button", () => {
         const onClose = vi.fn();
-        render(<ProfileDetails profile={profile} onClose={onClose}/>);
+        render(<ProfileDetails profile={profile} onClose={onClose} />);
 
         expect(screen.getByText("Profile details")).toBeInTheDocument();
         expect(screen.getByText("test@example.com")).toBeInTheDocument();
@@ -47,11 +50,11 @@ describe("ProfileDetails", () => {
     });
 
     it("swaps display name controls while editing and cancels local changes", () => {
-        render(<ProfileDetails profile={profile} onClose={vi.fn()}/>);
+        render(<ProfileDetails profile={profile} onClose={vi.fn()} />);
 
         fireEvent.click(screen.getByTitle("Edit display name"));
         fireEvent.change(screen.getByLabelText("edit display name"), {
-            target: {value: "Changed User"}
+            target: { value: "Changed User" },
         });
 
         expect(screen.getByLabelText("edit display name")).toHaveValue("Changed User");
@@ -66,26 +69,24 @@ describe("ProfileDetails", () => {
     });
 
     it("trims the edited display name before saving", () => {
-        mocks.updateProfileMutate.mockImplementation(
-            (_request: unknown, options?: MutationOptions) => {
-                options?.onSuccess?.({
-                    ...profile,
-                    displayName: "Updated Test User"
-                });
-            }
-        );
-        render(<ProfileDetails profile={profile} onClose={vi.fn()}/>);
+        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions) => {
+            options?.onSuccess?.({
+                ...profile,
+                displayName: "Updated Test User",
+            });
+        });
+        render(<ProfileDetails profile={profile} onClose={vi.fn()} />);
 
         fireEvent.click(screen.getByTitle("Edit display name"));
         fireEvent.change(screen.getByLabelText("edit display name"), {
-            target: {value: "  Updated Test User  "}
+            target: { value: "  Updated Test User  " },
         });
         fireEvent.click(screen.getByTitle("Save display name"));
 
         expect(globalThis.confirm).toHaveBeenCalledWith("Confirm changes?");
         expect(mocks.updateProfileMutate).toHaveBeenCalledWith(
-            {displayName: "Updated Test User"},
-            expect.any(Object)
+            { displayName: "Updated Test User" },
+            expect.any(Object),
         );
         expect(screen.queryByLabelText("edit display name")).not.toBeInTheDocument();
     });
@@ -95,20 +96,18 @@ describe("ProfileDetails", () => {
             response: {
                 data: {
                     message: "Display name already exists",
-                    errorDetails: [{field: "displayName", message: "Must be unique"}]
-                }
-            }
+                    errorDetails: [{ field: "displayName", message: "Must be unique" }],
+                },
+            },
         });
-        mocks.updateProfileMutate.mockImplementation(
-            (_request: unknown, options?: MutationOptions) => {
-                options?.onError?.(error);
-            }
-        );
-        render(<ProfileDetails profile={profile} onClose={vi.fn()}/>);
+        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions) => {
+            options?.onError?.(error);
+        });
+        render(<ProfileDetails profile={profile} onClose={vi.fn()} />);
 
         fireEvent.click(screen.getByTitle("Edit display name"));
         fireEvent.change(screen.getByLabelText("edit display name"), {
-            target: {value: "Duplicate User"}
+            target: { value: "Duplicate User" },
         });
         fireEvent.click(screen.getByTitle("Save display name"));
 

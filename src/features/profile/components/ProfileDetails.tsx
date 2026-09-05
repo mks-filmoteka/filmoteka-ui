@@ -1,20 +1,20 @@
-import {useState} from "react";
-import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
-import {getApiError} from "../../../shared/api/apiError.ts";
-import {Dialog} from "../../../shared/components/Dialog.tsx";
-import {useUpdateProfile} from "../queries/useUpdateProfile.ts";
-import type {UserProfile} from "../types/userProfile.ts";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { useState } from "react";
+import { TextInput } from "../../../shared/components/TextInput.tsx";
+import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
+import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
+import type { ApiError } from "../../../shared/types/ApiError.ts";
+import { getApiError } from "../../../shared/api/apiError.ts";
+import { Dialog } from "../../../shared/components/Dialog.tsx";
+import { useUpdateProfile } from "../queries/useUpdateProfile.ts";
+import type { UserProfile } from "../types/userProfile.ts";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     profile: UserProfile;
     onClose: () => void;
 };
 
-export function ProfileDetails({profile, onClose}: Readonly<Props>) {
+export function ProfileDetails({ profile, onClose }: Readonly<Props>) {
     const [isEditing, setIsEditing] = useState(false);
     const [displayName, setDisplayName] = useState(profile.displayName);
     const [apiError, setApiError] = useState<ApiError | Error>();
@@ -40,7 +40,7 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
         if (!confirm("Confirm changes?")) return;
 
         updateProfile.mutate(
-            {displayName: trimmedDisplayName},
+            { displayName: trimmedDisplayName },
             {
                 onSuccess: (updatedProfile) => {
                     setApiError(undefined);
@@ -49,22 +49,18 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                 },
                 onError: (error: Error) => {
                     setApiError(getApiError(error));
-                }
-            }
+                },
+            },
         );
     };
 
     return (
-        <Dialog
-            label="Profile details"
-            closeLabel="Close profile details"
-            onClose={onClose}
-        >
+        <Dialog label="Profile details" closeLabel="Close profile details" onClose={onClose}>
             <div className="dialog-section-header">
                 <span>Profile details</span>
             </div>
 
-            <hr/>
+            <hr />
 
             <div className="details-column profile-details">
                 <div>
@@ -108,18 +104,14 @@ export function ProfileDetails({profile, onClose}: Readonly<Props>) {
                                     />
                                 </>
                             ) : (
-                                <IconButton
-                                    icon="edit"
-                                    label="Edit display name"
-                                    onClick={startEditing}
-                                />
+                                <IconButton icon="edit" label="Edit display name" onClick={startEditing} />
                             )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <ApiErrorMessage error={apiError}/>
+            <ApiErrorMessage error={apiError} />
         </Dialog>
     );
 }

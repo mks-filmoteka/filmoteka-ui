@@ -1,9 +1,9 @@
-import {render, screen} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {FilmFormSaveOptions} from "../components/FilmForm.tsx";
-import type {Film} from "../types/film.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import {fillForm} from "../utils/formState.ts";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { FilmFormSaveOptions } from "../components/FilmForm.tsx";
+import type { Film } from "../types/film.ts";
+import type { FilmRequest } from "../types/filmRequest.ts";
+import { fillForm } from "../utils/formState.ts";
 import EditFilmPage from "./EditFilmPage.tsx";
 
 type FilmFormProps = {
@@ -59,7 +59,7 @@ vi.mock("../../media/queries/useDeleteFile.ts", () => ({
 vi.mock("../components/FilmForm.tsx", () => ({
     FilmForm: (props: FilmFormProps) => {
         mocks.filmForm(props);
-        return <div data-testid="film-form"/>;
+        return <div data-testid="film-form" />;
     },
 }));
 
@@ -71,8 +71,8 @@ const film: Film = {
     description: "Test description",
     posterName: "old.jpg",
     genres: ["Drama"],
-    actors: [{id: 1, name: "Test Actor"}],
-    directors: [{id: 2, name: "Test Director"}],
+    actors: [{ id: 1, name: "Test Actor" }],
+    directors: [{ id: 2, name: "Test Director" }],
 };
 
 const request: FilmRequest = {
@@ -82,8 +82,8 @@ const request: FilmRequest = {
     description: "Test description",
     posterName: "new.jpg",
     genres: ["Drama"],
-    actors: [{name: "Test Actor"}],
-    directors: [{name: "Test Director"}],
+    actors: [{ name: "Test Actor" }],
+    directors: [{ name: "Test Director" }],
 };
 
 function getFilmFormProps() {
@@ -118,16 +118,16 @@ describe("EditFilmPage", () => {
             isLoading: true,
             error: null,
         });
-        const {rerender} = render(<EditFilmPage/>);
+        const { rerender } = render(<EditFilmPage />);
 
-        expect(screen.getByRole("heading", {name: "Loading..."})).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Loading..." })).toBeInTheDocument();
 
         mocks.useFilm.mockReturnValueOnce({
             data: undefined,
             isLoading: false,
             error: new Error("Request failed"),
         });
-        rerender(<EditFilmPage/>);
+        rerender(<EditFilmPage />);
 
         expect(screen.getByRole("alert")).toHaveTextContent("Error loading film: Request failed");
 
@@ -136,13 +136,13 @@ describe("EditFilmPage", () => {
             isLoading: false,
             error: null,
         });
-        rerender(<EditFilmPage/>);
+        rerender(<EditFilmPage />);
 
-        expect(screen.getByRole("heading", {name: "Film not found"})).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Film not found" })).toBeInTheDocument();
     });
 
     it("configures FilmForm for edit mode", () => {
-        render(<EditFilmPage/>);
+        render(<EditFilmPage />);
 
         const props = getFilmFormProps();
         expect(props.initialFilm).toBe(film);
@@ -153,21 +153,19 @@ describe("EditFilmPage", () => {
     });
 
     it("updates a film, deletes the old poster, and navigates to the updated film", () => {
-        const updatedFilm = {...film, id: 2};
-        mocks.updateFilmMutate.mockImplementation(
-            (_variables: unknown, options?: MutationOptions<Film>) => {
-                options?.onSuccess?.(updatedFilm);
-            }
-        );
-        render(<EditFilmPage/>);
+        const updatedFilm = { ...film, id: 2 };
+        mocks.updateFilmMutate.mockImplementation((_variables: unknown, options?: MutationOptions<Film>) => {
+            options?.onSuccess?.(updatedFilm);
+        });
+        render(<EditFilmPage />);
 
         const onSuccess = vi.fn();
         const onError = vi.fn();
-        getFilmFormProps().onSave(request, {onSuccess, onError});
+        getFilmFormProps().onSave(request, { onSuccess, onError });
 
         expect(mocks.updateFilmMutate).toHaveBeenCalledWith(
-            {id: 1, request},
-            expect.objectContaining({onSuccess: expect.any(Function), onError})
+            { id: 1, request },
+            expect.objectContaining({ onSuccess: expect.any(Function), onError }),
         );
         expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg");
         expect(onSuccess).toHaveBeenCalledTimes(1);
@@ -176,16 +174,14 @@ describe("EditFilmPage", () => {
 
     it("forwards update errors to FilmForm", () => {
         const error = new Error("Save failed");
-        mocks.updateFilmMutate.mockImplementation(
-            (_variables: unknown, options?: MutationOptions<Film>) => {
-                options?.onError?.(error);
-            }
-        );
-        render(<EditFilmPage/>);
+        mocks.updateFilmMutate.mockImplementation((_variables: unknown, options?: MutationOptions<Film>) => {
+            options?.onError?.(error);
+        });
+        render(<EditFilmPage />);
 
         const onSuccess = vi.fn();
         const onError = vi.fn();
-        getFilmFormProps().onSave(request, {onSuccess, onError});
+        getFilmFormProps().onSave(request, { onSuccess, onError });
 
         expect(onError).toHaveBeenCalledWith(error);
         expect(onSuccess).not.toHaveBeenCalled();
@@ -193,7 +189,7 @@ describe("EditFilmPage", () => {
     });
 
     it("navigates back to the film on cancel", () => {
-        render(<EditFilmPage/>);
+        render(<EditFilmPage />);
 
         getFilmFormProps().onCancel();
 

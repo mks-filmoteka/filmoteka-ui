@@ -1,22 +1,15 @@
-import {fireEvent, render, screen} from "@testing-library/react";
-import {describe, expect, it, vi} from "vitest";
-import {TextInput} from "./TextInput";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { TextInput } from "./TextInput";
 
 describe("TextInput", () => {
     it("sanitizes changed values before notifying the caller", () => {
         const onChange = vi.fn();
 
-        render(
-            <TextInput
-                ariaLabel="name"
-                value=""
-                onChange={onChange}
-                regex={/[^a-z\s]/g}
-            />
-        );
+        render(<TextInput ariaLabel="name" value="" onChange={onChange} regex={/[^a-z\s]/g} />);
 
         fireEvent.change(screen.getByLabelText("name"), {
-            target: {value: "test 123!"},
+            target: { value: "test 123!" },
         });
 
         expect(onChange).toHaveBeenCalledWith("test ");
@@ -25,18 +18,11 @@ describe("TextInput", () => {
     it("calls onEnter only when Enter is pressed", () => {
         const onEnter = vi.fn();
 
-        render(
-            <TextInput
-                ariaLabel="search"
-                value=""
-                onChange={vi.fn()}
-                onEnter={onEnter}
-            />
-        );
+        render(<TextInput ariaLabel="search" value="" onChange={vi.fn()} onEnter={onEnter} />);
 
         const input = screen.getByLabelText("search");
-        fireEvent.keyDown(input, {key: "Escape"});
-        fireEvent.keyDown(input, {key: "Enter"});
+        fireEvent.keyDown(input, { key: "Escape" });
+        fireEvent.keyDown(input, { key: "Enter" });
 
         expect(onEnter).toHaveBeenCalledTimes(1);
     });
@@ -51,7 +37,7 @@ describe("TextInput", () => {
                 placeholder="Title"
                 disabled
                 required
-            />
+            />,
         );
 
         const input = screen.getByLabelText("title");

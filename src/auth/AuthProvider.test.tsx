@@ -1,8 +1,8 @@
-import {act, render, screen, waitFor} from "@testing-library/react";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import {AuthProvider} from "./AuthProvider.tsx";
-import {useAuth} from "./useAuth.ts";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthProvider } from "./AuthProvider.tsx";
+import { useAuth } from "./useAuth.ts";
 
 const keycloakMock = vi.hoisted(() => ({
     authenticated: false,
@@ -12,13 +12,13 @@ const keycloakMock = vi.hoisted(() => ({
     onAuthSuccess: undefined as (() => void) | undefined,
     onAuthRefreshSuccess: undefined as (() => void) | undefined,
     onAuthLogout: undefined as (() => void) | undefined,
-    onAuthRefreshError: undefined as (() => void) | undefined
+    onAuthRefreshError: undefined as (() => void) | undefined,
 }));
 const initializeKeycloakMock = vi.hoisted(() => vi.fn());
 
 vi.mock("./keycloak.ts", () => ({
     keycloak: keycloakMock,
-    initializeKeycloak: initializeKeycloakMock
+    initializeKeycloak: initializeKeycloakMock,
 }));
 
 function AuthStateProbe() {
@@ -39,14 +39,14 @@ function renderAuthProvider() {
     const result = render(
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
-                <AuthStateProbe/>
+                <AuthStateProbe />
             </AuthProvider>
-        </QueryClientProvider>
+        </QueryClientProvider>,
     );
 
     return {
         ...result,
-        queryClient
+        queryClient,
     };
 }
 
@@ -98,11 +98,11 @@ describe("AuthProvider", () => {
     it("clears the token and synchronizes auth state when token refresh fails", async () => {
         keycloakMock.authenticated = true;
         keycloakMock.roles.add("USER");
-        const {queryClient, unmount} = renderAuthProvider();
+        const { queryClient, unmount } = renderAuthProvider();
         await waitFor(() => expect(screen.getByTestId("status")).toHaveTextContent("authenticated"));
-        queryClient.setQueryData(["profile"], {displayName: "Test User"});
-        queryClient.setQueryData(["collections"], [{id: 1}]);
-        queryClient.setQueryData(["collection", 1], {id: 1});
+        queryClient.setQueryData(["profile"], { displayName: "Test User" });
+        queryClient.setQueryData(["collections"], [{ id: 1 }]);
+        queryClient.setQueryData(["collection", 1], { id: 1 });
         queryClient.setQueryData(["films", "collection", 1], []);
 
         act(() => keycloakMock.onAuthRefreshError?.());

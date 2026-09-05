@@ -1,5 +1,5 @@
-import {useQuery} from "@tanstack/react-query";
-import {getFilmById} from "../api/filmApi";
+import { useQuery } from "@tanstack/react-query";
+import { getFilmById } from "../api/filmApi";
 
 export function useFilm(id?: number) {
     return useQuery({
@@ -8,6 +8,6 @@ export function useFilm(id?: number) {
         queryFn: () => {
             if (!id) throw new Error("FilmBasic id is required");
             return getFilmById(id);
-        }
+        },
     });
 }

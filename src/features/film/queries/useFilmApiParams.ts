@@ -1,6 +1,6 @@
-import {useState} from "react";
-import type {FilmFilter} from "../types/filmFilter.ts";
-import {useFilmSearchParams} from "./useFilmSearchParams";
+import { useState } from "react";
+import type { FilmFilter } from "../types/filmFilter.ts";
+import { useFilmSearchParams } from "./useFilmSearchParams";
 
 function toApiParam(value: string) {
     return value.replaceAll(" ", "_").replaceAll("-", "_").toUpperCase();
@@ -20,7 +20,14 @@ export function useFilmApiParams() {
         countries,
         sort,
         sortParams,
-        setPage, setView, setGenres, setYearFrom, setYearTo, resetYears, setCountries, setSort
+        setPage,
+        setView,
+        setGenres,
+        setYearFrom,
+        setYearTo,
+        resetYears,
+        setCountries,
+        setSort,
     } = useFilmSearchParams(true);
 
     const filmFilter: FilmFilter = {
@@ -30,7 +37,7 @@ export function useFilmApiParams() {
         yearTo: maxYear,
         genres: genres.map(toApiParam),
         countries: countries.map(toApiParam),
-        sort
+        sort,
     };
 
     return {
@@ -51,6 +58,6 @@ export function useFilmApiParams() {
         resetYears,
         setCountries,
         setSort,
-        setFilterOpen
+        setFilterOpen,
     };
 }

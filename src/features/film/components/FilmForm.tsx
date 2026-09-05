@@ -1,20 +1,20 @@
-import {type ChangeEvent, type SubmitEvent as ReactSubmitEvent, useState} from "react";
-import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
-import {getApiError} from "../../../shared/api/apiError.ts";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
+import { type ChangeEvent, type SubmitEvent as ReactSubmitEvent, useState } from "react";
+import { TextInput } from "../../../shared/components/TextInput.tsx";
+import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
+import type { ApiError } from "../../../shared/types/ApiError.ts";
+import { getApiError } from "../../../shared/api/apiError.ts";
+import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
-import {useDeleteFile} from "../../media/queries/useDeleteFile.ts";
-import {useUploadFile} from "../../media/queries/useUploadFile.ts";
-import {COUNTRIES} from "../types/country.ts";
-import type {Film} from "../types/film.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import {GENRES} from "../types/genre.ts";
-import {fillRequest} from "../utils/formState.ts";
-import {PersonNameArrayField, ReleaseYearField, SelectArrayField} from "./FilmFormFields.tsx";
-import {useFilmFormState} from "../queries/useFilmFormState.ts";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { useDeleteFile } from "../../media/queries/useDeleteFile.ts";
+import { useUploadFile } from "../../media/queries/useUploadFile.ts";
+import { COUNTRIES } from "../types/country.ts";
+import type { Film } from "../types/film.ts";
+import type { FilmRequest } from "../types/filmRequest.ts";
+import { GENRES } from "../types/genre.ts";
+import { fillRequest } from "../utils/formState.ts";
+import { PersonNameArrayField, ReleaseYearField, SelectArrayField } from "./FilmFormFields.tsx";
+import { useFilmFormState } from "../queries/useFilmFormState.ts";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 export type FilmFormSaveOptions = {
     onSuccess: () => void;
@@ -31,15 +31,14 @@ type Props = {
 };
 
 export function FilmForm(props: Readonly<Props>) {
-    const {confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged} = props;
+    const { confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged } = props;
     const uploadPoster = useUploadFile();
     const deletePoster = useDeleteFile();
     const filmForm = useFilmFormState(initialFilm);
     const [posterFile, setPosterFile] = useState<File | null>(null);
     const [apiError, setApiError] = useState<ApiError | Error>();
     const pending = !!isPending || uploadPoster.isPending;
-    const saveDisabled =
-        !isChanged(filmForm.requestForm, posterFile) || pending || filmForm.isInvalid;
+    const saveDisabled = !isChanged(filmForm.requestForm, posterFile) || pending || filmForm.isInvalid;
 
     const resetForm = () => {
         filmForm.resetForm();
@@ -57,7 +56,7 @@ export function FilmForm(props: Readonly<Props>) {
     const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
         onSave(request, {
             onSuccess: resetForm,
-            onError: (error: Error) => handleError(error, uploadedPosterName)
+            onError: (error: Error) => handleError(error, uploadedPosterName),
         });
     };
 
@@ -72,18 +71,18 @@ export function FilmForm(props: Readonly<Props>) {
             return;
         }
 
-        uploadPoster.mutate(
-            posterFile,
-            {
-                onSuccess: (uploadedPoster) => {
-                    saveFilm({
+        uploadPoster.mutate(posterFile, {
+            onSuccess: (uploadedPoster) => {
+                saveFilm(
+                    {
                         ...request,
-                        posterName: uploadedPoster.fileName
-                    }, uploadedPoster.fileName);
-                },
-                onError: (error: Error) => handleError(error)
-            }
-        );
+                        posterName: uploadedPoster.fileName,
+                    },
+                    uploadedPoster.fileName,
+                );
+            },
+            onError: (error: Error) => handleError(error),
+        });
     };
 
     const handleCancel = () => {
@@ -109,22 +108,14 @@ export function FilmForm(props: Readonly<Props>) {
                         onChange={filmForm.setTitle}
                         regex={INPUT_RULES.title}
                         placeholder="title"
-                    />({filmForm.form.releaseYear})
+                    />
+                    ({filmForm.form.releaseYear})
                 </h1>
                 <div>
                     <div>{filmForm.requestForm.genres[0] ?? ""}</div>
                     <div className="page-title-controls">
-                        <IconButton
-                            type="submit"
-                            icon="accept"
-                            label="Save film"
-                            disabled={saveDisabled}
-                        />
-                        <IconButton
-                            icon="cancel"
-                            label="Cancel film"
-                            onClick={handleCancel}
-                        />
+                        <IconButton type="submit" icon="accept" label="Save film" disabled={saveDisabled} />
+                        <IconButton icon="cancel" label="Cancel film" onClick={handleCancel} />
                     </div>
                 </div>
             </div>
@@ -156,10 +147,7 @@ export function FilmForm(props: Readonly<Props>) {
                     </p>
 
                     <div className="details-column">
-                        <ReleaseYearField
-                            value={filmForm.form.releaseYear}
-                            onChange={filmForm.setReleaseYear}
-                        />
+                        <ReleaseYearField value={filmForm.form.releaseYear} onChange={filmForm.setReleaseYear} />
 
                         <SelectArrayField
                             label="Country"
@@ -201,7 +189,9 @@ export function FilmForm(props: Readonly<Props>) {
                 </div>
 
                 <div>
-                    <p><span>Cast</span></p>
+                    <p>
+                        <span>Cast</span>
+                    </p>
                     <div className="people-column">
                         <PersonNameArrayField
                             rows={filmForm.form.actors}
@@ -217,7 +207,7 @@ export function FilmForm(props: Readonly<Props>) {
                     </div>
                 </div>
             </div>
-            <ApiErrorMessage error={apiError}/>
+            <ApiErrorMessage error={apiError} />
         </form>
     );
 }

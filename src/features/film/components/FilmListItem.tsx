@@ -1,5 +1,5 @@
-import type {FilmBasic} from "../types/filmBasic.ts";
-import {useNavigate} from "react-router";
+import type { FilmBasic } from "../types/filmBasic.ts";
+import { useNavigate } from "react-router";
 
 type Props = {
     readonly film: FilmBasic;
@@ -9,13 +9,15 @@ type Props = {
     readonly selectionDisabled?: boolean;
 };
 
-function FilmListItem({film, index, checked, onCheckedChange, selectionDisabled}: Props) {
+function FilmListItem({ film, index, checked, onCheckedChange, selectionDisabled }: Props) {
     const navigate = useNavigate();
 
     const content = (
         <>
             <span className="list-item-number">{index + 1}</span>
-            <span style={{marginRight: "auto"}}>{film.title} ({film.releaseYear})</span>
+            <span style={{ marginRight: "auto" }}>
+                {film.title} ({film.releaseYear})
+            </span>
             <span className="item-label">{film.genres[0]}</span>
             {onCheckedChange && (
                 <input
@@ -24,26 +26,18 @@ function FilmListItem({film, index, checked, onCheckedChange, selectionDisabled}
                     aria-label={`Select ${film.title}`}
                     checked={!!checked}
                     disabled={selectionDisabled}
-                    onChange={(event) =>
-                        onCheckedChange(film.id, event.currentTarget.checked)}
+                    onChange={(event) => onCheckedChange(film.id, event.currentTarget.checked)}
                 />
             )}
         </>
     );
 
     if (onCheckedChange) {
-        return (
-            <div className="list-item-button">
-                {content}
-            </div>
-        );
+        return <div className="list-item-button">{content}</div>;
     }
 
     return (
-        <button
-            onClick={() => navigate(`/films/${film.id}`)}
-            className="list-item-button"
-        >
+        <button onClick={() => navigate(`/films/${film.id}`)} className="list-item-button">
             {content}
         </button>
     );

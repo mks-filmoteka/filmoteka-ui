@@ -1,7 +1,7 @@
-import {fireEvent, render, screen} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {FilmBasic} from "../types/filmBasic";
-import type {Page} from "../types/page";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { FilmBasic } from "../types/filmBasic";
+import type { Page } from "../types/page";
 import AllFilmsPage from "./AllFilmsPage.tsx";
 
 type SearchParamsReturn = {
@@ -15,7 +15,7 @@ type SearchParamsReturn = {
     genres: string[];
     countries: string[];
     sort: string[];
-    sortParams: {by?: string; dir?: string}[];
+    sortParams: { by?: string; dir?: string }[];
     setPage: (page: number) => void;
     setView: (view: string) => void;
     setGenres: (genres: string[]) => void;
@@ -23,7 +23,7 @@ type SearchParamsReturn = {
     setYearTo: (year?: number) => void;
     resetYears: () => void;
     setCountries: (countries: string[]) => void;
-    setSort: (sort: {by?: string; dir?: string}[]) => void;
+    setSort: (sort: { by?: string; dir?: string }[]) => void;
 };
 
 type FilmBrowserMockProps = {
@@ -54,13 +54,13 @@ vi.mock("../queries/useFilms.ts", () => ({
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
-    useAuth: () => ({isAdmin: true}),
+    useAuth: () => ({ isAdmin: true }),
 }));
 
 vi.mock("../components/FilmBrowser.tsx", () => ({
-    FilmBrowser: ({filmsData}: FilmBrowserMockProps) => (
+    FilmBrowser: ({ filmsData }: FilmBrowserMockProps) => (
         <div>
-            {filmsData?.content.map(film => (
+            {filmsData?.content.map((film) => (
                 <div key={film.id}>{film.title}</div>
             ))}
         </div>
@@ -112,16 +112,18 @@ beforeEach(() => {
 describe("AllFilmsPage", () => {
     it("transforms URL filter values before querying films", () => {
         const sort = ["title,asc"];
-        mocks.useFilmSearchParams.mockReturnValue(createSearchParams({
-            title: "test title",
-            pageParam: 3,
-            minYear: 1990,
-            maxYear: 2020,
-            genres: ["Sci-Fi"],
-            countries: ["United States", "Czech Republic"],
-            sort,
-            sortParams: [{by: "title", dir: "asc"}],
-        }));
+        mocks.useFilmSearchParams.mockReturnValue(
+            createSearchParams({
+                title: "test title",
+                pageParam: 3,
+                minYear: 1990,
+                maxYear: 2020,
+                genres: ["Sci-Fi"],
+                countries: ["United States", "Czech Republic"],
+                sort,
+                sortParams: [{ by: "title", dir: "asc" }],
+            }),
+        );
 
         render(<AllFilmsPage />);
 

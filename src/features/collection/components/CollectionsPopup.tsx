@@ -1,31 +1,31 @@
-import {useState} from "react";
-import {useNavigate} from "react-router";
-import {useCollections} from "../queries/useCollections.ts";
-import {useCreateCollection} from "../queries/useCreateCollection.ts";
-import {useUpdateCollection} from "../queries/useUpdateCollection.ts";
-import {useDeleteCollection} from "../queries/useDeleteCollection.ts";
-import {useAddFilm} from "../queries/useAddFilm.ts";
-import {useRemoveFilm} from "../queries/useRemoveFilm.ts";
-import type {ApiError} from "../../../shared/types/ApiError.ts";
-import {getApiError} from "../../../shared/api/apiError.ts";
-import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {ApiErrorMessage} from "../../../shared/components/ApiErrorMessage.tsx";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
-import {Dialog} from "../../../shared/components/Dialog.tsx";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import type {Collection} from "../types/collection.ts";
-import type {CollectionRequest} from "../types/collectionRequest.ts";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useCollections } from "../queries/useCollections.ts";
+import { useCreateCollection } from "../queries/useCreateCollection.ts";
+import { useUpdateCollection } from "../queries/useUpdateCollection.ts";
+import { useDeleteCollection } from "../queries/useDeleteCollection.ts";
+import { useAddFilm } from "../queries/useAddFilm.ts";
+import { useRemoveFilm } from "../queries/useRemoveFilm.ts";
+import type { ApiError } from "../../../shared/types/ApiError.ts";
+import { getApiError } from "../../../shared/api/apiError.ts";
+import { TextInput } from "../../../shared/components/TextInput.tsx";
+import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { Dialog } from "../../../shared/components/Dialog.tsx";
+import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
+import type { Collection } from "../types/collection.ts";
+import type { CollectionRequest } from "../types/collectionRequest.ts";
 
 type Props = {
     onClose: () => void;
     filmId?: number;
 };
 
-export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
+export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
     const [isCreating, setIsCreating] = useState(false);
     const [collectionName, setCollectionName] = useState("");
     const [editingCollection, setEditingCollection] = useState<Collection>();
-    const [form, setForm] = useState<CollectionRequest>({name: ""});
+    const [form, setForm] = useState<CollectionRequest>({ name: "" });
     const [apiError, setApiError] = useState<ApiError | Error>();
     const navigate = useNavigate();
     const isFilmManagement = filmId !== undefined;
@@ -34,11 +34,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     const deleteCollection = useDeleteCollection();
     const addFilm = useAddFilm();
     const removeFilm = useRemoveFilm();
-    const {
-        data: collections = [],
-        isLoading,
-        error
-    } = useCollections();
+    const { data: collections = [], isLoading, error } = useCollections();
 
     const resetCreateForm = () => {
         setApiError(undefined);
@@ -49,7 +45,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     const resetEditForm = () => {
         setApiError(undefined);
         setEditingCollection(undefined);
-        setForm({name: ""});
+        setForm({ name: "" });
     };
 
     const resetForms = () => {
@@ -79,7 +75,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         setIsCreating(false);
         setCollectionName("");
         setEditingCollection(collection);
-        setForm({name: collection.name});
+        setForm({ name: collection.name });
     };
 
     const handleApiError = (error: Error) => {
@@ -91,11 +87,11 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         if (!name || createCollection.isPending) return;
 
         createCollection.mutate(
-            {request: {name}},
+            { request: { name } },
             {
                 onSuccess: resetCreateForm,
-                onError: handleApiError
-            }
+                onError: handleApiError,
+            },
         );
     };
 
@@ -104,11 +100,11 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         if (!editingCollection || !name || updateCollection.isPending) return;
 
         updateCollection.mutate(
-            {id: editingCollection.id, request: {name}},
+            { id: editingCollection.id, request: { name } },
             {
                 onSuccess: resetEditForm,
-                onError: handleApiError
-            }
+                onError: handleApiError,
+            },
         );
     };
 
@@ -116,28 +112,24 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         if (!confirm("Confirm delete collection?")) return;
         setApiError(undefined);
 
-        deleteCollection.mutate(
-            collectionId,
-            {
-                onSuccess: resetEditForm,
-                onError: handleApiError
-            }
-        );
+        deleteCollection.mutate(collectionId, {
+            onSuccess: resetEditForm,
+            onError: handleApiError,
+        });
     };
 
-    const collectionHasFilm = (collection: Collection) =>
-        filmId !== undefined && collection.filmIds.includes(filmId);
+    const collectionHasFilm = (collection: Collection) => filmId !== undefined && collection.filmIds.includes(filmId);
 
     const handleAddFilm = (collectionId: number) => {
         if (filmId === undefined || addFilm.isPending) return;
         setApiError(undefined);
 
         addFilm.mutate(
-            {collectionId, filmId},
+            { collectionId, filmId },
             {
                 onSuccess: () => setApiError(undefined),
-                onError: handleApiError
-            }
+                onError: handleApiError,
+            },
         );
     };
 
@@ -146,11 +138,11 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
         setApiError(undefined);
 
         removeFilm.mutate(
-            {collectionId, filmId},
+            { collectionId, filmId },
             {
                 onSuccess: () => setApiError(undefined),
-                onError: handleApiError
-            }
+                onError: handleApiError,
+            },
         );
     };
 
@@ -158,7 +150,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     if (isLoading) {
         collectionsContent = <h1>Loading...</h1>;
     } else if (error) {
-        collectionsContent = <ApiErrorMessage error={error} message="Error loading collections"/>;
+        collectionsContent = <ApiErrorMessage error={error} message="Error loading collections" />;
     } else {
         collectionsContent = (
             <div className="collection-popup">
@@ -202,7 +194,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
                                     placeholder="Collection name"
                                     regex={INPUT_RULES.title}
                                     disabled={updateCollection.isPending}
-                                    onChange={(name) => setForm({name})}
+                                    onChange={(name) => setForm({ name })}
                                     onEnter={handleUpdate}
                                 />
                                 <IconButton
@@ -279,11 +271,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
     }
 
     return (
-        <Dialog
-            label="Collections"
-            closeLabel="Close collections"
-            onClose={closePopup}
-        >
+        <Dialog label="Collections" closeLabel="Close collections" onClose={closePopup}>
             <div className="dialog-section-header">
                 <span>Collections</span>
                 {!isFilmManagement && (
@@ -298,7 +286,7 @@ export function CollectionsPopup({onClose, filmId}: Readonly<Props>) {
 
             {collectionsContent}
 
-            <ApiErrorMessage error={apiError}/>
+            <ApiErrorMessage error={apiError} />
         </Dialog>
     );
 }

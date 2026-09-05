@@ -1,6 +1,6 @@
-import {useNavigate} from "react-router";
-import {FilmForm} from "../components/FilmForm.tsx";
-import {useCreateFilm} from "../queries/useCreateFilm.ts";
+import { useNavigate } from "react-router";
+import { FilmForm } from "../components/FilmForm.tsx";
+import { useCreateFilm } from "../queries/useCreateFilm.ts";
 
 function CreateFilmPage() {
     const navigate = useNavigate();
@@ -14,14 +14,14 @@ function CreateFilmPage() {
             onCancel={() => navigate("/films")}
             onSave={(request, options) =>
                 createFilm.mutate(
-                    {request},
+                    { request },
                     {
                         onSuccess: () => {
                             options.onSuccess();
                             navigate("/films");
                         },
-                        onError: options.onError
-                    }
+                        onError: options.onError,
+                    },
                 )
             }
         />

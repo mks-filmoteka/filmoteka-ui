@@ -1,4 +1,4 @@
-import type {FilmBasic} from "../types/filmBasic.ts";
+import type { FilmBasic } from "../types/filmBasic.ts";
 import FilmListItem from "./FilmListItem.tsx";
 import FilmCard from "./FilmCard.tsx";
 
@@ -12,18 +12,12 @@ type Props = {
 };
 
 export function FilmGallery(props: Readonly<Props>) {
-    const {
-        films,
-        view,
-        startIndex = 0,
-        selectedFilmIds,
-        onFilmCheckedChange,
-        selectionDisabled
-    } = props;
+    const { films, view, startIndex = 0, selectedFilmIds, onFilmCheckedChange, selectionDisabled } = props;
 
-    const {ItemComponent, containerClass} = view === "list"
-        ? {ItemComponent: FilmListItem, containerClass: "item-list"}
-        : {ItemComponent: FilmCard, containerClass: "card-grid"};
+    const { ItemComponent, containerClass } =
+        view === "list"
+            ? { ItemComponent: FilmListItem, containerClass: "item-list" }
+            : { ItemComponent: FilmCard, containerClass: "card-grid" };
 
     let filmsContent;
     if (films.length === 0) {
@@ -45,9 +39,5 @@ export function FilmGallery(props: Readonly<Props>) {
         );
     }
 
-    return (
-        <div className="item-list-wrapper">
-            {filmsContent}
-        </div>
-    );
+    return <div className="item-list-wrapper">{filmsContent}</div>;
 }

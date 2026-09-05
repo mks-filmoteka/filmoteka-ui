@@ -16,7 +16,7 @@
     --accent-bg: #1f2029;
     --accent-border: rgb(192 132 252 / 50%);
     --error-message: #ff6b6b;
-    --sans: system-ui, 'Segoe UI', roboto, sans-serif;
+    --sans: system-ui, "Segoe UI", roboto, sans-serif;
     --mono: ui-monospace, consolas, monospace;
     --font-l: 36px;
     --font-m: 18px;

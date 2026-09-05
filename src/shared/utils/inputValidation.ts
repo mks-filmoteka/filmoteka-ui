@@ -9,5 +9,5 @@ export const YEAR_INVALID_CHARS = /\D/g;
 export const INPUT_RULES = {
     name: NAME_INVALID_CHARS,
     title: TITLE_INVALID_CHARS,
-    year: YEAR_INVALID_CHARS
+    year: YEAR_INVALID_CHARS,
 } as const;

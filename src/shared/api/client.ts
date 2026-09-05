@@ -1,22 +1,22 @@
-import axios, {AxiosHeaders, type AxiosInstance} from "axios";
-import {keycloak} from "../../auth/keycloak.ts";
+import axios, { AxiosHeaders, type AxiosInstance } from "axios";
+import { keycloak } from "../../auth/keycloak.ts";
 
 export const CATALOG_API_URL = import.meta.env.VITE_CATALOG_API_URL;
 export const MEDIA_API_URL = import.meta.env.VITE_MEDIA_API_URL;
 export const USER_API_URL = import.meta.env.VITE_USER_API_URL;
 export const CORRELATION_ID_HEADER = "X-Correlation-Id";
 
-export const catalogClient = axios.create({baseURL: CATALOG_API_URL});
+export const catalogClient = axios.create({ baseURL: CATALOG_API_URL });
 addCorrelationIdInterceptor(catalogClient);
 addAuthInterceptor(catalogClient);
 addUnauthorizedInterceptor(catalogClient);
 
-export const mediaClient = axios.create({baseURL: MEDIA_API_URL});
+export const mediaClient = axios.create({ baseURL: MEDIA_API_URL });
 addCorrelationIdInterceptor(mediaClient);
 addAuthInterceptor(mediaClient);
 addUnauthorizedInterceptor(mediaClient);
 
-export const userClient = axios.create({baseURL: USER_API_URL})
+export const userClient = axios.create({ baseURL: USER_API_URL });
 addCorrelationIdInterceptor(userClient);
 addAuthInterceptor(userClient);
 addUnauthorizedInterceptor(userClient);
@@ -30,7 +30,7 @@ export function addCorrelationIdInterceptor(client: AxiosInstance) {
 }
 
 export function addAuthInterceptor(client: AxiosInstance) {
-    client.interceptors.request.use(async config => {
+    client.interceptors.request.use(async (config) => {
         if (!keycloak.authenticated) {
             return config;
         }
@@ -55,11 +55,13 @@ export function addAuthInterceptor(client: AxiosInstance) {
 }
 
 export function addUnauthorizedInterceptor(client: AxiosInstance) {
-    client.interceptors.response.use(response => response, error => {
+    client.interceptors.response.use(
+        (response) => response,
+        (error) => {
             if (axios.isAxiosError(error) && error.response?.status === 401 && keycloak.authenticated) {
                 keycloak.clearToken();
             }
             return Promise.reject(error);
-        }
+        },
     );
 }

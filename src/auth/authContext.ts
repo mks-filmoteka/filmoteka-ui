@@ -1,4 +1,4 @@
-import {createContext} from "react";
+import { createContext } from "react";
 
 export type AuthStatus = "checking" | "authenticated" | "guest" | "unavailable";
 
@@ -9,5 +9,4 @@ export interface AuthState {
     isAdmin: boolean;
 }
 
-export const AuthContext =
-    createContext<AuthState | undefined>(undefined);
+export const AuthContext = createContext<AuthState | undefined>(undefined);
