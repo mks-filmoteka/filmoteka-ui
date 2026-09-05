@@ -1,10 +1,10 @@
-import {useEffect, type Dispatch, type SetStateAction} from "react";
-import type {FilmBasic} from "../types/filmBasic.ts";
-import type {Page} from "../types/page.ts";
-import {FilmGallery} from "./FilmGallery.tsx";
-import {FilterPopup} from "./FilterPopup.tsx";
-import {ListToolbar} from "./ListToolbar.tsx";
-import {Pagination} from "./Pagination.tsx";
+import { useEffect, type Dispatch, type SetStateAction } from "react";
+import type { FilmBasic } from "../types/filmBasic.ts";
+import type { Page } from "../types/page.ts";
+import { FilmGallery } from "./FilmGallery.tsx";
+import { FilterPopup } from "./FilterPopup.tsx";
+import { ListToolbar } from "./ListToolbar.tsx";
+import { Pagination } from "./Pagination.tsx";
 
 type SortParam = {
     by?: string;
@@ -58,15 +58,13 @@ export function FilmBrowser(props: Readonly<Props>) {
         cancelDisabled,
         selectedFilmIds,
         onFilmCheckedChange,
-        selectionDisabled
+        selectionDisabled,
     } = props;
-    const {pageParam, setPage} = search;
+    const { pageParam, setPage } = search;
     const films = filmsData?.content ?? localFilms ?? [];
     const totalPages = filmsData?.totalPages ?? 1;
     const pageSize = filmsData?.size ?? Math.max(films.length, 1);
-    const page = filmsData
-        ? Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1))
-        : 1;
+    const page = filmsData ? Math.min(Math.max(pageParam, 1), Math.max(totalPages, 1)) : 1;
     const startIndex = filmsData ? (page - 1) * pageSize : 0;
 
     useEffect(() => {
@@ -113,11 +111,7 @@ export function FilmBrowser(props: Readonly<Props>) {
                 selectionDisabled={selectionDisabled}
             />
 
-            <Pagination
-                page={page}
-                totalPages={totalPages}
-                setPage={setPage}
-            />
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
     );
 }

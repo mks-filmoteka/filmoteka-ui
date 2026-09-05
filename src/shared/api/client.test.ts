@@ -1,5 +1,5 @@
-import {AxiosHeaders, type AxiosAdapter, type AxiosInstance, type InternalAxiosRequestConfig} from "axios";
-import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
+import { AxiosHeaders, type AxiosAdapter, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const CATALOG_API_URL = "http://localhost:8080/api/v1";
 const MEDIA_API_URL = "http://localhost:8081/api/v1";
@@ -11,11 +11,11 @@ const keycloakMock = vi.hoisted(() => ({
     authenticated: false,
     token: undefined as string | undefined,
     updateToken: vi.fn(async () => true),
-    clearToken: vi.fn()
+    clearToken: vi.fn(),
 }));
 
 vi.mock("../../auth/keycloak.ts", () => ({
-    keycloak: keycloakMock
+    keycloak: keycloakMock,
 }));
 
 beforeEach(() => {
@@ -43,7 +43,7 @@ describe("api clients", () => {
         vi.stubEnv("VITE_MEDIA_API_URL", MEDIA_API_URL);
         vi.stubEnv("VITE_USER_API_URL", USER_API_URL);
 
-        const {catalogClient, mediaClient, userClient} = await import("./client");
+        const { catalogClient, mediaClient, userClient } = await import("./client");
 
         expect(catalogClient.defaults.baseURL).toBe(CATALOG_API_URL);
         expect(mediaClient.defaults.baseURL).toBe(MEDIA_API_URL);
@@ -52,17 +52,17 @@ describe("api clients", () => {
 
     it("adds a correlation id to requests", async () => {
         const randomUUID = vi.fn(() => CORRELATION_ID);
-        vi.stubGlobal("crypto", {randomUUID});
+        vi.stubGlobal("crypto", { randomUUID });
         vi.stubEnv("VITE_CATALOG_API_URL", CATALOG_API_URL);
         vi.stubEnv("VITE_MEDIA_API_URL", MEDIA_API_URL);
         vi.stubEnv("VITE_USER_API_URL", USER_API_URL);
-        const {catalogClient, mediaClient, userClient, CORRELATION_ID_HEADER} = await import("./client");
+        const { catalogClient, mediaClient, userClient, CORRELATION_ID_HEADER } = await import("./client");
         const captureConfigAdapter: AxiosAdapter = async (config) => ({
             config,
             data: null,
             headers: {},
             status: 200,
-            statusText: "OK"
+            statusText: "OK",
         });
 
         catalogClient.defaults.adapter = captureConfigAdapter;
@@ -81,16 +81,16 @@ describe("api clients", () => {
 
     it("adds an authorization header to authenticated requests", async () => {
         const randomUUID = vi.fn(() => CORRELATION_ID);
-        vi.stubGlobal("crypto", {randomUUID});
+        vi.stubGlobal("crypto", { randomUUID });
         keycloakMock.authenticated = true;
         keycloakMock.token = ACCESS_TOKEN;
-        const {catalogClient, mediaClient, userClient} = await import("./client");
+        const { catalogClient, mediaClient, userClient } = await import("./client");
         const captureConfigAdapter: AxiosAdapter = async (config) => ({
             config,
             data: null,
             headers: {},
             status: 200,
-            statusText: "OK"
+            statusText: "OK",
         });
 
         catalogClient.defaults.adapter = captureConfigAdapter;
@@ -113,16 +113,17 @@ describe("api clients", () => {
     it("removes a stale authorization header when refresh leaves no token", async () => {
         keycloakMock.authenticated = true;
         keycloakMock.token = undefined;
-        const {addAuthInterceptor} = await import("./client");
+        const { addAuthInterceptor } = await import("./client");
         const requestUse = vi.fn();
-        const client = {interceptors: {request: {use: requestUse}}} as unknown as AxiosInstance;
+        const client = { interceptors: { request: { use: requestUse } } } as unknown as AxiosInstance;
 
         addAuthInterceptor(client);
 
-        const interceptor = requestUse.mock.calls[0][0] as (config: InternalAxiosRequestConfig) =>
-            Promise<InternalAxiosRequestConfig>;
+        const interceptor = requestUse.mock.calls[0][0] as (
+            config: InternalAxiosRequestConfig,
+        ) => Promise<InternalAxiosRequestConfig>;
         const config = await interceptor({
-            headers: new AxiosHeaders({"Authorization": "Bearer stale-token"})
+            headers: new AxiosHeaders({ Authorization: "Bearer stale-token" }),
         } as InternalAxiosRequestConfig);
 
         expect(keycloakMock.updateToken).toHaveBeenCalledWith(30);
@@ -134,19 +135,20 @@ describe("api clients", () => {
         keycloakMock.authenticated = true;
         keycloakMock.token = ACCESS_TOKEN;
         keycloakMock.updateToken.mockRejectedValue(new Error("Refresh failed"));
-        const {addAuthInterceptor} = await import("./client");
+        const { addAuthInterceptor } = await import("./client");
         const requestUse = vi.fn();
-        const client = {interceptors: {request: {use: requestUse}}} as unknown as AxiosInstance;
+        const client = { interceptors: { request: { use: requestUse } } } as unknown as AxiosInstance;
 
         addAuthInterceptor(client);
 
-        const interceptor = requestUse.mock.calls[0][0] as (config: InternalAxiosRequestConfig) =>
-            Promise<InternalAxiosRequestConfig>;
+        const interceptor = requestUse.mock.calls[0][0] as (
+            config: InternalAxiosRequestConfig,
+        ) => Promise<InternalAxiosRequestConfig>;
         const config = await interceptor({
             headers: new AxiosHeaders({
-                "Accept": "application/json",
-                "Authorization": "Bearer stale-token"
-            })
+                Accept: "application/json",
+                Authorization: "Bearer stale-token",
+            }),
         } as InternalAxiosRequestConfig);
 
         expect(keycloakMock.updateToken).toHaveBeenCalledWith(30);
@@ -157,24 +159,24 @@ describe("api clients", () => {
 
     it("normalizes existing request headers before setting a correlation id", async () => {
         const randomUUID = vi.fn(() => CORRELATION_ID);
-        vi.stubGlobal("crypto", {randomUUID});
-        const {addCorrelationIdInterceptor, CORRELATION_ID_HEADER} = await import("./client");
+        vi.stubGlobal("crypto", { randomUUID });
+        const { addCorrelationIdInterceptor, CORRELATION_ID_HEADER } = await import("./client");
         const requestUse = vi.fn();
         const client = {
             interceptors: {
                 request: {
-                    use: requestUse
-                }
-            }
+                    use: requestUse,
+                },
+            },
         } as unknown as AxiosInstance;
 
         addCorrelationIdInterceptor(client);
 
         const interceptor = requestUse.mock.calls[0][0] as (
-            config: InternalAxiosRequestConfig
+            config: InternalAxiosRequestConfig,
         ) => InternalAxiosRequestConfig;
         const config = interceptor({
-            headers: {"Accept": "application/json"}
+            headers: { Accept: "application/json" },
         } as unknown as InternalAxiosRequestConfig);
 
         expect(requestUse).toHaveBeenCalledOnce();
@@ -184,16 +186,17 @@ describe("api clients", () => {
     });
 
     it("skips token refresh for unauthenticated requests", async () => {
-        const {addAuthInterceptor} = await import("./client");
+        const { addAuthInterceptor } = await import("./client");
         const requestUse = vi.fn();
-        const client = {interceptors: {request: {use: requestUse}}} as unknown as AxiosInstance;
+        const client = { interceptors: { request: { use: requestUse } } } as unknown as AxiosInstance;
 
         addAuthInterceptor(client);
 
-        const interceptor = requestUse.mock.calls[0][0] as (config: InternalAxiosRequestConfig) =>
-            Promise<InternalAxiosRequestConfig>;
+        const interceptor = requestUse.mock.calls[0][0] as (
+            config: InternalAxiosRequestConfig,
+        ) => Promise<InternalAxiosRequestConfig>;
         const initialConfig = {
-            headers: new AxiosHeaders({"Accept": "application/json"})
+            headers: new AxiosHeaders({ Accept: "application/json" }),
         } as InternalAxiosRequestConfig;
         const config = await interceptor(initialConfig);
 
@@ -207,14 +210,14 @@ describe("api clients", () => {
     it("clears authentication after an authenticated 401 response", async () => {
         keycloakMock.authenticated = true;
 
-        const {addUnauthorizedInterceptor} = await import("./client");
+        const { addUnauthorizedInterceptor } = await import("./client");
         const responseUse = vi.fn();
-        const client = {interceptors: {response: {use: responseUse}}} as unknown as AxiosInstance;
+        const client = { interceptors: { response: { use: responseUse } } } as unknown as AxiosInstance;
 
         addUnauthorizedInterceptor(client);
 
         const rejectedInterceptor = responseUse.mock.calls[0][1] as (error: unknown) => Promise<never>;
-        const error = {isAxiosError: true, response: {status: 401}};
+        const error = { isAxiosError: true, response: { status: 401 } };
 
         await expect(rejectedInterceptor(error)).rejects.toBe(error);
         expect(keycloakMock.clearToken).toHaveBeenCalledOnce();

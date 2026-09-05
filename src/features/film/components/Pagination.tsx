@@ -1,4 +1,4 @@
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     page: number;
@@ -7,13 +7,13 @@ type Props = {
 };
 
 export function Pagination(props: Readonly<Props>) {
-    const {page, totalPages, setPage} = props;
+    const { page, totalPages, setPage } = props;
 
     const half = Math.floor(7 / 2);
     let start = Math.max(1, page - half);
     const end = Math.min(totalPages, start + 6);
     start = Math.max(1, end - 6);
-    const pages = Array.from({length: end - start + 1}, (_, i) => start + i);
+    const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
     const firstPage = () => setPage(1);
     const previousPage = () => setPage(Math.max(page - 1, 1));
     const nextPage = () => setPage(Math.min(page + 1, totalPages));
@@ -25,24 +25,16 @@ export function Pagination(props: Readonly<Props>) {
 
     return (
         <div className="navigation pagination">
-            <IconButton
-                icon="first"
-                label="First page"
-                onClick={firstPage}
-            />
+            <IconButton icon="first" label="First page" onClick={firstPage} />
             <IconButton
                 icon="previous"
                 label="Previous page"
                 onClick={previousPage}
                 disabled={!canGoBack}
-                style={{marginRight: "10px"}}
+                style={{ marginRight: "10px" }}
             />
-            {pages.map(p => (
-                <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={p === page ? "active" : ""}
-                >
+            {pages.map((p) => (
+                <button key={p} onClick={() => setPage(p)} className={p === page ? "active" : ""}>
                     {p}
                 </button>
             ))}
@@ -51,13 +43,9 @@ export function Pagination(props: Readonly<Props>) {
                 label="Next page"
                 onClick={nextPage}
                 disabled={!canGoForward}
-                style={{marginLeft: "10px"}}
+                style={{ marginLeft: "10px" }}
             />
-            <IconButton
-                icon="last"
-                label={`Last page: ${totalPages}`}
-                onClick={lastPage}
-            />
+            <IconButton icon="last" label={`Last page: ${totalPages}`} onClick={lastPage} />
         </div>
     );
 }

@@ -1,7 +1,7 @@
-import {TextInput} from "../../../shared/components/TextInput.tsx";
-import {INPUT_RULES} from "../../../shared/utils/inputValidation.ts";
-import {YEARS} from "../constants/constants.ts";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { TextInput } from "../../../shared/components/TextInput.tsx";
+import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
+import { YEARS } from "../constants/constants.ts";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 export type SelectRow<T extends string> = {
     id: string;
@@ -41,20 +41,17 @@ type PersonNameArrayFieldProps = {
     onRemove: (rowId: string) => void;
 };
 
-export function ReleaseYearField({value, onChange}: Readonly<ReleaseYearFieldProps>) {
+export function ReleaseYearField({ value, onChange }: Readonly<ReleaseYearFieldProps>) {
     return (
         <div>
             <span>Year</span>
             <div className="array-editor">
                 <div className="array-editor-row">
-                    <select
-                        value={value}
-                        onChange={(event) => onChange(Number(event.target.value))}
-                    >
+                    <select value={value} onChange={(event) => onChange(Number(event.target.value))}>
                         <option value={0} disabled>
                             select
                         </option>
-                        {YEARS.map(year => (
+                        {YEARS.map((year) => (
                             <option key={year} value={year}>
                                 {year}
                             </option>
@@ -67,25 +64,18 @@ export function ReleaseYearField({value, onChange}: Readonly<ReleaseYearFieldPro
 }
 
 export function SelectArrayField<T extends string>(props: Readonly<SelectArrayFieldProps<T>>) {
-    const {label, rows, options, addLabel, maxRows, onAdd, onChange, onRemove} = props;
-    const selectedValues = new Set(rows.map(row => row.value));
+    const { label, rows, options, addLabel, maxRows, onAdd, onChange, onRemove } = props;
+    const selectedValues = new Set(rows.map((row) => row.value));
 
     return (
         <div>
             <span>{label}</span>
             <div className="array-editor">
-                {rows.map(row => (
+                {rows.map((row) => (
                     <div key={row.id} className="array-editor-row">
-                        <select
-                            value={row.value}
-                            onChange={(event) => onChange(row.id, event.target.value as T)}
-                        >
-                            {options.map(option => (
-                                <option
-                                    key={option}
-                                    value={option}
-                                    disabled={selectedValues.has(option)}
-                                >
+                        <select value={row.value} onChange={(event) => onChange(row.id, event.target.value as T)}>
+                            {options.map((option) => (
+                                <option key={option} value={option} disabled={selectedValues.has(option)}>
                                     {option}
                                 </option>
                             ))}
@@ -110,17 +100,7 @@ export function SelectArrayField<T extends string>(props: Readonly<SelectArrayFi
 }
 
 export function PersonNameArrayField(props: Readonly<PersonNameArrayFieldProps>) {
-    const {
-        rows,
-        inputIdPrefix,
-        ariaLabelPrefix,
-        placeholder,
-        addLabel,
-        maxRows,
-        onAdd,
-        onChange,
-        onRemove
-    } = props;
+    const { rows, inputIdPrefix, ariaLabelPrefix, placeholder, addLabel, maxRows, onAdd, onChange, onRemove } = props;
 
     return (
         <div className="array-editor">

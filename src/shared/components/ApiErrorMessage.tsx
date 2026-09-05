@@ -1,5 +1,5 @@
-import type {ApiError} from "../types/ApiError.ts";
-import type {ApiErrorDetail} from "../types/ApiErrorDetail.ts";
+import type { ApiError } from "../types/ApiError.ts";
+import type { ApiErrorDetail } from "../types/ApiErrorDetail.ts";
 
 type Props = {
     error?: ApiError | Error;
@@ -14,7 +14,7 @@ function getErrorDetails(error: ApiError | Error): ApiErrorDetail[] {
     return error.errorDetails;
 }
 
-export function ApiErrorMessage({error, message}: Readonly<Props>) {
+export function ApiErrorMessage({ error, message }: Readonly<Props>) {
     if (!error) {
         return null;
     }

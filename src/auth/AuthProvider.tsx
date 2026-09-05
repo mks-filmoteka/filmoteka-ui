@@ -1,7 +1,7 @@
-import {useEffect, useState, type ReactNode} from "react";
-import {useQueryClient} from "@tanstack/react-query";
-import {initializeKeycloak, keycloak} from "./keycloak.ts";
-import {AuthContext, type AuthState} from "./authContext.ts";
+import { useEffect, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { initializeKeycloak, keycloak } from "./keycloak.ts";
+import { AuthContext, type AuthState } from "./authContext.ts";
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -18,7 +18,7 @@ function readAuthState(): AuthState {
     };
 }
 
-export function AuthProvider({children}: Readonly<AuthProviderProps>) {
+export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
     const queryClient = useQueryClient();
 
     const [authState, setAuthState] = useState<AuthState>({
@@ -38,11 +38,11 @@ export function AuthProvider({children}: Readonly<AuthProviderProps>) {
         };
 
         const clearPrivateQueries = () => {
-            queryClient.removeQueries({queryKey: ["profile"]});
-            queryClient.removeQueries({queryKey: ["collections"]});
-            queryClient.removeQueries({queryKey: ["collection"]});
+            queryClient.removeQueries({ queryKey: ["profile"] });
+            queryClient.removeQueries({ queryKey: ["collections"] });
+            queryClient.removeQueries({ queryKey: ["collection"] });
             queryClient.removeQueries({
-                queryKey: ["films", "collection"]
+                queryKey: ["films", "collection"],
             });
         };
 
@@ -63,13 +63,13 @@ export function AuthProvider({children}: Readonly<AuthProviderProps>) {
 
         void initializeKeycloak()
             .then(synchronizeAuthState)
-            .catch(error => {
+            .catch((error) => {
                 if (!active) {
                     return;
                 }
                 console.error("Keycloak initialization failed. Continuing as guest.", error);
                 keycloak.clearToken();
-                setAuthState({status: "unavailable", authenticated: false, isUser: false, isAdmin: false,});
+                setAuthState({ status: "unavailable", authenticated: false, isUser: false, isAdmin: false });
             });
 
         return () => {
@@ -82,9 +82,5 @@ export function AuthProvider({children}: Readonly<AuthProviderProps>) {
         };
     }, [queryClient]);
 
-    return (
-        <AuthContext.Provider value={authState}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={authState}>{children}</AuthContext.Provider>;
 }

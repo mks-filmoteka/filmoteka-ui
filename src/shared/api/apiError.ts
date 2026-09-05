@@ -1,4 +1,4 @@
-import type {ApiError} from "../types/ApiError.ts";
+import type { ApiError } from "../types/ApiError.ts";
 
 type ErrorWithResponseData = Error & {
     response?: {

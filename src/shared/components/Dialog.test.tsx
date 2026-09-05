@@ -1,16 +1,16 @@
-import {fireEvent, render, screen} from "@testing-library/react";
-import {describe, expect, it, vi} from "vitest";
-import {Dialog} from "./Dialog";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { Dialog } from "./Dialog";
 
 describe("Dialog", () => {
     it("renders an accessible dialog", () => {
         render(
             <Dialog label="Details" onClose={vi.fn()}>
                 Dialog content
-            </Dialog>
+            </Dialog>,
         );
 
-        const dialog = screen.getByRole("dialog", {name: "Details"});
+        const dialog = screen.getByRole("dialog", { name: "Details" });
 
         expect(dialog).toHaveAttribute("aria-modal", "true");
         expect(dialog).toHaveTextContent("Dialog content");
@@ -22,7 +22,7 @@ describe("Dialog", () => {
         render(
             <Dialog label="Details" onClose={onClose}>
                 Dialog content
-            </Dialog>
+            </Dialog>,
         );
 
         fireEvent.click(screen.getByLabelText("Close details"));
@@ -35,10 +35,10 @@ describe("Dialog", () => {
         render(
             <Dialog label="Details" onClose={onClose}>
                 Dialog content
-            </Dialog>
+            </Dialog>,
         );
 
-        fireEvent.click(screen.getByRole("dialog", {name: "Details"}));
+        fireEvent.click(screen.getByRole("dialog", { name: "Details" }));
 
         expect(onClose).not.toHaveBeenCalled();
     });
@@ -49,10 +49,10 @@ describe("Dialog", () => {
         render(
             <Dialog label="Details" onClose={onClose}>
                 Dialog content
-            </Dialog>
+            </Dialog>,
         );
 
-        fireEvent.keyDown(document, {key: "Escape"});
+        fireEvent.keyDown(document, { key: "Escape" });
 
         expect(onClose).toHaveBeenCalledTimes(1);
     });

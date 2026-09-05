@@ -1,7 +1,7 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {FilmBasic} from "../../film/types/filmBasic";
-import type {Person} from "../types/person";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { FilmBasic } from "../../film/types/filmBasic";
+import type { Person } from "../types/person";
 import PersonPage from "./PersonPage";
 
 type MutationOptions = {
@@ -17,14 +17,14 @@ type SearchParamsReturn = {
     maxYear?: number;
     genres: string[];
     countries: string[];
-    sortParams: {by?: string; dir?: string}[];
+    sortParams: { by?: string; dir?: string }[];
     setView: (view: string) => void;
     setGenres: (genres: string[]) => void;
     setYearFrom: (year?: number) => void;
     setYearTo: (year?: number) => void;
     resetYears: () => void;
     setCountries: (countries: string[]) => void;
-    setSort: (sort: {by?: string; dir?: string}[]) => void;
+    setSort: (sort: { by?: string; dir?: string }[]) => void;
 };
 
 type FilmBrowserMockProps = {
@@ -47,7 +47,7 @@ vi.mock("../queries/useUpdatePerson.ts", () => ({
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
-    useAuth: () => ({isAdmin: true}),
+    useAuth: () => ({ isAdmin: true }),
 }));
 
 vi.mock("../../../shared/utils/useRequiredId.ts", () => ({
@@ -59,9 +59,9 @@ vi.mock("../../film/queries/useFilmSearchParams.ts", () => ({
 }));
 
 vi.mock("../../film/components/FilmBrowser.tsx", () => ({
-    FilmBrowser: ({films}: FilmBrowserMockProps) => (
+    FilmBrowser: ({ films }: FilmBrowserMockProps) => (
         <ol>
-            {films.map(film => (
+            {films.map((film) => (
                 <li key={film.id}>{film.title}</li>
             ))}
         </ol>
@@ -129,7 +129,10 @@ function getSaveButton(container: HTMLElement) {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal("confirm", vi.fn(() => true));
+    vi.stubGlobal(
+        "confirm",
+        vi.fn(() => true),
+    );
 
     mocks.usePerson.mockReturnValue({
         data: person,
@@ -141,29 +144,27 @@ beforeEach(() => {
         isPending: false,
     });
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
-    mocks.updatePersonMutate.mockImplementation(
-        (_variables: unknown, options?: MutationOptions) => {
-            options?.onSuccess?.();
-        }
-    );
+    mocks.updatePersonMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
+        options?.onSuccess?.();
+    });
 });
 
 describe("PersonPage", () => {
     it("trims the edited name before updating the person", () => {
-        const {container} = render(<PersonPage type="actor" />);
+        const { container } = render(<PersonPage type="actor" />);
 
         fireEvent.click(screen.getByTitle("Edit"));
         fireEvent.change(screen.getByLabelText("edit name"), {
-            target: {value: "  Updated Test Person  "},
+            target: { value: "  Updated Test Person  " },
         });
         fireEvent.click(getSaveButton(container));
 
         expect(mocks.updatePersonMutate).toHaveBeenCalledWith(
             {
                 id: 7,
-                request: {name: "Updated Test Person"},
+                request: { name: "Updated Test Person" },
             },
-            expect.any(Object)
+            expect.any(Object),
         );
     });
 
@@ -172,20 +173,18 @@ describe("PersonPage", () => {
             response: {
                 data: {
                     message: "Name already exists",
-                    errorDetails: [{field: "name", message: "Must be unique"}],
+                    errorDetails: [{ field: "name", message: "Must be unique" }],
                 },
             },
         });
-        mocks.updatePersonMutate.mockImplementation(
-            (_variables: unknown, options?: MutationOptions) => {
-                options?.onError?.(error);
-            }
-        );
-        const {container} = render(<PersonPage type="director" />);
+        mocks.updatePersonMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
+            options?.onError?.(error);
+        });
+        const { container } = render(<PersonPage type="director" />);
 
         fireEvent.click(screen.getByTitle("Edit"));
         fireEvent.change(screen.getByLabelText("edit name"), {
-            target: {value: "Duplicate Test Person"},
+            target: { value: "Duplicate Test Person" },
         });
         fireEvent.click(getSaveButton(container));
 
@@ -196,17 +195,16 @@ describe("PersonPage", () => {
     });
 
     it("filters and sorts the person's films before rendering the list", () => {
-        mocks.useFilmSearchParams.mockReturnValue(createSearchParams({
-            genres: ["Drama"],
-            sortParams: [{by: "releaseYear", dir: "desc"}],
-        }));
+        mocks.useFilmSearchParams.mockReturnValue(
+            createSearchParams({
+                genres: ["Drama"],
+                sortParams: [{ by: "releaseYear", dir: "desc" }],
+            }),
+        );
 
         render(<PersonPage type="actor" />);
 
-        expect(screen.getAllByRole("listitem").map(item => item.textContent)).toEqual([
-            "Test Film 3",
-            "Test Film 1",
-        ]);
+        expect(screen.getAllByRole("listitem").map((item) => item.textContent)).toEqual(["Test Film 3", "Test Film 1"]);
         expect(screen.queryByText("Test Film 2")).not.toBeInTheDocument();
     });
 });

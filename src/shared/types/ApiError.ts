@@ -1,4 +1,4 @@
-import type {ApiErrorDetail} from "./ApiErrorDetail.ts";
+import type { ApiErrorDetail } from "./ApiErrorDetail.ts";
 
 export interface ApiError {
     timestamp: string;

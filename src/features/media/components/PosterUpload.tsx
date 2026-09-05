@@ -1,8 +1,8 @@
-import {type ChangeEvent, type DragEvent, useEffect, useRef, useState} from "react";
-import {getFileUrl} from "../api/mediaApi.ts";
+import { type ChangeEvent, type DragEvent, useEffect, useRef, useState } from "react";
+import { getFileUrl } from "../api/mediaApi.ts";
 import Poster from "./Poster.tsx";
-import {Icon} from "../../../shared/components/Icon.tsx";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { Icon } from "../../../shared/components/Icon.tsx";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     value?: string | null;
@@ -19,7 +19,7 @@ type Preview = {
 };
 
 function PosterUpload(props: Readonly<Props>) {
-    const {value, alt, onChange, posterFile, setPosterFile, disabled} = props
+    const { value, alt, onChange, posterFile, setPosterFile, disabled } = props;
     const [dragOver, setDragOver] = useState(false);
     const [preview, setPreview] = useState<Preview | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -64,7 +64,9 @@ function PosterUpload(props: Readonly<Props>) {
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) {return}
+        if (!file) {
+            return;
+        }
         setPreviewFile(file);
         setPosterFile(file);
         event.target.value = "";
@@ -74,7 +76,9 @@ function PosterUpload(props: Readonly<Props>) {
         event.preventDefault();
         setDragOver(false);
         const file = event.dataTransfer.files?.[0];
-        if (!file) {return}
+        if (!file) {
+            return;
+        }
         setPreviewFile(file);
         setPosterFile(file);
     };
@@ -91,9 +95,7 @@ function PosterUpload(props: Readonly<Props>) {
     return (
         <>
             <div className="poster-upload">
-                {posterUrl && (
-                    <Poster src={posterUrl} alt={alt}/>
-                )}
+                {posterUrl && <Poster src={posterUrl} alt={alt} />}
                 <button
                     type="button"
                     className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
@@ -111,7 +113,7 @@ function PosterUpload(props: Readonly<Props>) {
                     disabled={disabled}
                 >
                     <div className="poster-placeholder">
-                        <Icon name="create"/>
+                        <Icon name="create" />
                     </div>
                 </button>
 

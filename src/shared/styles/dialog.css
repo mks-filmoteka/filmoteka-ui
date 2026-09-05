@@ -12,7 +12,7 @@
 .dialog-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgb(0 0 0 / 50%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -95,6 +95,20 @@
     text-overflow: ellipsis;
 }
 
+.profile-details > div {
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-details {
+    overflow-wrap: anywhere;
+}
+
+.profile-details span {
+    color: var(--text-color-f);
+    min-width: 120px;
+}
+
 .filter-year-picker {
     position: relative;
     justify-content: center;
@@ -128,33 +142,19 @@
     box-shadow: 0 0 10px var(--text-color-f);
 }
 
-.profile-details > div {
-    align-items: center;
-    gap: 12px;
-}
-
-.profile-details {
-    overflow-wrap: anywhere;
-}
-
-.profile-details span {
-    color: var(--text-color-f);
-    min-width: 120px;
-}
-
-@media (max-width: 660px) {
+@media (width <= 660px) {
     .dialog-panel {
         width: 70%;
     }
 }
 
-@media (max-width: 490px) {
+@media (width <= 490px) {
     .dialog-panel {
         width: 90%;
     }
 }
 
-@media (max-width: 320px) {
+@media (width <= 320px) {
     .dialog-panel {
         padding: 1px;
         width: 100%;

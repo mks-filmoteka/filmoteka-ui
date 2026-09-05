@@ -1,6 +1,6 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {Film} from "../types/film";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
 
 type MutationOptions<TData = unknown> = {
@@ -9,7 +9,7 @@ type MutationOptions<TData = unknown> = {
 };
 
 type FilmDetailsMockProps = {
-    data: {id: number; title: string};
+    data: { id: number; title: string };
 };
 
 const mocks = vi.hoisted(() => ({
@@ -55,23 +55,17 @@ vi.mock("react-router", async () => {
 });
 
 vi.mock("../components/FilmDetails.tsx", () => {
-    const FilmDetails = ({data}: FilmDetailsMockProps) => (
+    const FilmDetails = ({ data }: FilmDetailsMockProps) => (
         <div>
             <span>{data.title}</span>
         </div>
     );
 
-    return {FilmDetails};
+    return { FilmDetails };
 });
 
 vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
-    CollectionsPopup: ({
-        filmId,
-        onClose,
-    }: {
-        filmId: number;
-        onClose: () => void;
-    }) => (
+    CollectionsPopup: ({ filmId, onClose }: { filmId: number; onClose: () => void }) => (
         <div role="dialog" aria-label="Collections">
             <span>film {filmId}</span>
             <button onClick={onClose}>close collections</button>
@@ -87,13 +81,16 @@ const film: Film = {
     description: "Test description",
     posterName: "old.jpg",
     genres: ["Drama"],
-    actors: [{id: 1, name: "Test Actor"}],
-    directors: [{id: 2, name: "Test Director"}],
+    actors: [{ id: 1, name: "Test Actor" }],
+    directors: [{ id: 2, name: "Test Director" }],
 };
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal("confirm", vi.fn(() => true));
+    vi.stubGlobal(
+        "confirm",
+        vi.fn(() => true),
+    );
     mocks.authenticated = true;
 
     mocks.useFilm.mockReturnValue({
@@ -107,16 +104,12 @@ beforeEach(() => {
     mocks.useDeleteFile.mockReturnValue({
         mutate: mocks.deleteFileMutate,
     });
-    mocks.deleteFilmMutate.mockImplementation(
-        (_id: number, options?: MutationOptions) => {
-            options?.onSuccess?.({});
-        }
-    );
-    mocks.deleteFileMutate.mockImplementation(
-        (_fileName: string, options?: MutationOptions) => {
-            options?.onSettled?.();
-        }
-    );
+    mocks.deleteFilmMutate.mockImplementation((_id: number, options?: MutationOptions) => {
+        options?.onSuccess?.({});
+    });
+    mocks.deleteFileMutate.mockImplementation((_fileName: string, options?: MutationOptions) => {
+        options?.onSettled?.();
+    });
 });
 
 describe("FilmPage", () => {
@@ -125,11 +118,11 @@ describe("FilmPage", () => {
 
         fireEvent.click(screen.getByTitle("Collections"));
 
-        expect(screen.getByRole("dialog", {name: "Collections"})).toHaveTextContent("film 1");
+        expect(screen.getByRole("dialog", { name: "Collections" })).toHaveTextContent("film 1");
 
         fireEvent.click(screen.getByText("close collections"));
 
-        expect(screen.queryByRole("dialog", {name: "Collections"})).not.toBeInTheDocument();
+        expect(screen.queryByRole("dialog", { name: "Collections" })).not.toBeInTheDocument();
     });
 
     it("navigates to the film edit page", () => {

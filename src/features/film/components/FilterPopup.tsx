@@ -1,10 +1,10 @@
-import {MultiToggleFilter} from "./MultiToggleFilter.tsx";
-import {DropdownFilter} from "./DropdownFilter.tsx";
-import {useState} from "react";
-import {GENRES} from "../types/genre.ts";
-import {COUNTRIES} from "../types/country.ts";
-import {IconButton} from "../../../shared/components/IconButton.tsx";
-import {Dialog} from "../../../shared/components/Dialog.tsx";
+import { MultiToggleFilter } from "./MultiToggleFilter.tsx";
+import { DropdownFilter } from "./DropdownFilter.tsx";
+import { useState } from "react";
+import { GENRES } from "../types/genre.ts";
+import { COUNTRIES } from "../types/country.ts";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { Dialog } from "../../../shared/components/Dialog.tsx";
 
 type Props = {
     filterOpen: boolean;
@@ -23,8 +23,17 @@ type Props = {
 
 export function FilterPopup(props: Readonly<Props>) {
     const {
-        filterOpen, genres, countries, yearFrom, yearTo,
-        setFilterOpen, setGenres, setCountries, setYearFrom, setYearTo, resetYears
+        filterOpen,
+        genres,
+        countries,
+        yearFrom,
+        yearTo,
+        setFilterOpen,
+        setGenres,
+        setCountries,
+        setYearFrom,
+        setYearTo,
+        resetYears,
     } = props;
     const [yearFromInput, setYearFromInput] = useState("");
     const [yearToInput, setYearToInput] = useState("");
@@ -32,11 +41,7 @@ export function FilterPopup(props: Readonly<Props>) {
     if (!filterOpen) return null;
 
     return (
-        <Dialog
-            label="Filters"
-            closeLabel="Close filters"
-            onClose={() => setFilterOpen(false)}
-        >
+        <Dialog label="Filters" closeLabel="Close filters" onClose={() => setFilterOpen(false)}>
             {/* GENRES FILTER */}
             <MultiToggleFilter
                 title="Genres"
@@ -46,7 +51,7 @@ export function FilterPopup(props: Readonly<Props>) {
                 onReset={() => setGenres([])}
             />
 
-            <hr/>
+            <hr />
 
             {/* RELEASE YEAR FILTER SECTION */}
             <div className="filter-options">
@@ -86,7 +91,7 @@ export function FilterPopup(props: Readonly<Props>) {
                 />
             </div>
 
-            <hr/>
+            <hr />
 
             {/* COUNTRIES FILTER */}
             <MultiToggleFilter
@@ -97,5 +102,5 @@ export function FilterPopup(props: Readonly<Props>) {
                 onReset={() => setCountries([])}
             />
         </Dialog>
-    )
+    );
 }

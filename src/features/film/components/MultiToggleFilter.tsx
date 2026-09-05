@@ -1,4 +1,4 @@
-import {IconButton} from "../../../shared/components/IconButton.tsx";
+import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 type Props = {
     title: string;
@@ -8,10 +8,10 @@ type Props = {
     onReset: () => void;
 };
 
-export function MultiToggleFilter({title, options, selected, onToggle, onReset}: Readonly<Props>) {
-    const toggleItem = (value: string,) => {
+export function MultiToggleFilter({ title, options, selected, onToggle, onReset }: Readonly<Props>) {
+    const toggleItem = (value: string) => {
         if (selected.includes(value)) {
-            onToggle(selected.filter(v => v !== value));
+            onToggle(selected.filter((v) => v !== value));
         } else {
             onToggle([...selected, value]);
         }
@@ -20,13 +20,9 @@ export function MultiToggleFilter({title, options, selected, onToggle, onReset}:
         <div className="filter-options">
             <div className="dialog-section-header">
                 <span>{title}:</span>
-                <IconButton
-                    icon="reset"
-                    label={`Reset ${title.toLowerCase()}`}
-                    onClick={onReset}
-                />
+                <IconButton icon="reset" label={`Reset ${title.toLowerCase()}`} onClick={onReset} />
             </div>
-            {options.map(option => (
+            {options.map((option) => (
                 <button
                     key={option}
                     className={`filter-options-button ${selected.includes(option) ? "active" : ""}`}

@@ -29,8 +29,8 @@ export function TextInput(props: Readonly<Props>) {
         required,
         className,
         onEnter,
-        onClick
-    } = props
+        onClick,
+    } = props;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;

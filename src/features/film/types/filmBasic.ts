@@ -1,5 +1,5 @@
-import type {Country} from "./country.ts";
-import type {Genre} from "./genre.ts";
+import type { Country } from "./country.ts";
+import type { Genre } from "./genre.ts";
 
 export interface FilmBasic {
     id: number;

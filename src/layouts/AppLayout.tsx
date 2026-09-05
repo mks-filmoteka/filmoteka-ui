@@ -1,27 +1,27 @@
-import {Outlet, useNavigate} from "react-router";
-import {useEffect, useRef, useState} from "react";
-import {INPUT_RULES} from "../shared/utils/inputValidation.ts";
-import {TextInput} from "../shared/components/TextInput.tsx";
-import {useAuth} from "../auth/useAuth.ts";
-import {keycloak} from "../auth/keycloak.ts";
-import {CollectionsPopup} from "../features/collection/components/CollectionsPopup.tsx";
-import {useProfile} from "../features/profile/queries/useProfile.ts";
-import {ProfileDetails} from "../features/profile/components/ProfileDetails.tsx";
-import {IconButton} from "../shared/components/IconButton.tsx";
+import { Outlet, useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { INPUT_RULES } from "../shared/utils/inputValidation.ts";
+import { TextInput } from "../shared/components/TextInput.tsx";
+import { useAuth } from "../auth/useAuth.ts";
+import { keycloak } from "../auth/keycloak.ts";
+import { CollectionsPopup } from "../features/collection/components/CollectionsPopup.tsx";
+import { useProfile } from "../features/profile/queries/useProfile.ts";
+import { ProfileDetails } from "../features/profile/components/ProfileDetails.tsx";
+import { IconButton } from "../shared/components/IconButton.tsx";
 
 type ActivePopup = "collections" | "profile";
 
 export function AppLayout() {
     const navigate = useNavigate();
-    const {status, authenticated} = useAuth();
+    const { status, authenticated } = useAuth();
     const loginDisabled = status === "checking" || status === "unavailable";
-    const {data: profile} = useProfile();
+    const { data: profile } = useProfile();
     const [search, setSearch] = useState("");
     const [activePopup, setActivePopup] = useState<ActivePopup>();
     const [showHeader, setShowHeader] = useState(true);
     const previousScrollY = useRef(0);
     const toggleCollections = () => {
-        setActivePopup(current => current === "collections" ? undefined : "collections");
+        setActivePopup((current) => (current === "collections" ? undefined : "collections"));
     };
     const openProfileDetails = () => setActivePopup("profile");
     const closePopup = () => setActivePopup(undefined);
@@ -37,7 +37,7 @@ export function AppLayout() {
             setShowHeader(currentScrollY < previousScrollY.current);
             previousScrollY.current = currentScrollY;
         };
-        window.addEventListener("scroll", handleScroll, {passive: true});
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
@@ -47,14 +47,10 @@ export function AppLayout() {
                 <div className="header-content">
                     <div className="header-left">
                         <button onClick={() => navigate("/films")} title="Home">
-                            <img src="/favicon.svg" alt="Home" className="home-button-img"/>
+                            <img src="/favicon.svg" alt="Home" className="home-button-img" />
                         </button>
                         {authenticated && (
-                            <IconButton
-                                icon="collection"
-                                label="Collections"
-                                onClick={toggleCollections}
-                            />
+                            <IconButton icon="collection" label="Collections" onClick={toggleCollections} />
                         )}
                     </div>
 
@@ -101,7 +97,7 @@ export function AppLayout() {
                             <IconButton
                                 icon="power"
                                 label="Logout"
-                                onClick={() => keycloak.logout({redirectUri: globalThis.location.origin})}
+                                onClick={() => keycloak.logout({ redirectUri: globalThis.location.origin })}
                             />
                         ) : (
                             <IconButton
@@ -114,17 +110,12 @@ export function AppLayout() {
                     </div>
                 </div>
             </header>
-            {authenticated && activePopup === "collections" && (
-                <CollectionsPopup onClose={closePopup}/>
-            )}
+            {authenticated && activePopup === "collections" && <CollectionsPopup onClose={closePopup} />}
             {authenticated && activePopup === "profile" && profile && (
-                <ProfileDetails
-                    profile={profile}
-                    onClose={closePopup}
-                />
+                <ProfileDetails profile={profile} onClose={closePopup} />
             )}
             <main>
-                <Outlet/>
+                <Outlet />
             </main>
         </div>
     );

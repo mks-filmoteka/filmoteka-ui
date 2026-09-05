@@ -1,6 +1,6 @@
-import {userClient} from "../../../shared/api/client.ts";
-import type {UserProfile} from "../types/userProfile.ts";
-import type {UserProfileRequest} from "../types/userProfileRequest.ts";
+import { userClient } from "../../../shared/api/client.ts";
+import type { UserProfile } from "../types/userProfile.ts";
+import type { UserProfileRequest } from "../types/userProfileRequest.ts";
 
 export async function getProfile() {
     const response = await userClient.get<UserProfile>("/profile");

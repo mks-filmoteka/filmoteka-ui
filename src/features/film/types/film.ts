@@ -1,6 +1,6 @@
-import type {PersonBasic} from "../../person/types/personBasic.ts";
-import type {Genre} from "./genre.ts";
-import type {Country} from "./country.ts";
+import type { PersonBasic } from "../../person/types/personBasic.ts";
+import type { Genre } from "./genre.ts";
+import type { Country } from "./country.ts";
 
 export interface Film {
     id: number;

@@ -1,4 +1,4 @@
-import type {HTMLAttributes} from "react";
+import type { HTMLAttributes } from "react";
 
 const ICONS = {
     create: "✚",
@@ -22,7 +22,7 @@ const ICONS = {
     sort: "⇅",
     sortAsc: "↑",
     sortDesc: "↓",
-    film: "🎬"
+    film: "🎬",
 } as const;
 
 export type IconName = keyof typeof ICONS;
@@ -31,7 +31,7 @@ type Props = HTMLAttributes<HTMLSpanElement> & {
     name: IconName;
 };
 
-export function Icon({name, className, ...props}: Readonly<Props>) {
+export function Icon({ name, className, ...props }: Readonly<Props>) {
     const classes = ["icon", className].filter(Boolean).join(" ");
 
     return (

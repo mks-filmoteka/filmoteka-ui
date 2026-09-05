@@ -1,7 +1,7 @@
-import type {FilmBasic} from "../types/filmBasic.ts";
-import {useNavigate} from "react-router";
+import type { FilmBasic } from "../types/filmBasic.ts";
+import { useNavigate } from "react-router";
 import Poster from "../../media/components/Poster.tsx";
-import {getFileUrl} from "../../media/api/mediaApi.ts";
+import { getFileUrl } from "../../media/api/mediaApi.ts";
 
 type Props = {
     readonly film: FilmBasic;
@@ -11,7 +11,7 @@ type Props = {
     readonly selectionDisabled?: boolean;
 };
 
-function FilmCard({film, index, checked, onCheckedChange, selectionDisabled}: Props) {
+function FilmCard({ film, index, checked, onCheckedChange, selectionDisabled }: Props) {
     const navigate = useNavigate();
 
     const content = (
@@ -29,39 +29,23 @@ function FilmCard({film, index, checked, onCheckedChange, selectionDisabled}: Pr
                     />
                 )}
             </div>
-            <Poster
-                src={film.posterName ? getFileUrl(film.posterName) : null}
-                alt={film.title}
-            />
+            <Poster src={film.posterName ? getFileUrl(film.posterName) : null} alt={film.title} />
             <div>
-                <div className="card-title">
-                    {film.title}
-                </div>
+                <div className="card-title">{film.title}</div>
             </div>
             <div className="card-number">
-                <span>
-                    {film.releaseYear}
-                </span>
-                <span>
-                    {film.genres[0]}
-                </span>
+                <span>{film.releaseYear}</span>
+                <span>{film.genres[0]}</span>
             </div>
         </>
     );
 
     if (onCheckedChange) {
-        return (
-            <div className="card-button">
-                {content}
-            </div>
-        );
+        return <div className="card-button">{content}</div>;
     }
 
     return (
-        <button
-            onClick={() => navigate(`/films/${film.id}`)}
-            className="card-button"
-        >
+        <button onClick={() => navigate(`/films/${film.id}`)} className="card-button">
             {content}
         </button>
     );

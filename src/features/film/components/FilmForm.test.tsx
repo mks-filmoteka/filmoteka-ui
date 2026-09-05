@@ -1,8 +1,8 @@
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {Film} from "../types/film.ts";
-import type {FilmRequest} from "../types/filmRequest.ts";
-import {FilmForm} from "./FilmForm.tsx";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Film } from "../types/film.ts";
+import type { FilmRequest } from "../types/filmRequest.ts";
+import { FilmForm } from "./FilmForm.tsx";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
@@ -32,8 +32,8 @@ const film: Film = {
     description: "Test description",
     posterName: "old.jpg",
     genres: ["Drama"],
-    actors: [{id: 1, name: "Test Actor"}],
-    directors: [{id: 2, name: "Test Director"}],
+    actors: [{ id: 1, name: "Test Actor" }],
+    directors: [{ id: 2, name: "Test Director" }],
 };
 
 const validRequest: FilmRequest = {
@@ -43,29 +43,28 @@ const validRequest: FilmRequest = {
     description: "Test description",
     posterName: "old.jpg",
     genres: ["Drama"],
-    actors: [{name: "Test Actor"}],
-    directors: [{name: "Test Director"}],
+    actors: [{ name: "Test Actor" }],
+    directors: [{ name: "Test Director" }],
 };
 
 const apiError = Object.assign(new Error("Save failed"), {
     response: {
         data: {
             message: "Validation failed",
-            errorDetails: [{field: "title", message: "Required"}],
+            errorDetails: [{ field: "title", message: "Required" }],
         },
     },
 });
 
-function renderFilmForm(props: {
-    initialFilm?: Film;
-    isPending?: boolean;
-    isChanged?: (form: FilmRequest, posterFile: File | null) => boolean;
-    onCancel?: () => void;
-    onSave?: (
-        request: FilmRequest,
-        options: {onSuccess: () => void; onError: (error: Error) => void}
-    ) => void;
-} = {}) {
+function renderFilmForm(
+    props: {
+        initialFilm?: Film;
+        isPending?: boolean;
+        isChanged?: (form: FilmRequest, posterFile: File | null) => boolean;
+        onCancel?: () => void;
+        onSave?: (request: FilmRequest, options: { onSuccess: () => void; onError: (error: Error) => void }) => void;
+    } = {},
+) {
     const onCancel = props.onCancel ?? vi.fn();
     const onSave = props.onSave ?? vi.fn();
 
@@ -78,7 +77,7 @@ function renderFilmForm(props: {
                 isChanged={props.isChanged ?? (() => true)}
                 onCancel={onCancel}
                 onSave={onSave}
-            />
+            />,
         ),
         onCancel,
         onSave,
@@ -87,27 +86,27 @@ function renderFilmForm(props: {
 
 function fillRequiredFields(container: HTMLElement) {
     fireEvent.change(screen.getByLabelText("form title"), {
-        target: {value: "Filled Film"},
+        target: { value: "Filled Film" },
     });
     fireEvent.change(screen.getByLabelText("form description"), {
-        target: {value: "Filled description"},
+        target: { value: "Filled description" },
     });
 
     const yearSelect = container.querySelector<HTMLSelectElement>("select");
     if (!yearSelect) {
         throw new Error("Year select not found");
     }
-    fireEvent.change(yearSelect, {target: {value: "2000"}});
+    fireEvent.change(yearSelect, { target: { value: "2000" } });
 
     fireEvent.click(screen.getByText("+ Add country"));
     fireEvent.click(screen.getByText("+ Add genre"));
     fireEvent.click(screen.getByText("+ Add actor"));
     fireEvent.change(screen.getByLabelText("actor 0"), {
-        target: {value: "Actor"},
+        target: { value: "Actor" },
     });
     fireEvent.click(screen.getByText("+ Add director"));
     fireEvent.change(screen.getByLabelText("director 0"), {
-        target: {value: "Director"},
+        target: { value: "Director" },
     });
 }
 
@@ -119,14 +118,17 @@ function selectPoster(container: HTMLElement) {
 
     fireEvent.change(input, {
         target: {
-            files: [new File(["poster"], "replacement.jpg", {type: "image/jpeg"})],
+            files: [new File(["poster"], "replacement.jpg", { type: "image/jpeg" })],
         },
     });
 }
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal("confirm", vi.fn(() => true));
+    vi.stubGlobal(
+        "confirm",
+        vi.fn(() => true),
+    );
     Object.defineProperty(URL, "createObjectURL", {
         configurable: true,
         value: vi.fn(() => "blob:poster"),
@@ -143,11 +145,9 @@ beforeEach(() => {
     mocks.useDeleteFile.mockReturnValue({
         mutate: mocks.deleteFileMutate,
     });
-    mocks.uploadFileMutate.mockImplementation(
-        (_file: File, options?: MutationOptions<{fileName: string}>) => {
-            options?.onSuccess?.({fileName: "new.jpg"});
-        }
-    );
+    mocks.uploadFileMutate.mockImplementation((_file: File, options?: MutationOptions<{ fileName: string }>) => {
+        options?.onSuccess?.({ fileName: "new.jpg" });
+    });
 });
 
 describe("FilmForm", () => {
@@ -158,14 +158,14 @@ describe("FilmForm", () => {
     });
 
     it("disables save when nothing changed or a save is pending", () => {
-        const {rerender} = render(
+        const { rerender } = render(
             <FilmForm
                 confirmMessage="Confirm save film?"
                 initialFilm={film}
                 isChanged={() => false}
                 onCancel={vi.fn()}
                 onSave={vi.fn()}
-            />
+            />,
         );
 
         expect(screen.getByTitle("Save film")).toBeDisabled();
@@ -178,17 +178,17 @@ describe("FilmForm", () => {
                 isPending
                 onCancel={vi.fn()}
                 onSave={vi.fn()}
-            />
+            />,
         );
 
         expect(screen.getByTitle("Save film")).toBeDisabled();
     });
 
     it("submits a filled request after confirmation", async () => {
-        const onSave = vi.fn((_request: FilmRequest, options: {onSuccess: () => void}) => {
+        const onSave = vi.fn((_request: FilmRequest, options: { onSuccess: () => void }) => {
             options.onSuccess();
         });
-        const {container} = renderFilmForm({onSave});
+        const { container } = renderFilmForm({ onSave });
 
         fillRequiredFields(container);
         fireEvent.click(screen.getByTitle("Save film"));
@@ -200,20 +200,20 @@ describe("FilmForm", () => {
                     title: "Filled Film",
                     releaseYear: 2000,
                     description: "Filled description",
-                    actors: [{name: "Actor"}],
-                    directors: [{name: "Director"}],
+                    actors: [{ name: "Actor" }],
+                    directors: [{ name: "Director" }],
                 }),
-                expect.any(Object)
+                expect.any(Object),
             );
         });
     });
 
     it("calls cancel after resetting local state", () => {
         const onCancel = vi.fn();
-        renderFilmForm({initialFilm: film, onCancel});
+        renderFilmForm({ initialFilm: film, onCancel });
 
         fireEvent.change(screen.getByLabelText("form title"), {
-            target: {value: "Changed title"},
+            target: { value: "Changed title" },
         });
         fireEvent.click(screen.getByTitle("Cancel film"));
 
@@ -222,10 +222,10 @@ describe("FilmForm", () => {
     });
 
     it("deletes an uploaded poster when save fails", async () => {
-        const onSave = vi.fn((_request: FilmRequest, options: {onError: (error: Error) => void}) => {
+        const onSave = vi.fn((_request: FilmRequest, options: { onError: (error: Error) => void }) => {
             options.onError(apiError);
         });
-        const {container} = renderFilmForm({
+        const { container } = renderFilmForm({
             initialFilm: film,
             isChanged: (_form, posterFile) => posterFile !== null,
             onSave,
@@ -235,10 +235,7 @@ describe("FilmForm", () => {
         fireEvent.click(screen.getByTitle("Save film"));
 
         await waitFor(() => {
-            expect(onSave).toHaveBeenCalledWith(
-                expect.objectContaining({posterName: "new.jpg"}),
-                expect.any(Object)
-            );
+            expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ posterName: "new.jpg" }), expect.any(Object));
             expect(mocks.deleteFileMutate).toHaveBeenCalledWith("new.jpg");
             expect(screen.getByText("Validation failed")).toBeInTheDocument();
         });

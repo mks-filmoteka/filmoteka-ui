@@ -1,8 +1,8 @@
-import {fireEvent, render, screen} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import type {Collection} from "../types/collection.ts";
-import type {FilmBasic} from "../../film/types/filmBasic.ts";
-import type {Page} from "../../film/types/page.ts";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Collection } from "../types/collection.ts";
+import type { FilmBasic } from "../../film/types/filmBasic.ts";
+import type { Page } from "../../film/types/page.ts";
 import CollectionPage from "./CollectionPage.tsx";
 
 type MutationOptions<TData = unknown> = {
@@ -69,30 +69,28 @@ vi.mock("../../film/components/FilmBrowser.tsx", () => ({
         <div>
             {onSave && onCancel && (
                 <>
-                    <button onClick={onSave} disabled={saveDisabled}>Save</button>
-                    <button onClick={onCancel} disabled={cancelDisabled}>Cancel</button>
+                    <button onClick={onSave} disabled={saveDisabled}>
+                        Save
+                    </button>
+                    <button onClick={onCancel} disabled={cancelDisabled}>
+                        Cancel
+                    </button>
                 </>
             )}
-            {onFilmCheckedChange ? (
-                filmsData?.content.map(film => (
-                    <label key={film.id}>
-                        <input
-                            type="checkbox"
-                            aria-label={`Select ${film.title}`}
-                            checked={selectedFilmIds?.has(film.id) ?? false}
-                            disabled={selectionDisabled}
-                            onChange={(event) =>
-                                onFilmCheckedChange(film.id, event.currentTarget.checked)
-                            }
-                        />
-                        {film.title}
-                    </label>
-                ))
-            ) : (
-                filmsData?.content.map(film => (
-                    <div key={film.id}>{film.title}</div>
-                ))
-            )}
+            {onFilmCheckedChange
+                ? filmsData?.content.map((film) => (
+                      <label key={film.id}>
+                          <input
+                              type="checkbox"
+                              aria-label={`Select ${film.title}`}
+                              checked={selectedFilmIds?.has(film.id) ?? false}
+                              disabled={selectionDisabled}
+                              onChange={(event) => onFilmCheckedChange(film.id, event.currentTarget.checked)}
+                          />
+                          {film.title}
+                      </label>
+                  ))
+                : filmsData?.content.map((film) => <div key={film.id}>{film.title}</div>)}
         </div>
     ),
 }));
@@ -154,7 +152,7 @@ const createSearchParams = () => ({
 beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.useParams.mockReturnValue({id: "7"});
+    mocks.useParams.mockReturnValue({ id: "7" });
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
     mocks.useCollection.mockReturnValue({
         data: collection,
@@ -186,7 +184,7 @@ beforeEach(() => {
     mocks.updateCollectionFilmsMutate.mockImplementation(
         (_variables: unknown, options?: MutationOptions<Collection>) => {
             options?.onSuccess?.(collection);
-        }
+        },
     );
 });
 
@@ -201,7 +199,7 @@ describe("CollectionPage", () => {
                 page: 0,
                 ids: [1, 2],
             }),
-            true
+            true,
         );
         expect(screen.getByText("Favorites")).toBeInTheDocument();
         expect(screen.getByText("Collection Film")).toBeInTheDocument();
@@ -235,7 +233,7 @@ describe("CollectionPage", () => {
             expect.objectContaining({
                 onSuccess: expect.any(Function),
                 onError: expect.any(Function),
-            })
+            }),
         );
     });
 

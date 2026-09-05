@@ -1,10 +1,10 @@
-import {render, screen, waitFor} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
-import {MemoryRouter} from "react-router";
-import type {ReactElement} from "react";
-import type {FilmBasic} from "../types/filmBasic.ts";
-import type {Page} from "../types/page.ts";
-import {FilmBrowser, type FilmBrowserSearchState} from "./FilmBrowser.tsx";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router";
+import type { ReactElement } from "react";
+import type { FilmBasic } from "../types/filmBasic.ts";
+import type { Page } from "../types/page.ts";
+import { FilmBrowser, type FilmBrowserSearchState } from "./FilmBrowser.tsx";
 
 const film: FilmBasic = {
     id: 1,
@@ -45,11 +45,7 @@ const createSearch = (overrides: Partial<FilmBrowserSearchState> = {}): FilmBrow
 });
 
 function renderScreen(element: ReactElement) {
-    return render(
-        <MemoryRouter>
-            {element}
-        </MemoryRouter>
-    );
+    return render(<MemoryRouter>{element}</MemoryRouter>);
 }
 
 beforeEach(() => {
@@ -58,12 +54,7 @@ beforeEach(() => {
 
 describe("FilmBrowser", () => {
     it("forwards list data", () => {
-        const {container} = renderScreen(
-            <FilmBrowser
-                filmsData={filmsData}
-                search={createSearch()}
-            />
-        );
+        const { container } = renderScreen(<FilmBrowser filmsData={filmsData} search={createSearch()} />);
 
         expect(screen.getByText("Test Film (2000)")).toBeInTheDocument();
         expect(container.querySelector(".list-item-number")).toHaveTextContent("1");
@@ -71,11 +62,8 @@ describe("FilmBrowser", () => {
     });
 
     it("uses the current page to offset displayed list indexes", () => {
-        const {container} = renderScreen(
-            <FilmBrowser
-                filmsData={filmsData}
-                search={createSearch({pageParam: 2})}
-            />
+        const { container } = renderScreen(
+            <FilmBrowser filmsData={filmsData} search={createSearch({ pageParam: 2 })} />,
         );
 
         expect(container.querySelector(".list-item-number")).toHaveTextContent("21");
@@ -90,8 +78,8 @@ describe("FilmBrowser", () => {
                     ...filmsData,
                     totalPages: 2,
                 }}
-                search={createSearch({pageParam: 9, setPage})}
-            />
+                search={createSearch({ pageParam: 9, setPage })}
+            />,
         );
 
         await waitFor(() => {

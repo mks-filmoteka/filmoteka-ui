@@ -1,5 +1,5 @@
-import {useQuery} from "@tanstack/react-query";
-import {getPersonById} from "../api/personApi";
+import { useQuery } from "@tanstack/react-query";
+import { getPersonById } from "../api/personApi";
 
 export function usePerson(type?: "actor" | "director", id?: number) {
     return useQuery({
@@ -10,6 +10,6 @@ export function usePerson(type?: "actor" | "director", id?: number) {
                 throw new Error("Person type and id are required");
             }
             return getPersonById(type, id);
-        }
+        },
     });
 }

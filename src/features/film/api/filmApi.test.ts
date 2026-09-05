@@ -1,16 +1,16 @@
-import {beforeEach, describe, expect, it, type Mock, vi} from "vitest";
-import {catalogClient} from "../../../shared/api/client";
-import type {Film} from "../types/film";
-import type {FilmRequest} from "../types/filmRequest";
-import {createFilm, deleteFilm, getCollectionFilms, getFilmById, getFilms, updateFilm} from "./filmApi";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { catalogClient } from "../../../shared/api/client";
+import type { Film } from "../types/film";
+import type { FilmRequest } from "../types/filmRequest";
+import { createFilm, deleteFilm, getCollectionFilms, getFilmById, getFilms, updateFilm } from "./filmApi";
 
 vi.mock("../../../shared/api/client", () => ({
     catalogClient: {
         get: vi.fn(),
         post: vi.fn(),
         put: vi.fn(),
-        delete: vi.fn()
-    }
+        delete: vi.fn(),
+    },
 }));
 
 const mockedApiClient = catalogClient as unknown as {
@@ -28,8 +28,8 @@ const film: Film = {
     description: "Test description",
     posterName: null,
     genres: ["Drama", "Action"],
-    actors: [{id: 1, name: "Test Actor"}],
-    directors: [{id: 2, name: "Test Director"}]
+    actors: [{ id: 1, name: "Test Actor" }],
+    directors: [{ id: 2, name: "Test Director" }],
 };
 
 const request: FilmRequest = {
@@ -39,8 +39,8 @@ const request: FilmRequest = {
     description: film.description,
     posterName: film.posterName,
     genres: film.genres,
-    actors: [{name: "Test Actor"}],
-    directors: [{name: "Test Director"}]
+    actors: [{ name: "Test Actor" }],
+    directors: [{ name: "Test Director" }],
 };
 
 beforeEach(() => {
@@ -54,19 +54,11 @@ describe("filmApi", () => {
             totalElements: 1,
             totalPages: 1,
             size: 20,
-            page: 1
+            page: 1,
         };
-        mockedApiClient.get.mockResolvedValue({data: page});
+        mockedApiClient.get.mockResolvedValue({ data: page });
 
-        await expect(getFilms(
-            1,
-            "Test Title",
-            1990,
-            2010,
-            ["Drama"],
-            ["Poland"],
-            ["title,asc"]
-        )).resolves.toBe(page);
+        await expect(getFilms(1, "Test Title", 1990, 2010, ["Drama"], ["Poland"], ["title,asc"])).resolves.toBe(page);
 
         expect(mockedApiClient.get).toHaveBeenCalledWith("/films", {
             params: {
@@ -76,14 +68,14 @@ describe("filmApi", () => {
                 yearTo: 2010,
                 genres: ["Drama"],
                 countries: ["Poland"],
-                sort: ["title,asc"]
+                sort: ["title,asc"],
             },
-            paramsSerializer: {indexes: null}
+            paramsSerializer: { indexes: null },
         });
     });
 
     it("unwraps single film responses", async () => {
-        mockedApiClient.get.mockResolvedValue({data: film});
+        mockedApiClient.get.mockResolvedValue({ data: film });
 
         await expect(getFilmById(1)).resolves.toBe(film);
 
@@ -96,20 +88,22 @@ describe("filmApi", () => {
             totalElements: 1,
             totalPages: 1,
             size: 20,
-            page: 0
-        };
-        mockedApiClient.post.mockResolvedValue({data: page});
-
-        await expect(getCollectionFilms({
             page: 0,
-            title: "Test Title",
-            yearFrom: 1990,
-            yearTo: 2010,
-            genres: ["Drama"],
-            countries: ["Poland"],
-            sort: ["title,asc"],
-            ids: [1, 2]
-        })).resolves.toBe(page);
+        };
+        mockedApiClient.post.mockResolvedValue({ data: page });
+
+        await expect(
+            getCollectionFilms({
+                page: 0,
+                title: "Test Title",
+                yearFrom: 1990,
+                yearTo: 2010,
+                genres: ["Drama"],
+                countries: ["Poland"],
+                sort: ["title,asc"],
+                ids: [1, 2],
+            }),
+        ).resolves.toBe(page);
 
         expect(mockedApiClient.post).toHaveBeenCalledWith(
             "/films/collection",
@@ -119,21 +113,21 @@ describe("filmApi", () => {
                 yearTo: 2010,
                 genres: ["Drama"],
                 countries: ["Poland"],
-                ids: [1, 2]
+                ids: [1, 2],
             },
             {
                 params: {
                     page: 0,
-                    sort: ["title,asc"]
+                    sort: ["title,asc"],
                 },
-                paramsSerializer: {indexes: null}
-            }
+                paramsSerializer: { indexes: null },
+            },
         );
     });
 
     it("sends create and update requests to the expected endpoints", async () => {
-        mockedApiClient.post.mockResolvedValue({data: film});
-        mockedApiClient.put.mockResolvedValue({data: film});
+        mockedApiClient.post.mockResolvedValue({ data: film });
+        mockedApiClient.put.mockResolvedValue({ data: film });
 
         await expect(createFilm(request)).resolves.toBe(film);
         await expect(updateFilm(1, request)).resolves.toBe(film);
@@ -143,9 +137,9 @@ describe("filmApi", () => {
     });
 
     it("deletes a film by id and returns the response body", async () => {
-        mockedApiClient.delete.mockResolvedValue({data: {deleted: true}});
+        mockedApiClient.delete.mockResolvedValue({ data: { deleted: true } });
 
-        await expect(deleteFilm(1)).resolves.toEqual({deleted: true});
+        await expect(deleteFilm(1)).resolves.toEqual({ deleted: true });
 
         expect(mockedApiClient.delete).toHaveBeenCalledWith("/films/1");
     });

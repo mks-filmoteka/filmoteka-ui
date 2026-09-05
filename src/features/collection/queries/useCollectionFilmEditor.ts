@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {useUpdateCollectionFilms} from "./useUpdateCollectionFilms.ts";
+import { useState } from "react";
+import { useUpdateCollectionFilms } from "./useUpdateCollectionFilms.ts";
 
 type Params = {
     collectionId?: number;
@@ -19,7 +19,7 @@ function updateFilmIdSet(current: Set<number>, filmId: number, shouldContain: bo
 }
 
 export function useCollectionFilmEditor(params: Params) {
-    const {collectionId, filmIds, onError, onClearError} = params;
+    const { collectionId, filmIds, onError, onClearError } = params;
     const handleError = onError ?? (() => {});
     const clearError = onClearError ?? (() => {});
     const updateCollectionFilms = useUpdateCollectionFilms();
@@ -70,16 +70,16 @@ export function useCollectionFilmEditor(params: Params) {
                 collectionId,
                 request: {
                     addedFilmIds: Array.from(addedFilmIds),
-                    removedFilmIds: Array.from(removedFilmIds)
-                }
+                    removedFilmIds: Array.from(removedFilmIds),
+                },
             },
             {
                 onSuccess: () => {
                     setEditingCollectionId(undefined);
                     reset();
                 },
-                onError: handleError
-            }
+                onError: handleError,
+            },
         );
     };
 
@@ -91,6 +91,6 @@ export function useCollectionFilmEditor(params: Params) {
         startEditing,
         cancelEditing,
         updateSelection,
-        save
+        save,
     };
 }

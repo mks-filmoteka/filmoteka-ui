@@ -1,7 +1,7 @@
-import type {Film} from "../types/film.ts";
+import type { Film } from "../types/film.ts";
 import Poster from "../../media/components/Poster.tsx";
-import {Link} from "react-router";
-import {getFileUrl} from "../../media/api/mediaApi.ts";
+import { Link } from "react-router";
+import { getFileUrl } from "../../media/api/mediaApi.ts";
 
 type Props = {
     data: Film;
@@ -11,10 +11,7 @@ export function FilmDetails(props: Readonly<Props>) {
     const { data } = props;
     return (
         <div className="main-grid">
-            <Poster
-                src={data.posterName ? getFileUrl(data.posterName) : null}
-                alt={data.title}
-            />
+            <Poster src={data.posterName ? getFileUrl(data.posterName) : null} alt={data.title} />
             <div>
                 <p>{data.description}</p>
                 <div className="details-column">
@@ -39,7 +36,7 @@ export function FilmDetails(props: Readonly<Props>) {
                             <Link
                                 key={director.id}
                                 to={`/people/director/${director.id}`}
-                                className="person-link person-link--line"
+                                className="person-link person-link-line"
                             >
                                 {director.name}
                             </Link>
@@ -48,14 +45,12 @@ export function FilmDetails(props: Readonly<Props>) {
                 </div>
             </div>
             <div>
-                <p><span>Cast</span></p>
+                <p>
+                    <span>Cast</span>
+                </p>
                 <div className="people-column">
                     {data.actors.map((actor) => (
-                        <Link
-                            key={actor.id}
-                            to={`/people/actor/${actor.id}`}
-                            className="person-link"
-                        >
+                        <Link key={actor.id} to={`/people/actor/${actor.id}`} className="person-link">
                             {actor.name}
                         </Link>
                     ))}

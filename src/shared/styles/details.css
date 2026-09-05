@@ -28,7 +28,7 @@
     gap: 8px;
 }
 
-.details-column > div{
+.details-column > div {
     display: flex;
 }
 
@@ -51,7 +51,7 @@
     text-decoration: underline;
 }
 
-.person-link--line + .person-link--line::before {
+.person-link-line + .person-link-line::before {
     content: ", ";
 }
 
@@ -75,7 +75,7 @@
     box-shadow: none;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .main-grid {
         grid-template-columns: 1fr;
         width: 90%;

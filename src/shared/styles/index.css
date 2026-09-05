@@ -2,23 +2,22 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    /*outline: 1px solid rgb(0 74 66);*/
+
+    /* outline: 1px solid rgb(0 74 66); */
 }
 
 :root {
     --text-color: #ceceda;
-    --text-color-f: #777799;
-    --text-color-m: #777777;
+    --text-color-f: #779;
+    --text-color-m: #777;
     --bg: #272833;
     --body-bg: #16171d;
     --accent: #434f73;
     --accent-bg: #1f2029;
-    --accent-border: rgba(192, 132, 252, 0.5);
+    --accent-border: rgb(192 132 252 / 50%);
     --error-message: #ff6b6b;
-
-    --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-    --mono: ui-monospace, Consolas, monospace;
-
+    --sans: system-ui, "Segoe UI", roboto, sans-serif;
+    --mono: ui-monospace, consolas, monospace;
     --font-l: 36px;
     --font-m: 18px;
     --font-s: 15px;
@@ -28,18 +27,18 @@
     color: var(--text-color);
     background: var(--bg);
     font-synthesis: none;
-    text-rendering: optimizeLegibility;
+    text-rendering: optimizelegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
         --font-l: 32px;
         --font-m: 17px;
         --font-s: 14px;
         --font-ss: 10px;
     }
 
-    @media (max-width: 512px) {
+    @media (width <= 512px) {
         --font-l: 26px;
         --font-m: 16px;
         --font-s: 13px;
@@ -80,6 +79,20 @@ header {
     transition: transform 0.2s ease-in-out;
 }
 
+button {
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    border-radius: 5px;
+    text-align: left;
+    align-items: center;
+    background-color: var(--accent-bg);
+    transition: background 0.3s ease;
+}
+
 header button {
     height: 28px;
     min-width: 28px;
@@ -111,20 +124,6 @@ input {
     font: var(--font-s) var(--sans);
 }
 
-button {
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    font: inherit;
-    color: inherit;
-    border-radius: 5px;
-    text-align: left;
-    align-items: center;
-    background-color: var(--accent-bg);
-    transition: background 0.3s ease;
-}
-
 .icon {
     display: inline-flex;
     align-items: center;
@@ -148,7 +147,7 @@ button:hover {
     box-shadow: 0 0 10px var(--text-color-f);
 }
 
-body button:disabled {
+button:disabled {
     opacity: 0.3;
     cursor: default;
     transform: none;
@@ -271,7 +270,7 @@ body button:disabled {
     background: none;
     right: 2px;
     cursor: pointer;
-    padding: 3px 3px;
+    padding: 3px;
     color: var(--text-color-f);
 }
 
@@ -279,21 +278,21 @@ body button:disabled {
     box-shadow: none;
 }
 
-@media (max-width: 660px) {
+@media (width <= 660px) {
     .page-title,
     .header-content {
         width: 80%;
     }
 }
 
-@media (max-width: 490px) {
+@media (width <= 490px) {
     .page-title,
     .header-content {
         width: 90%;
     }
 }
 
-@media (max-width: 320px) {
+@media (width <= 320px) {
     .page-title,
     .header-content {
         width: 100%;
