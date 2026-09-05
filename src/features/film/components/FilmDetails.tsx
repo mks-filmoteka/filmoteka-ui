@@ -39,7 +39,7 @@ export function FilmDetails(props: Readonly<Props>) {
                             <Link
                                 key={director.id}
                                 to={`/people/director/${director.id}`}
-                                className="person-link person-link--line"
+                                className="person-link person-link-line"
                             >
                                 {director.name}
                             </Link>
