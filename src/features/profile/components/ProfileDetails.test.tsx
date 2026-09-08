@@ -10,8 +10,15 @@ type MutationOptions = {
 
 const mocks = vi.hoisted(() => ({
     isPending: false,
+    keycloakLogin: vi.fn(),
     useUpdateProfile: vi.fn(),
     updateProfileMutate: vi.fn(),
+}));
+
+vi.mock("../../../auth/keycloak.ts", () => ({
+    keycloak: {
+        login: mocks.keycloakLogin,
+    },
 }));
 
 vi.mock("../queries/useUpdateProfile.ts", () => ({
@@ -26,6 +33,7 @@ const profile: UserProfile = {
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.isPending = false;
+    mocks.keycloakLogin.mockResolvedValue(undefined);
     mocks.useUpdateProfile.mockReturnValue({
         isPending: mocks.isPending,
         mutate: mocks.updateProfileMutate,
@@ -44,9 +52,25 @@ describe("ProfileDetails", () => {
         expect(screen.getByText("Profile details")).toBeInTheDocument();
         expect(screen.getByText("test@example.com")).toBeInTheDocument();
         expect(screen.getByText("Test User")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Change email" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Change password" })).toBeInTheDocument();
 
         fireEvent.click(screen.getByLabelText("Close profile details"));
         expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        ["Change email", "UPDATE_EMAIL"],
+        ["Change password", "UPDATE_PASSWORD"],
+    ])("starts the Keycloak %s action", (buttonName, action) => {
+        render(<ProfileDetails profile={profile} onClose={vi.fn()} />);
+
+        fireEvent.click(screen.getByRole("button", { name: buttonName }));
+
+        expect(mocks.keycloakLogin).toHaveBeenCalledWith({
+            action,
+            redirectUri: globalThis.location.href,
+        });
     });
 
     it("swaps display name controls while editing and cancels local changes", () => {

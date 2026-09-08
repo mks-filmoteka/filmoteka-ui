@@ -8,6 +8,7 @@ import { Dialog } from "../../../shared/components/Dialog.tsx";
 import { useUpdateProfile } from "../queries/useUpdateProfile.ts";
 import type { UserProfile } from "../types/userProfile.ts";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { keycloak } from "../../../auth/keycloak.ts";
 
 type Props = {
     profile: UserProfile;
@@ -52,6 +53,13 @@ export function ProfileDetails({ profile, onClose }: Readonly<Props>) {
                 },
             },
         );
+    };
+
+    const handleAccountAction = (action: "UPDATE_EMAIL" | "UPDATE_PASSWORD") => {
+        void keycloak.login({
+            action,
+            redirectUri: globalThis.location.href,
+        });
     };
 
     return (
@@ -108,6 +116,11 @@ export function ProfileDetails({ profile, onClose }: Readonly<Props>) {
                             )}
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <button onClick={() => handleAccountAction("UPDATE_EMAIL")}>Change email</button>
+                    <button onClick={() => handleAccountAction("UPDATE_PASSWORD")}>Change password</button>
                 </div>
             </div>
 
