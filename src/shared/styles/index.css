@@ -151,6 +151,7 @@ button:disabled {
     opacity: 0.3;
     cursor: default;
     transform: none;
+    box-shadow: none;
 }
 
 .header-content {
