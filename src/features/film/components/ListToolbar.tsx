@@ -80,10 +80,10 @@ export function ListToolbar(props: Readonly<Props>) {
 
             {onSave && onCancel && (
                 <>
-                    <IconButton icon="accept" label="Save films" onClick={onSave} disabled={saveDisabled} />
+                    <IconButton icon="accept" label="Save" onClick={onSave} disabled={saveDisabled} />
                     <IconButton
                         icon="cancel"
-                        label="Cancel films"
+                        label="Cancel"
                         style={{ marginRight: "30px" }}
                         onClick={onCancel}
                         disabled={cancelDisabled}
