@@ -5,7 +5,6 @@ import type { ApiError } from "../../../shared/types/ApiError.ts";
 import { getApiError } from "../../../shared/api/apiError.ts";
 import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
-import { useDeleteFile } from "../../media/queries/useDeleteFile.ts";
 import { useUploadFile } from "../../media/queries/useUploadFile.ts";
 import { COUNTRIES } from "../types/country.ts";
 import type { Film } from "../types/film.ts";
@@ -33,7 +32,6 @@ type Props = {
 export function FilmForm(props: Readonly<Props>) {
     const { confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged } = props;
     const uploadPoster = useUploadFile();
-    const deletePoster = useDeleteFile();
     const filmForm = useFilmFormState(initialFilm);
     const [posterFile, setPosterFile] = useState<File | null>(null);
     const [apiError, setApiError] = useState<ApiError | Error>();
@@ -46,17 +44,14 @@ export function FilmForm(props: Readonly<Props>) {
         setApiError(undefined);
     };
 
-    const handleError = (error: Error, uploadedPosterName?: string) => {
-        if (uploadedPosterName) {
-            deletePoster.mutate(uploadedPosterName);
-        }
+    const handleError = (error: Error) => {
         setApiError(getApiError(error));
     };
 
-    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
+    const saveFilm = (request: FilmRequest) => {
         onSave(request, {
             onSuccess: resetForm,
-            onError: (error: Error) => handleError(error, uploadedPosterName),
+            onError: handleError,
         });
     };
 
@@ -73,15 +68,12 @@ export function FilmForm(props: Readonly<Props>) {
 
         uploadPoster.mutate(posterFile, {
             onSuccess: (uploadedPoster) => {
-                saveFilm(
-                    {
-                        ...request,
-                        posterName: uploadedPoster.fileName,
-                    },
-                    uploadedPoster.fileName,
-                );
+                saveFilm({
+                    ...request,
+                    posterName: uploadedPoster.fileName,
+                });
             },
-            onError: (error: Error) => handleError(error),
+            onError: handleError,
         });
     };
 

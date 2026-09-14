@@ -6,6 +6,11 @@ export function useUpdateCollection() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ id, request }: { id: number; request: CollectionRequest }) => updateCollection(id, request),
-        onSuccess: (_, variables) => queryClient.invalidateQueries({ queryKey: ["collection", variables.id] }),
+        onSuccess: async (_, variables) => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["collection", variables.id] }),
+                queryClient.invalidateQueries({ queryKey: ["collections"] }),
+            ]);
+        },
     });
 }
