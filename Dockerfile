@@ -10,6 +10,8 @@ COPY . .
 
 ARG VITE_CATALOG_API_URL=http://localhost:8080/api/v1
 ARG VITE_MEDIA_API_URL=http://localhost:8081/api/v1
+ARG VITE_USER_API_URL=http://localhost:8082/api/v1
+ARG VITE_KEYCLOAK_URL=http://localhost:8180
 
 RUN npm run build
 
