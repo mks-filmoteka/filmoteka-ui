@@ -12,16 +12,10 @@ type MutationOptions<TData = unknown> = {
 const mocks = vi.hoisted(() => ({
     useUploadFile: vi.fn(),
     uploadFileMutate: vi.fn(),
-    useDeleteFile: vi.fn(),
-    deleteFileMutate: vi.fn(),
 }));
 
 vi.mock("../../media/queries/useUploadFile.ts", () => ({
     useUploadFile: mocks.useUploadFile,
-}));
-
-vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: mocks.useDeleteFile,
 }));
 
 const film: Film = {
@@ -142,9 +136,6 @@ beforeEach(() => {
         mutate: mocks.uploadFileMutate,
         isPending: false,
     });
-    mocks.useDeleteFile.mockReturnValue({
-        mutate: mocks.deleteFileMutate,
-    });
     mocks.uploadFileMutate.mockImplementation((_file: File, options?: MutationOptions<{ fileName: string }>) => {
         options?.onSuccess?.({ fileName: "new.jpg" });
     });
@@ -221,7 +212,7 @@ describe("FilmForm", () => {
         expect(screen.getByLabelText("form title")).toHaveValue(validRequest.title);
     });
 
-    it("deletes an uploaded poster when save fails", async () => {
+    it("shows the save error when saving with an uploaded poster fails", async () => {
         const onSave = vi.fn((_request: FilmRequest, options: { onError: (error: Error) => void }) => {
             options.onError(apiError);
         });
@@ -236,7 +227,6 @@ describe("FilmForm", () => {
 
         await waitFor(() => {
             expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ posterName: "new.jpg" }), expect.any(Object));
-            expect(mocks.deleteFileMutate).toHaveBeenCalledWith("new.jpg");
             expect(screen.getByText("Validation failed")).toBeInTheDocument();
         });
     });
