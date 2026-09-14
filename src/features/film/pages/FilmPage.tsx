@@ -10,6 +10,7 @@ import { CollectionsPopup } from "../../collection/components/CollectionsPopup.t
 import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { getApiError } from "../../../shared/api/apiError.ts";
 
 function FilmPage() {
     const navigate = useNavigate();
@@ -59,7 +60,16 @@ function FilmPage() {
                         {isAdmin && (
                             <>
                                 <IconButton icon="edit" label="Edit" onClick={() => navigate(`/films/${id}/edit`)} />
-                                <IconButton icon="delete" label="Delete" onClick={handleDelete} />
+                                <IconButton
+                                    icon="delete"
+                                    label="Delete"
+                                    onClick={handleDelete}
+                                    disabled={deleteFilm.isPending || deletePoster.isPending}
+                                />
+                                <ApiErrorMessage
+                                    error={deleteFilm.error ? getApiError(deleteFilm.error) : undefined}
+                                    message="Could not delete film"
+                                />
                             </>
                         )}
                     </>
