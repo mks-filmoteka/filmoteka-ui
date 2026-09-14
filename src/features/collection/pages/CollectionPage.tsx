@@ -8,6 +8,9 @@ import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { useFilmApiParams } from "../../film/queries/useFilmApiParams.ts";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { useState } from "react";
+import { getApiError } from "../../../shared/api/apiError.ts";
+import type { ApiError } from "../../../shared/types/ApiError.ts";
 
 function CollectionPage() {
     const collectionId = useRequiredId();
@@ -15,9 +18,12 @@ function CollectionPage() {
     const selectedCollectionQuery = useCollection(collectionId);
     const collection = selectedCollectionQuery.data;
     const filmIds = collection?.filmIds ?? [];
+    const [saveError, setSaveError] = useState<ApiError | Error>();
     const collectionFilmEditor = useCollectionFilmEditor({
         collectionId,
         filmIds,
+        onError: (error) => setSaveError(getApiError(error)),
+        onClearError: () => setSaveError(undefined),
     });
     const filmsQuery = useFilms(search.filmFilter, collectionFilmEditor.isEditing);
     const collectionFilmsQuery = useCollectionFilms(
@@ -55,6 +61,7 @@ function CollectionPage() {
                     )
                 }
             />
+            <ApiErrorMessage error={saveError} message="Could not save collection" />
             <hr />
             <FilmBrowser
                 filmsData={activeFilmsQuery.data}
