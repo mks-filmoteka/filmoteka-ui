@@ -27,6 +27,7 @@ function isFormInvalid(form: FilmRequest) {
         form.releaseYear > MAX_YEAR ||
         form.actors.length === 0 ||
         form.directors.length === 0 ||
+        form.countries.length === 0 ||
         form.genres.length === 0 ||
         form.actors.some((actor) => !actor.name.trim()) ||
         form.directors.some((director) => !director.name.trim())
