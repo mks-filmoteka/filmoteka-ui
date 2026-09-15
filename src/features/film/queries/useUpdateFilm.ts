@@ -6,6 +6,11 @@ export function useUpdateFilm() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ id, request }: { id: number; request: FilmRequest }) => updateFilm(id, request),
-        onSuccess: (_, variables) => queryClient.invalidateQueries({ queryKey: ["film", variables.id] }),
+        onSuccess: async (_, variables) => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["film", variables.id] }),
+                queryClient.invalidateQueries({ queryKey: ["films"] }),
+            ]);
+        },
     });
 }

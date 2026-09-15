@@ -160,7 +160,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
                             id="collection-name"
                             ariaLabel="collection name"
                             value={collectionName}
-                            maxLength={255}
+                            maxLength={100}
                             placeholder="Collection name"
                             regex={INPUT_RULES.title}
                             disabled={createCollection.isPending}
@@ -190,7 +190,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
                                     id={`collection-${collection.id}`}
                                     ariaLabel={`edit collection ${collection.name}`}
                                     value={form.name}
-                                    maxLength={255}
+                                    maxLength={100}
                                     placeholder="Collection name"
                                     regex={INPUT_RULES.title}
                                     disabled={updateCollection.isPending}
