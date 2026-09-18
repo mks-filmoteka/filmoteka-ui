@@ -152,7 +152,7 @@ describe("EditFilmPage", () => {
         expect(props.isChanged(fillForm(film), new File(["poster"], "poster.jpg"))).toBe(true);
     });
 
-    it("updates a film, deletes the old poster, and navigates to the updated film", () => {
+    it("updates a film and navigates to the updated film", () => {
         const updatedFilm = { ...film, id: 2 };
         mocks.updateFilmMutate.mockImplementation((_variables: unknown, options?: MutationOptions<Film>) => {
             options?.onSuccess?.(updatedFilm);
@@ -167,7 +167,7 @@ describe("EditFilmPage", () => {
             { id: 1, request },
             expect.objectContaining({ onSuccess: expect.any(Function), onError }),
         );
-        expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg");
+        expect(mocks.deleteFileMutate).not.toHaveBeenCalled();
         expect(onSuccess).toHaveBeenCalledTimes(1);
         expect(mocks.navigate).toHaveBeenCalledWith("/films/2");
     });

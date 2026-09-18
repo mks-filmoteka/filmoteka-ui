@@ -5,7 +5,6 @@ import FilmPage from "./FilmPage";
 
 type MutationOptions<TData = unknown> = {
     onSuccess?: (data: TData) => void;
-    onSettled?: () => void;
 };
 
 type FilmDetailsMockProps = {
@@ -107,9 +106,6 @@ beforeEach(() => {
     mocks.deleteFilmMutate.mockImplementation((_id: number, options?: MutationOptions) => {
         options?.onSuccess?.({});
     });
-    mocks.deleteFileMutate.mockImplementation((_fileName: string, options?: MutationOptions) => {
-        options?.onSettled?.();
-    });
 });
 
 describe("FilmPage", () => {
@@ -133,14 +129,14 @@ describe("FilmPage", () => {
         expect(mocks.navigate).toHaveBeenCalledWith("/films/1/edit");
     });
 
-    it("navigates back to the film list after deleted film poster cleanup settles", async () => {
+    it("navigates back to the film list after deleted film", async () => {
         render(<FilmPage />);
 
         fireEvent.click(screen.getByTitle("Delete"));
 
         await waitFor(() => {
             expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
-            expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg", expect.any(Object));
+            expect(mocks.deleteFileMutate).not.toHaveBeenCalled();
             expect(mocks.navigate).toHaveBeenCalledWith("/films");
         });
     });
