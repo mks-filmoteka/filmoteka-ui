@@ -12,8 +12,3 @@ export async function uploadFile(file: File) {
 export function getFileUrl(fileName: string): string {
     return `${MEDIA_API_URL}/media/files/${encodeURIComponent(fileName)}`;
 }
-
-export async function deleteFile(fileName: string) {
-    const response = await mediaClient.delete(`/media/files/${encodeURIComponent(fileName)}`);
-    return response.data;
-}

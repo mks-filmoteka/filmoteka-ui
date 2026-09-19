@@ -26,8 +26,6 @@ const mocks = vi.hoisted(() => ({
     useFilm: vi.fn(),
     useUpdateFilm: vi.fn(),
     updateFilmMutate: vi.fn(),
-    useDeleteFile: vi.fn(),
-    deleteFileMutate: vi.fn(),
     filmForm: vi.fn(),
 }));
 
@@ -50,10 +48,6 @@ vi.mock("../queries/useFilm.ts", () => ({
 
 vi.mock("../queries/useUpdateFilm.ts", () => ({
     useUpdateFilm: mocks.useUpdateFilm,
-}));
-
-vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: mocks.useDeleteFile,
 }));
 
 vi.mock("../components/FilmForm.tsx", () => ({
@@ -105,9 +99,6 @@ beforeEach(() => {
     mocks.useUpdateFilm.mockReturnValue({
         mutate: mocks.updateFilmMutate,
         isPending: false,
-    });
-    mocks.useDeleteFile.mockReturnValue({
-        mutate: mocks.deleteFileMutate,
     });
 });
 
@@ -167,7 +158,6 @@ describe("EditFilmPage", () => {
             { id: 1, request },
             expect.objectContaining({ onSuccess: expect.any(Function), onError }),
         );
-        expect(mocks.deleteFileMutate).not.toHaveBeenCalled();
         expect(onSuccess).toHaveBeenCalledTimes(1);
         expect(mocks.navigate).toHaveBeenCalledWith("/films/2");
     });
@@ -185,7 +175,6 @@ describe("EditFilmPage", () => {
 
         expect(onError).toHaveBeenCalledWith(error);
         expect(onSuccess).not.toHaveBeenCalled();
-        expect(mocks.deleteFileMutate).not.toHaveBeenCalled();
     });
 
     it("navigates back to the film on cancel", () => {

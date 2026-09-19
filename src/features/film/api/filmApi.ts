@@ -58,7 +58,6 @@ export async function updateFilm(id: number, request: FilmRequest) {
     return response.data;
 }
 
-export async function deleteFilm(id: number) {
-    const response = await catalogClient.delete(`/films/${id}`);
-    return response.data;
+export async function deleteFilm(id: number): Promise<void> {
+    await catalogClient.delete(`/films/${id}`);
 }

@@ -136,10 +136,10 @@ describe("filmApi", () => {
         expect(mockedApiClient.put).toHaveBeenCalledWith("/films/1", request);
     });
 
-    it("deletes a film by id and returns the response body", async () => {
-        mockedApiClient.delete.mockResolvedValue({ data: { deleted: true } });
+    it("deletes a film by id with a no-content response", async () => {
+        mockedApiClient.delete.mockResolvedValue({ status: 204, data: "" });
 
-        await expect(deleteFilm(1)).resolves.toEqual({ deleted: true });
+        await expect(deleteFilm(1)).resolves.toBeUndefined();
 
         expect(mockedApiClient.delete).toHaveBeenCalledWith("/films/1");
     });
