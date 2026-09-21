@@ -1,11 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
 
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onSettled?: () => void;
+type MutationOptions = {
+    onSuccess?: () => void;
 };
 
 type FilmDetailsMockProps = {
@@ -16,8 +15,6 @@ const mocks = vi.hoisted(() => ({
     useFilm: vi.fn(),
     useDeleteFilm: vi.fn(),
     deleteFilmMutate: vi.fn(),
-    useDeleteFile: vi.fn(),
-    deleteFileMutate: vi.fn(),
     navigate: vi.fn(),
     authenticated: true,
 }));
@@ -28,10 +25,6 @@ vi.mock("../queries/useFilm.ts", () => ({
 
 vi.mock("../queries/useDeleteFilm.ts", () => ({
     useDeleteFilm: mocks.useDeleteFilm,
-}));
-
-vi.mock("../../media/queries/useDeleteFile.ts", () => ({
-    useDeleteFile: mocks.useDeleteFile,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -86,7 +79,7 @@ const film: Film = {
 };
 
 beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     vi.stubGlobal(
         "confirm",
         vi.fn(() => true),
@@ -100,15 +93,8 @@ beforeEach(() => {
     });
     mocks.useDeleteFilm.mockReturnValue({
         mutate: mocks.deleteFilmMutate,
-    });
-    mocks.useDeleteFile.mockReturnValue({
-        mutate: mocks.deleteFileMutate,
-    });
-    mocks.deleteFilmMutate.mockImplementation((_id: number, options?: MutationOptions) => {
-        options?.onSuccess?.({});
-    });
-    mocks.deleteFileMutate.mockImplementation((_fileName: string, options?: MutationOptions) => {
-        options?.onSettled?.();
+        isPending: false,
+        error: null,
     });
 });
 
@@ -133,15 +119,56 @@ describe("FilmPage", () => {
         expect(mocks.navigate).toHaveBeenCalledWith("/films/1/edit");
     });
 
-    it("navigates back to the film list after deleted film poster cleanup settles", async () => {
+    it("navigates back to the film list only after deletion succeeds", () => {
         render(<FilmPage />);
 
         fireEvent.click(screen.getByTitle("Delete"));
 
-        await waitFor(() => {
-            expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
-            expect(mocks.deleteFileMutate).toHaveBeenCalledWith("old.jpg", expect.any(Object));
-            expect(mocks.navigate).toHaveBeenCalledWith("/films");
+        expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
+        expect(mocks.navigate).not.toHaveBeenCalled();
+
+        const options = mocks.deleteFilmMutate.mock.calls[0][1] as MutationOptions;
+        options.onSuccess?.();
+
+        expect(mocks.navigate).toHaveBeenCalledWith("/films");
+    });
+
+    it("does not delete when confirmation is cancelled", () => {
+        vi.mocked(globalThis.confirm).mockReturnValue(false);
+        render(<FilmPage />);
+
+        fireEvent.click(screen.getByTitle("Delete"));
+
+        expect(mocks.deleteFilmMutate).not.toHaveBeenCalled();
+        expect(mocks.navigate).not.toHaveBeenCalled();
+    });
+
+    it("disables deletion while a request is pending", () => {
+        mocks.useDeleteFilm.mockReturnValue({ mutate: mocks.deleteFilmMutate, isPending: true, error: null });
+        render(<FilmPage />);
+
+        const button = screen.getByRole("button", { name: "Delete" });
+        expect(button).toBeDisabled();
+        fireEvent.click(button);
+
+        expect(mocks.deleteFilmMutate).not.toHaveBeenCalled();
+    });
+
+    it("shows the API error and stays on the film page when deletion fails", () => {
+        const { rerender } = render(<FilmPage />);
+        fireEvent.click(screen.getByTitle("Delete"));
+
+        mocks.useDeleteFilm.mockReturnValue({
+            mutate: mocks.deleteFilmMutate,
+            isPending: false,
+            error: Object.assign(new Error("Request failed"), {
+                response: { data: { message: "Catalog unavailable" } },
+            }),
         });
+        rerender(<FilmPage />);
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Could not delete film: Catalog unavailable");
+        expect(screen.getByRole("button", { name: "Delete" })).toBeEnabled();
+        expect(mocks.navigate).not.toHaveBeenCalled();
     });
 });

@@ -5,7 +5,6 @@ import { useRequiredId } from "../../../shared/utils/useRequiredId.ts";
 import { FilmDetails } from "../components/FilmDetails.tsx";
 import { useDeleteFilm } from "../queries/useDeleteFilm.ts";
 import { useNavigate } from "react-router";
-import { useDeleteFile } from "../../media/queries/useDeleteFile.ts";
 import { CollectionsPopup } from "../../collection/components/CollectionsPopup.tsx";
 import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
@@ -19,23 +18,11 @@ function FilmPage() {
     const id = useRequiredId();
     const { data, isLoading, error } = useFilm(id);
     const deleteFilm = useDeleteFilm();
-    const deletePoster = useDeleteFile();
 
     const handleDelete = () => {
         if (!confirm("Confirm delete film?")) return;
-        const posterName = data?.posterName;
         deleteFilm.mutate(id, {
-            onSuccess: () => {
-                if (!posterName) {
-                    navigate("/films");
-                    return;
-                }
-                deletePoster.mutate(posterName, {
-                    onSettled: () => {
-                        navigate("/films");
-                    },
-                });
-            },
+            onSuccess: () => navigate("/films"),
         });
     };
 
@@ -64,7 +51,7 @@ function FilmPage() {
                                     icon="delete"
                                     label="Delete"
                                     onClick={handleDelete}
-                                    disabled={deleteFilm.isPending || deletePoster.isPending}
+                                    disabled={deleteFilm.isPending}
                                 />
                                 <ApiErrorMessage
                                     error={deleteFilm.error ? getApiError(deleteFilm.error) : undefined}
