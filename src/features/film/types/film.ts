@@ -3,6 +3,7 @@ import type { Genre } from "./genre.ts";
 import type { Country } from "./country.ts";
 
 export interface Film {
+    version: number;
     id: number;
     title: string;
     releaseYear: number;

@@ -26,6 +26,7 @@ function EditFilmPage() {
 
     return (
         <FilmForm
+            key={film.id}
             initialFilm={film}
             confirmMessage="Confirm update film?"
             isPending={updateFilm.isPending}

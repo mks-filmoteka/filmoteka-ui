@@ -21,6 +21,7 @@ const mockedApiClient = catalogClient as unknown as {
 };
 
 const film: Film = {
+    version: 0,
     id: 1,
     title: "Test Title",
     releaseYear: 2000,

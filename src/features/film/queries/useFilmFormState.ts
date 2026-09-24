@@ -8,6 +8,7 @@ import { fillForm } from "../utils/formState.ts";
 import type { PersonNameRow, SelectRow } from "../components/FilmFormFields.tsx";
 
 type FilmFormState = {
+    version?: number;
     nextRowId: number;
     title: string;
     releaseYear: number;
@@ -58,6 +59,7 @@ function createFilmFormState(form: FilmRequest): FilmFormState {
 
     return {
         nextRowId,
+        version: form.version,
         title: form.title,
         releaseYear: form.releaseYear,
         countries,
@@ -71,6 +73,7 @@ function createFilmFormState(form: FilmRequest): FilmFormState {
 
 function toFilmRequest(form: FilmFormState): FilmRequest {
     return {
+        version: form.version,
         title: form.title,
         releaseYear: form.releaseYear,
         countries: form.countries.map((country) => country.value),
