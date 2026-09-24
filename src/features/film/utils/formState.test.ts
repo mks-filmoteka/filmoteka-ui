@@ -4,6 +4,7 @@ import type { FilmRequest } from "../types/filmRequest";
 import { fillForm, fillRequest, isFormChanged } from "./formState";
 
 const film: Film = {
+    version: 0,
     id: 1,
     title: "Test Title",
     releaseYear: 2000,
@@ -34,6 +35,7 @@ describe("formState", () => {
 
     it("maps film data into the editable request", () => {
         expect(fillForm(film)).toEqual({
+            version: film.version,
             title: film.title,
             releaseYear: film.releaseYear,
             countries: film.countries,
@@ -47,6 +49,7 @@ describe("formState", () => {
 
     it("trims text fields, removes duplicate filters, drops empty people", () => {
         const form: FilmRequest = {
+            version: 0,
             title: "  Test Title  ",
             releaseYear: 2000,
             countries: ["Poland", "France", "Poland"],
@@ -58,6 +61,7 @@ describe("formState", () => {
         };
 
         expect(fillRequest(form)).toEqual({
+            version: form.version,
             title: "Test Title",
             releaseYear: 2000,
             countries: ["Poland", "France"],

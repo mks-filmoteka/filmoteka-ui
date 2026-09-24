@@ -3,6 +3,7 @@ import type { FilmRequest } from "../types/filmRequest.ts";
 
 export function fillForm(data?: Film): FilmRequest {
     return {
+        version: data?.version,
         title: data?.title ?? "",
         releaseYear: data?.releaseYear ?? 0,
         countries: data?.countries ?? [],
@@ -16,6 +17,7 @@ export function fillForm(data?: Film): FilmRequest {
 
 export function fillRequest(form: FilmRequest): FilmRequest {
     return {
+        version: form.version,
         title: form.title.trim(),
         releaseYear: form.releaseYear,
         countries: Array.from(new Set(form.countries)),
@@ -37,16 +39,6 @@ export function fillRequest(form: FilmRequest): FilmRequest {
 
 export function isFormChanged(form: FilmRequest, data?: Film) {
     return data
-        ? JSON.stringify(form) !==
-              JSON.stringify({
-                  title: data.title,
-                  releaseYear: data.releaseYear,
-                  countries: data.countries,
-                  description: data.description,
-                  posterName: data.posterName,
-                  genres: data.genres,
-                  actors: data.actors.map((a) => ({ name: a.name })),
-                  directors: data.directors.map((d) => ({ name: d.name })),
-              })
+        ? JSON.stringify({ ...form, version: undefined }) !== JSON.stringify({ ...fillForm(data), version: undefined })
         : false;
 }
