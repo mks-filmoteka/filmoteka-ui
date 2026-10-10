@@ -15,7 +15,7 @@ React UI for Filmoteka.
 
 ## Run locally
 
-Use Node.js 24 and npm, matching the CI setup.
+Use Node.js 26 and npm, matching the CI setup.
 
 Copy [.env.example](.env.example) to `.env.local`. It contains the catalog, media, user and Keycloak URLs, with defaults for local development.
 
