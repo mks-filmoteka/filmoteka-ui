@@ -9,6 +9,10 @@ export async function uploadFile(file: File) {
     return response.data;
 }
 
+export async function deleteFile(fileName: string): Promise<void> {
+    await mediaClient.delete(`/media/files/${encodeURIComponent(fileName)}`);
+}
+
 export function getFileUrl(fileName: string): string {
     return `${MEDIA_API_URL}/media/files/${encodeURIComponent(fileName)}`;
 }

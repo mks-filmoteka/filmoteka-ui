@@ -1,17 +1,19 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { mediaClient } from "../../../shared/api/client";
 import type { MediaFile } from "../types/mediaFile";
-import { getFileUrl, uploadFile } from "./mediaApi";
+import { deleteFile, getFileUrl, uploadFile } from "./mediaApi";
 
 vi.mock("../../../shared/api/client", () => ({
     MEDIA_API_URL: "http://localhost:8081/api/v1",
     mediaClient: {
         post: vi.fn(),
+        delete: vi.fn(),
     },
 }));
 
 const mockedMediaClient = mediaClient as unknown as {
     post: Mock;
+    delete: Mock;
 };
 
 const mediaFile: MediaFile = {
@@ -33,6 +35,14 @@ describe("mediaApi", () => {
         expect(mockedMediaClient.post).toHaveBeenCalledWith("/media/files", expect.any(FormData));
         const formData = mockedMediaClient.post.mock.calls[0][1] as FormData;
         expect(formData.get("file")).toBe(file);
+    });
+
+    it("deletes a file by its encoded name", async () => {
+        mockedMediaClient.delete.mockResolvedValue({});
+
+        await deleteFile("test file.jpg");
+
+        expect(mockedMediaClient.delete).toHaveBeenCalledWith("/media/files/test%20file.jpg");
     });
 
     it("builds file URLs from file names", () => {
