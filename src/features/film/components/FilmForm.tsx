@@ -6,6 +6,7 @@ import { getApiError } from "../../../shared/api/apiError.ts";
 import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import PosterUpload from "../../media/components/PosterUpload.tsx";
 import { useUploadFile } from "../../media/queries/useUploadFile.ts";
+import { deleteFile } from "../../media/api/mediaApi.ts";
 import { COUNTRIES } from "../types/country.ts";
 import type { Film } from "../types/film.ts";
 import type { FilmRequest } from "../types/filmRequest.ts";
@@ -48,10 +49,15 @@ export function FilmForm(props: Readonly<Props>) {
         setApiError(getApiError(error));
     };
 
-    const saveFilm = (request: FilmRequest) => {
+    const saveFilm = (request: FilmRequest, uploadedPosterName?: string) => {
         onSave(request, {
             onSuccess: resetForm,
-            onError: handleError,
+            onError: (error) => {
+                if (uploadedPosterName) {
+                    deleteFile(uploadedPosterName).catch(() => {});
+                }
+                handleError(error);
+            },
         });
     };
 
@@ -68,10 +74,7 @@ export function FilmForm(props: Readonly<Props>) {
 
         uploadPoster.mutate(posterFile, {
             onSuccess: (uploadedPoster) => {
-                saveFilm({
-                    ...request,
-                    posterName: uploadedPoster.fileName,
-                });
+                saveFilm({ ...request, posterName: uploadedPoster.fileName }, uploadedPoster.fileName);
             },
             onError: handleError,
         });

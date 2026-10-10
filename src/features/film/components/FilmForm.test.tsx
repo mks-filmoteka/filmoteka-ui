@@ -12,10 +12,16 @@ type MutationOptions<TData = unknown> = {
 const mocks = vi.hoisted(() => ({
     useUploadFile: vi.fn(),
     uploadFileMutate: vi.fn(),
+    deleteFile: vi.fn(),
 }));
 
 vi.mock("../../media/queries/useUploadFile.ts", () => ({
     useUploadFile: mocks.useUploadFile,
+}));
+
+vi.mock("../../media/api/mediaApi.ts", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("../../media/api/mediaApi.ts")>()),
+    deleteFile: mocks.deleteFile,
 }));
 
 const film: Film = {
@@ -133,6 +139,7 @@ beforeEach(() => {
         value: vi.fn(),
     });
 
+    mocks.deleteFile.mockResolvedValue(undefined);
     mocks.useUploadFile.mockReturnValue({
         mutate: mocks.uploadFileMutate,
         isPending: false,
@@ -230,5 +237,61 @@ describe("FilmForm", () => {
             expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ posterName: "new.jpg" }), expect.any(Object));
             expect(screen.getByText("Validation failed")).toBeInTheDocument();
         });
+    });
+
+    it("deletes the uploaded poster when saving the film fails", async () => {
+        const onSave = vi.fn((_request: FilmRequest, options: { onError: (error: Error) => void }) => {
+            options.onError(apiError);
+        });
+        const { container } = renderFilmForm({
+            initialFilm: film,
+            isChanged: (_form, posterFile) => posterFile !== null,
+            onSave,
+        });
+
+        selectPoster(container);
+        fireEvent.click(screen.getByTitle("Save film"));
+
+        await waitFor(() => {
+            expect(mocks.deleteFile).toHaveBeenCalledWith("new.jpg");
+        });
+        expect(mocks.deleteFile).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps the existing poster when saving without a new upload fails", async () => {
+        const onSave = vi.fn((_request: FilmRequest, options: { onError: (error: Error) => void }) => {
+            options.onError(apiError);
+        });
+        renderFilmForm({ initialFilm: film, onSave });
+
+        fireEvent.change(screen.getByLabelText("form title"), {
+            target: { value: "Changed title" },
+        });
+        fireEvent.click(screen.getByTitle("Save film"));
+
+        await waitFor(() => {
+            expect(screen.getByText("Validation failed")).toBeInTheDocument();
+        });
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ posterName: "old.jpg" }), expect.any(Object));
+        expect(mocks.deleteFile).not.toHaveBeenCalled();
+    });
+
+    it("does not delete the uploaded poster when the film is saved", async () => {
+        const onSave = vi.fn((_request: FilmRequest, options: { onSuccess: () => void }) => {
+            options.onSuccess();
+        });
+        const { container } = renderFilmForm({
+            initialFilm: film,
+            isChanged: (_form, posterFile) => posterFile !== null,
+            onSave,
+        });
+
+        selectPoster(container);
+        fireEvent.click(screen.getByTitle("Save film"));
+
+        await waitFor(() => {
+            expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ posterName: "new.jpg" }), expect.any(Object));
+        });
+        expect(mocks.deleteFile).not.toHaveBeenCalled();
     });
 });
