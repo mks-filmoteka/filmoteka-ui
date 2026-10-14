@@ -116,19 +116,19 @@ export function AppLayout() {
                     </div>
                 </div>
             </header>
-            {status === "expired" && (
-                <div className="api-error-message" role="alert">
-                    <span>Your session has ended. </span>
-                    <button type="button" onClick={() => keycloak.login()}>
-                        Sign in again
-                    </button>
-                </div>
-            )}
             {authenticated && activePopup === "collections" && <CollectionsPopup onClose={closePopup} />}
             {authenticated && activePopup === "profile" && profile && (
                 <ProfileDetails profile={profile} onClose={closePopup} />
             )}
             <main>
+                {status === "expired" && (
+                    <div className="api-error-message" role="alert">
+                        <span>Your session has ended. </span>
+                        <button type="button" onClick={() => keycloak.login()}>
+                            Sign in again
+                        </button>
+                    </div>
+                )}
                 <ErrorBoundary key={location.pathname}>
                     <Outlet />
                 </ErrorBoundary>
