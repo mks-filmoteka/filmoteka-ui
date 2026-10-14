@@ -95,7 +95,7 @@ describe("AuthProvider", () => {
         expect(screen.getByTestId("is-admin")).toHaveTextContent("true");
     });
 
-    it("clears the token and synchronizes auth state when token refresh fails", async () => {
+    it("clears the token and marks the session as ended when token refresh fails", async () => {
         keycloakMock.authenticated = true;
         keycloakMock.roles.add("USER");
         const { queryClient, unmount } = renderAuthProvider();
@@ -109,7 +109,7 @@ describe("AuthProvider", () => {
 
         expect(keycloakMock.clearToken).toHaveBeenCalledOnce();
         expect(screen.getByTestId("authenticated")).toHaveTextContent("false");
-        expect(screen.getByTestId("status")).toHaveTextContent("guest");
+        expect(screen.getByTestId("status")).toHaveTextContent("expired");
         expect(screen.getByTestId("is-user")).toHaveTextContent("false");
         expect(screen.getByTestId("is-admin")).toHaveTextContent("false");
         expect(queryClient.getQueryData(["profile"])).toBeUndefined();

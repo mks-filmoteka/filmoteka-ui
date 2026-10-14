@@ -5,6 +5,7 @@ import { AppLayout } from "./AppLayout.tsx";
 
 const mocks = vi.hoisted(() => ({
     authenticated: true,
+    status: "authenticated",
     navigate: vi.fn(),
     useNavigate: vi.fn(),
     login: vi.fn(),
@@ -34,6 +35,7 @@ vi.mock("../auth/keycloak.ts", () => ({
 vi.mock("../auth/useAuth.ts", () => ({
     useAuth: () => ({
         authenticated: mocks.authenticated,
+        status: mocks.status,
     }),
 }));
 
@@ -61,6 +63,7 @@ vi.mock("../features/collection/components/CollectionsPopup.tsx", () => ({
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.authenticated = true;
+    mocks.status = "authenticated";
     mocks.profile = {
         email: "test@example.com",
         displayName: "Test User",
@@ -124,5 +127,26 @@ describe("AppLayout", () => {
         fireEvent.click(screen.getByTitle("Login"));
 
         expect(mocks.login).toHaveBeenCalledTimes(1);
+    });
+
+    it("asks the user to sign in again after the session ends", () => {
+        mocks.authenticated = false;
+        mocks.status = "expired";
+
+        render(<AppLayout />, { wrapper: MemoryRouter });
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Your session has ended.");
+        fireEvent.click(screen.getByRole("button", { name: "Sign in again" }));
+
+        expect(mocks.login).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not show the session message to guests", () => {
+        mocks.authenticated = false;
+        mocks.status = "guest";
+
+        render(<AppLayout />, { wrapper: MemoryRouter });
+
+        expect(screen.queryByRole("button", { name: "Sign in again" })).not.toBeInTheDocument();
     });
 });
