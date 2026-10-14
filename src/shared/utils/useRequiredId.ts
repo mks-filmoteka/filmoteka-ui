@@ -2,6 +2,12 @@ import { useParams } from "react-router";
 
 const ID_PATTERN = /^[1-9]\d*$/;
 
+export class InvalidIdError extends Error {
+    constructor(value: string) {
+        super(`Invalid id: ${value}`);
+    }
+}
+
 export function useRequiredId(): number {
     const value = useParams().id;
 
@@ -12,6 +18,6 @@ export function useRequiredId(): number {
     if (ID_PATTERN.test(value) && Number.isSafeInteger(id)) {
         return id;
     } else {
-        throw new Error(`Invalid id: ${value}`);
+        throw new InvalidIdError(value);
     }
 }

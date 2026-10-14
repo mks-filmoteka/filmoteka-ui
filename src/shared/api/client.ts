@@ -5,18 +5,20 @@ export const CATALOG_API_URL = import.meta.env.VITE_CATALOG_API_URL;
 export const MEDIA_API_URL = import.meta.env.VITE_MEDIA_API_URL;
 export const USER_API_URL = import.meta.env.VITE_USER_API_URL;
 export const CORRELATION_ID_HEADER = "X-Correlation-Id";
+export const REQUEST_TIMEOUT_MS = 15_000;
+export const UPLOAD_TIMEOUT_MS = 60_000;
 
-export const catalogClient = axios.create({ baseURL: CATALOG_API_URL });
+export const catalogClient = axios.create({ baseURL: CATALOG_API_URL, timeout: REQUEST_TIMEOUT_MS });
 addCorrelationIdInterceptor(catalogClient);
 addAuthInterceptor(catalogClient);
 addUnauthorizedInterceptor(catalogClient);
 
-export const mediaClient = axios.create({ baseURL: MEDIA_API_URL });
+export const mediaClient = axios.create({ baseURL: MEDIA_API_URL, timeout: REQUEST_TIMEOUT_MS });
 addCorrelationIdInterceptor(mediaClient);
 addAuthInterceptor(mediaClient);
 addUnauthorizedInterceptor(mediaClient);
 
-export const userClient = axios.create({ baseURL: USER_API_URL });
+export const userClient = axios.create({ baseURL: USER_API_URL, timeout: REQUEST_TIMEOUT_MS });
 addCorrelationIdInterceptor(userClient);
 addAuthInterceptor(userClient);
 addUnauthorizedInterceptor(userClient);

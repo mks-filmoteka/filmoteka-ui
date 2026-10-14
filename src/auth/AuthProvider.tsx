@@ -48,7 +48,9 @@ export function AuthProvider({ children }: Readonly<AuthProviderProps>) {
 
         const handleAuthenticationLost = () => {
             clearPrivateQueries();
-            synchronizeAuthState();
+            if (active) {
+                setAuthState({ status: "expired", authenticated: false, isUser: false, isAdmin: false });
+            }
         };
 
         const handleRefreshError = () => {

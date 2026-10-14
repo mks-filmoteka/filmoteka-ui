@@ -1,9 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppLayout } from "./AppLayout.tsx";
 
 const mocks = vi.hoisted(() => ({
     authenticated: true,
+    status: "authenticated",
     navigate: vi.fn(),
     useNavigate: vi.fn(),
     login: vi.fn(),
@@ -33,6 +35,7 @@ vi.mock("../auth/keycloak.ts", () => ({
 vi.mock("../auth/useAuth.ts", () => ({
     useAuth: () => ({
         authenticated: mocks.authenticated,
+        status: mocks.status,
     }),
 }));
 
@@ -60,6 +63,7 @@ vi.mock("../features/collection/components/CollectionsPopup.tsx", () => ({
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.authenticated = true;
+    mocks.status = "authenticated";
     mocks.profile = {
         email: "test@example.com",
         displayName: "Test User",
@@ -72,7 +76,7 @@ beforeEach(() => {
 
 describe("AppLayout", () => {
     it("renders profile details from the layout", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         expect(screen.queryByRole("dialog", { name: "Profile details" })).not.toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Test User" }));
@@ -83,7 +87,7 @@ describe("AppLayout", () => {
     });
 
     it("keeps layout popups mutually exclusive", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Collections"));
 
@@ -101,14 +105,14 @@ describe("AppLayout", () => {
             data: undefined,
         });
 
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         expect(screen.queryByText("Profile details")).not.toBeInTheDocument();
         expect(screen.queryByTitle("Profile details")).not.toBeInTheDocument();
     });
 
     it("logs out authenticated users from the layout", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Logout"));
 
@@ -118,10 +122,31 @@ describe("AppLayout", () => {
     it("logs in unauthenticated users from the layout", () => {
         mocks.authenticated = false;
 
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Login"));
 
         expect(mocks.login).toHaveBeenCalledTimes(1);
+    });
+
+    it("asks the user to sign in again after the session ends", () => {
+        mocks.authenticated = false;
+        mocks.status = "expired";
+
+        render(<AppLayout />, { wrapper: MemoryRouter });
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Your session has ended.");
+        fireEvent.click(screen.getByRole("button", { name: "Sign in again" }));
+
+        expect(mocks.login).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not show the session message to guests", () => {
+        mocks.authenticated = false;
+        mocks.status = "guest";
+
+        render(<AppLayout />, { wrapper: MemoryRouter });
+
+        expect(screen.queryByRole("button", { name: "Sign in again" })).not.toBeInTheDocument();
     });
 });

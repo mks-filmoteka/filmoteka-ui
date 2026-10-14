@@ -9,7 +9,8 @@ import { CollectionsPopup } from "../../collection/components/CollectionsPopup.t
 import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
-import { getApiError } from "../../../shared/api/apiError.ts";
+import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
+import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 
 function FilmPage() {
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ function FilmPage() {
     };
 
     if (isLoading) return <h1>Loading...</h1>;
+    if (error && isNotFoundError(error)) return <NotFoundMessage />;
     if (error) return <ApiErrorMessage error={error} message="Error loading film" />;
     if (!data) return <h1>Film not found</h1>;
 

@@ -1,5 +1,6 @@
 import type { ApiError } from "../types/ApiError.ts";
 import type { ApiErrorDetail } from "../types/ApiErrorDetail.ts";
+import { getApiError, getErrorMessage } from "../api/apiError.ts";
 
 type Props = {
     error?: ApiError | Error;
@@ -19,8 +20,9 @@ export function ApiErrorMessage({ error, message }: Readonly<Props>) {
         return null;
     }
 
-    const errorDetails = getErrorDetails(error);
-    const displayMessage = message ? `${message}: ${error.message}` : error.message;
+    const errorDetails = getErrorDetails(error instanceof Error ? getApiError(error) : error);
+    const errorMessage = getErrorMessage(error);
+    const displayMessage = message ? `${message}: ${errorMessage}` : errorMessage;
 
     return (
         <div className="api-error-message" role="alert">

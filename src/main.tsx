@@ -8,8 +8,15 @@ import "./shared/styles/list.css";
 import "./shared/styles/dialog.css";
 import App from "./App.tsx";
 import { AuthProvider } from "./auth/AuthProvider.tsx";
+import { shouldRetryRequest } from "./shared/api/apiError.ts";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: shouldRetryRequest,
+        },
+    },
+});
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {

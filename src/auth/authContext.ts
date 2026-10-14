@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-export type AuthStatus = "checking" | "authenticated" | "guest" | "unavailable";
+export type AuthStatus = "checking" | "authenticated" | "guest" | "expired" | "unavailable";
 
 export interface AuthState {
     status: AuthStatus;

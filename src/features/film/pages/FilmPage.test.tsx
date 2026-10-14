@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
@@ -153,6 +154,22 @@ describe("FilmPage", () => {
         fireEvent.click(button);
 
         expect(mocks.deleteFilmMutate).not.toHaveBeenCalled();
+    });
+
+    it("shows the not-found page when the film does not exist", () => {
+        mocks.useFilm.mockReturnValue({
+            data: undefined,
+            isLoading: false,
+            error: Object.assign(new Error("Request failed"), { response: { status: 404 } }),
+        });
+
+        render(
+            <MemoryRouter>
+                <FilmPage />
+            </MemoryRouter>,
+        );
+
+        expect(screen.getByRole("heading", { name: "Page not found" })).toBeInTheDocument();
     });
 
     it("shows the API error and stays on the film page when deletion fails", () => {
