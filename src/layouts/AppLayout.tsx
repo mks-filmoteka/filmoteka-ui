@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { INPUT_RULES } from "../shared/utils/inputValidation.ts";
 import { TextInput } from "../shared/components/TextInput.tsx";
@@ -8,11 +8,13 @@ import { CollectionsPopup } from "../features/collection/components/CollectionsP
 import { useProfile } from "../features/profile/queries/useProfile.ts";
 import { ProfileDetails } from "../features/profile/components/ProfileDetails.tsx";
 import { IconButton } from "../shared/components/IconButton.tsx";
+import { ErrorBoundary } from "../shared/components/ErrorBoundary.tsx";
 
 type ActivePopup = "collections" | "profile";
 
 export function AppLayout() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { status, authenticated } = useAuth();
     const loginDisabled = status === "checking" || status === "unavailable";
     const { data: profile } = useProfile();
@@ -115,7 +117,9 @@ export function AppLayout() {
                 <ProfileDetails profile={profile} onClose={closePopup} />
             )}
             <main>
-                <Outlet />
+                <ErrorBoundary key={location.pathname}>
+                    <Outlet />
+                </ErrorBoundary>
             </main>
         </div>
     );

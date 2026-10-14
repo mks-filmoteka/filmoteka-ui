@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppLayout } from "./AppLayout.tsx";
 
@@ -72,7 +73,7 @@ beforeEach(() => {
 
 describe("AppLayout", () => {
     it("renders profile details from the layout", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         expect(screen.queryByRole("dialog", { name: "Profile details" })).not.toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Test User" }));
@@ -83,7 +84,7 @@ describe("AppLayout", () => {
     });
 
     it("keeps layout popups mutually exclusive", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Collections"));
 
@@ -101,14 +102,14 @@ describe("AppLayout", () => {
             data: undefined,
         });
 
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         expect(screen.queryByText("Profile details")).not.toBeInTheDocument();
         expect(screen.queryByTitle("Profile details")).not.toBeInTheDocument();
     });
 
     it("logs out authenticated users from the layout", () => {
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Logout"));
 
@@ -118,7 +119,7 @@ describe("AppLayout", () => {
     it("logs in unauthenticated users from the layout", () => {
         mocks.authenticated = false;
 
-        render(<AppLayout />);
+        render(<AppLayout />, { wrapper: MemoryRouter });
 
         fireEvent.click(screen.getByTitle("Login"));
 
