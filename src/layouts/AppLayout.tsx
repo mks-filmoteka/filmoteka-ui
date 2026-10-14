@@ -72,6 +72,10 @@ export function AppLayout() {
                                     params.set("page", "1");
                                     params.set("title", search.trim());
                                 }
+                                const view = new URLSearchParams(location.search).get("view");
+                                if (view) {
+                                    params.set("view", view);
+                                }
                                 navigate(`/films?${params}`);
                                 setSearch("");
                             }}
