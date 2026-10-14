@@ -8,6 +8,7 @@ type MutationOptions = {
 };
 
 const mocks = vi.hoisted(() => ({
+    toast: vi.fn(),
     confirm: vi.fn(),
     navigate: vi.fn(),
     useNavigate: vi.fn(),
@@ -36,6 +37,10 @@ const mocks = vi.hoisted(() => ({
         isLoading: false,
         error: null as Error | null,
     },
+}));
+
+vi.mock("../../../shared/utils/useToast.ts", () => ({
+    useToast: () => mocks.toast,
 }));
 
 vi.mock("../../../shared/utils/useConfirm.ts", () => ({
@@ -265,5 +270,21 @@ describe("CollectionsPopup", () => {
                 onError: expect.any(Function),
             }),
         );
+    });
+
+    it("confirms adding and removing a film with a short message", () => {
+        mocks.addFilmMutate.mockImplementation((_variables: unknown, options?: { onSuccess?: () => void }) => {
+            options?.onSuccess?.();
+        });
+        mocks.removeFilmMutate.mockImplementation((_variables: unknown, options?: { onSuccess?: () => void }) => {
+            options?.onSuccess?.();
+        });
+        render(<CollectionsPopup onClose={mocks.onClose} filmId={2} />);
+
+        fireEvent.click(screen.getAllByTitle("add film")[1]);
+        fireEvent.click(screen.getAllByTitle("remove film")[0]);
+
+        expect(mocks.toast).toHaveBeenCalledWith("Added to Watch later");
+        expect(mocks.toast).toHaveBeenCalledWith("Removed from Favorites");
     });
 });

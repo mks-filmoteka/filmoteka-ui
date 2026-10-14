@@ -10,6 +10,7 @@ import App from "./App.tsx";
 import { AuthProvider } from "./auth/AuthProvider.tsx";
 import { shouldRetryRequest } from "./shared/api/apiError.ts";
 import { ConfirmProvider } from "./shared/components/ConfirmProvider.tsx";
+import { ToastProvider } from "./shared/components/ToastProvider.tsx";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -29,7 +30,9 @@ createRoot(rootElement).render(
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <ConfirmProvider>
-                    <App />
+                    <ToastProvider>
+                        <App />
+                    </ToastProvider>
                 </ConfirmProvider>
             </AuthProvider>
         </QueryClientProvider>

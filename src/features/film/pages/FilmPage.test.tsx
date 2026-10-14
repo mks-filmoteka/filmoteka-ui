@@ -13,12 +13,17 @@ type FilmDetailsMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
+    toast: vi.fn(),
     confirm: vi.fn(),
     useFilm: vi.fn(),
     useDeleteFilm: vi.fn(),
     deleteFilmMutate: vi.fn(),
     navigate: vi.fn(),
     authenticated: true,
+}));
+
+vi.mock("../../../shared/utils/useToast.ts", () => ({
+    useToast: () => mocks.toast,
 }));
 
 vi.mock("../../../shared/utils/useConfirm.ts", () => ({
@@ -136,6 +141,7 @@ describe("FilmPage", () => {
         options.onSuccess?.();
 
         expect(mocks.navigate).toHaveBeenCalledWith("/films");
+        expect(mocks.toast).toHaveBeenCalledWith("Film deleted");
     });
 
     it("does not delete when confirmation is cancelled", () => {
