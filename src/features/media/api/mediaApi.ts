@@ -1,11 +1,11 @@
-import { mediaClient, MEDIA_API_URL } from "../../../shared/api/client.ts";
+import { mediaClient, MEDIA_API_URL, UPLOAD_TIMEOUT_MS } from "../../../shared/api/client.ts";
 import type { MediaFile } from "../types/mediaFile.ts";
 
 export async function uploadFile(file: File) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await mediaClient.post<MediaFile>("/media/files", formData);
+    const response = await mediaClient.post<MediaFile>("/media/files", formData, { timeout: UPLOAD_TIMEOUT_MS });
     return response.data;
 }
 

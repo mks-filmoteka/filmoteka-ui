@@ -50,6 +50,15 @@ describe("api clients", () => {
         expect(userClient.defaults.baseURL).toBe(USER_API_URL);
     });
 
+    it("gives every client a request timeout", async () => {
+        const { catalogClient, mediaClient, userClient, REQUEST_TIMEOUT_MS } = await import("./client");
+
+        expect(REQUEST_TIMEOUT_MS).toBe(15_000);
+        expect(catalogClient.defaults.timeout).toBe(REQUEST_TIMEOUT_MS);
+        expect(mediaClient.defaults.timeout).toBe(REQUEST_TIMEOUT_MS);
+        expect(userClient.defaults.timeout).toBe(REQUEST_TIMEOUT_MS);
+    });
+
     it("adds a correlation id to requests", async () => {
         const randomUUID = vi.fn(() => CORRELATION_ID);
         vi.stubGlobal("crypto", { randomUUID });

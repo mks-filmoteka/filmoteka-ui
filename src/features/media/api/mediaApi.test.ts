@@ -5,6 +5,7 @@ import { deleteFile, getFileUrl, uploadFile } from "./mediaApi";
 
 vi.mock("../../../shared/api/client", () => ({
     MEDIA_API_URL: "http://localhost:8081/api/v1",
+    UPLOAD_TIMEOUT_MS: 60_000,
     mediaClient: {
         post: vi.fn(),
         delete: vi.fn(),
@@ -32,7 +33,9 @@ describe("mediaApi", () => {
 
         await expect(uploadFile(file)).resolves.toBe(mediaFile);
 
-        expect(mockedMediaClient.post).toHaveBeenCalledWith("/media/files", expect.any(FormData));
+        expect(mockedMediaClient.post).toHaveBeenCalledWith("/media/files", expect.any(FormData), {
+            timeout: 60_000,
+        });
         const formData = mockedMediaClient.post.mock.calls[0][1] as FormData;
         expect(formData.get("file")).toBe(file);
     });
