@@ -168,7 +168,7 @@ describe("CollectionsPopup", () => {
         };
         const { rerender } = render(<CollectionsPopup onClose={mocks.onClose} />);
 
-        expect(screen.getByRole("heading", { name: "Loading..." })).toBeInTheDocument();
+        expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
 
         mocks.collectionsQuery = {
             data: [],

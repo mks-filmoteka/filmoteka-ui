@@ -16,6 +16,7 @@ import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import type { Collection } from "../types/collection.ts";
 import type { CollectionRequest } from "../types/collectionRequest.ts";
 import { useConfirm } from "../../../shared/utils/useConfirm.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 type Props = {
     onClose: () => void;
@@ -150,7 +151,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
 
     let collectionsContent;
     if (isLoading) {
-        collectionsContent = <h1>Loading...</h1>;
+        collectionsContent = <LoadingIndicator />;
     } else if (error) {
         collectionsContent = <ApiErrorMessage error={error} message="Error loading collections" />;
     } else {

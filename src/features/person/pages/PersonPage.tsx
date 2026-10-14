@@ -17,6 +17,7 @@ import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx"
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { useConfirm } from "../../../shared/utils/useConfirm.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
     const confirm = useConfirm();
@@ -163,7 +164,7 @@ function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
         </PageHeader>
     );
 
-    if (isLoading) return <h1>Loading...</h1>;
+    if (isLoading) return <LoadingIndicator />;
     if (error && isNotFoundError(error)) return <NotFoundMessage />;
     if (error) return <ApiErrorMessage error={error} message={`Error loading ${type}`} />;
     if (!data) return <h1>{type} not found</h1>;

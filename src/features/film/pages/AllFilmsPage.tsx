@@ -6,6 +6,7 @@ import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { useFilmApiParams } from "../queries/useFilmApiParams.ts";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 function AllFilmsPage() {
     const navigate = useNavigate();
@@ -14,7 +15,7 @@ function AllFilmsPage() {
     const filmsQuery = useFilms(search.filmFilter);
 
     if (filmsQuery.isLoading) {
-        return <h1>Loading...</h1>;
+        return <LoadingIndicator />;
     }
     if (filmsQuery.error) {
         return <ApiErrorMessage error={filmsQuery.error} message="Error loading films" />;

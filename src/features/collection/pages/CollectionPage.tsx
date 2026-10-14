@@ -12,6 +12,7 @@ import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { useState } from "react";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import type { ApiError } from "../../../shared/types/ApiError.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 function CollectionPage() {
     const collectionId = useRequiredId();
@@ -39,7 +40,7 @@ function CollectionPage() {
     const activeFilmsQuery = collectionFilmEditor.isEditing ? filmsQuery : collectionFilmsQuery;
 
     if (selectedCollectionQuery.isLoading || activeFilmsQuery.isLoading) {
-        return <h1>Loading...</h1>;
+        return <LoadingIndicator />;
     }
     if (selectedCollectionQuery.error && isNotFoundError(selectedCollectionQuery.error)) {
         return <NotFoundMessage />;

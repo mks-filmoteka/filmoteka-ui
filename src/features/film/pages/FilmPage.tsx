@@ -12,6 +12,7 @@ import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { useConfirm } from "../../../shared/utils/useConfirm.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 function FilmPage() {
     const confirm = useConfirm();
@@ -29,7 +30,7 @@ function FilmPage() {
         });
     };
 
-    if (isLoading) return <h1>Loading...</h1>;
+    if (isLoading) return <LoadingIndicator />;
     if (error && isNotFoundError(error)) return <NotFoundMessage />;
     if (error) return <ApiErrorMessage error={error} message="Error loading film" />;
     if (!data) return <h1>Film not found</h1>;

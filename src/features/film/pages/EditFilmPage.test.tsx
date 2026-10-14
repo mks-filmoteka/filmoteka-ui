@@ -112,7 +112,7 @@ describe("EditFilmPage", () => {
         });
         const { rerender } = render(<EditFilmPage />);
 
-        expect(screen.getByRole("heading", { name: "Loading..." })).toBeInTheDocument();
+        expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
 
         mocks.useFilm.mockReturnValueOnce({
             data: undefined,

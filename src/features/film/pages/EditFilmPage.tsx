@@ -7,6 +7,7 @@ import { isFormChanged } from "../utils/formState.ts";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { isNotFoundError } from "../../../shared/api/apiError.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
 function EditFilmPage() {
     const id = useRequiredId();
@@ -15,7 +16,7 @@ function EditFilmPage() {
     const updateFilm = useUpdateFilm();
 
     if (filmQuery.isLoading) {
-        return <h1>Loading...</h1>;
+        return <LoadingIndicator />;
     }
     if (filmQuery.error && isNotFoundError(filmQuery.error)) {
         return <NotFoundMessage />;

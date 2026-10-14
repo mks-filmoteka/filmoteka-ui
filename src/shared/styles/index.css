@@ -299,3 +299,19 @@ button:disabled {
         width: 100%;
     }
 }
+
+.loading-indicator {
+    width: 32px;
+    height: 32px;
+    margin: 40px auto;
+    border: 3px solid var(--accent);
+    border-top-color: var(--text-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
