@@ -11,8 +11,13 @@ import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx"
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
+import { useToast } from "../../../shared/utils/useToast.ts";
 
 function FilmPage() {
+    const confirm = useConfirm();
+    const toast = useToast();
     const navigate = useNavigate();
     const { authenticated, isAdmin } = useAuth();
     const [collectionsOpen, setCollectionsOpen] = useState(false);
@@ -20,14 +25,17 @@ function FilmPage() {
     const { data, isLoading, error } = useFilm(id);
     const deleteFilm = useDeleteFilm();
 
-    const handleDelete = () => {
-        if (!confirm("Confirm delete film?")) return;
+    const handleDelete = async () => {
+        if (!(await confirm("Confirm delete film?"))) return;
         deleteFilm.mutate(id, {
-            onSuccess: () => navigate("/films"),
+            onSuccess: () => {
+                toast("Film deleted");
+                navigate("/films");
+            },
         });
     };
 
-    if (isLoading) return <h1>Loading...</h1>;
+    if (isLoading) return <LoadingIndicator />;
     if (error && isNotFoundError(error)) return <NotFoundMessage />;
     if (error) return <ApiErrorMessage error={error} message="Error loading film" />;
     if (!data) return <h1>Film not found</h1>;

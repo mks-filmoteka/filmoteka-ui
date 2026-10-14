@@ -10,9 +10,14 @@ type MutationOptions<TData = unknown> = {
 };
 
 const mocks = vi.hoisted(() => ({
+    confirm: vi.fn(),
     useUploadFile: vi.fn(),
     uploadFileMutate: vi.fn(),
     deleteFile: vi.fn(),
+}));
+
+vi.mock("../../../shared/utils/useConfirm.ts", () => ({
+    useConfirm: () => mocks.confirm,
 }));
 
 vi.mock("../../media/queries/useUploadFile.ts", () => ({
@@ -126,10 +131,7 @@ function selectPoster(container: HTMLElement) {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal(
-        "confirm",
-        vi.fn(() => true),
-    );
+    mocks.confirm.mockResolvedValue(true);
     Object.defineProperty(URL, "createObjectURL", {
         configurable: true,
         value: vi.fn(() => "blob:poster"),
@@ -193,7 +195,7 @@ describe("FilmForm", () => {
         fireEvent.click(screen.getByTitle("Save film"));
 
         await waitFor(() => {
-            expect(confirm).toHaveBeenCalledWith("Confirm save film?");
+            expect(mocks.confirm).toHaveBeenCalledWith("Confirm save film?");
             expect(onSave).toHaveBeenCalledWith(
                 expect.objectContaining({
                     title: "Filled Film",

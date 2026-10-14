@@ -15,6 +15,9 @@ import { Dialog } from "../../../shared/components/Dialog.tsx";
 import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import type { Collection } from "../types/collection.ts";
 import type { CollectionRequest } from "../types/collectionRequest.ts";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
+import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
+import { useToast } from "../../../shared/utils/useToast.ts";
 
 type Props = {
     onClose: () => void;
@@ -22,6 +25,8 @@ type Props = {
 };
 
 export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
+    const confirm = useConfirm();
+    const toast = useToast();
     const [isCreating, setIsCreating] = useState(false);
     const [collectionName, setCollectionName] = useState("");
     const [editingCollection, setEditingCollection] = useState<Collection>();
@@ -108,8 +113,8 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
         );
     };
 
-    const handleDelete = (collectionId: number) => {
-        if (!confirm("Confirm delete collection?")) return;
+    const handleDelete = async (collectionId: number) => {
+        if (!(await confirm("Confirm delete collection?"))) return;
         setApiError(undefined);
 
         deleteCollection.mutate(collectionId, {
@@ -120,27 +125,27 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
 
     const collectionHasFilm = (collection: Collection) => filmId !== undefined && collection.filmIds.includes(filmId);
 
-    const handleAddFilm = (collectionId: number) => {
+    const handleAddFilm = (collection: Collection) => {
         if (filmId === undefined || addFilm.isPending) return;
         setApiError(undefined);
 
         addFilm.mutate(
-            { collectionId, filmId },
+            { collectionId: collection.id, filmId },
             {
-                onSuccess: () => setApiError(undefined),
+                onSuccess: () => toast(`Added to ${collection.name}`),
                 onError: handleApiError,
             },
         );
     };
 
-    const handleRemoveFilm = (collectionId: number) => {
+    const handleRemoveFilm = (collection: Collection) => {
         if (filmId === undefined || removeFilm.isPending) return;
         setApiError(undefined);
 
         removeFilm.mutate(
-            { collectionId, filmId },
+            { collectionId: collection.id, filmId },
             {
-                onSuccess: () => setApiError(undefined),
+                onSuccess: () => toast(`Removed from ${collection.name}`),
                 onError: handleApiError,
             },
         );
@@ -148,7 +153,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
 
     let collectionsContent;
     if (isLoading) {
-        collectionsContent = <h1>Loading...</h1>;
+        collectionsContent = <LoadingIndicator />;
     } else if (error) {
         collectionsContent = <ApiErrorMessage error={error} message="Error loading collections" />;
     } else {
@@ -228,7 +233,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
                                         <IconButton
                                             icon="add"
                                             label="add film"
-                                            onClick={() => handleAddFilm(collection.id)}
+                                            onClick={() => handleAddFilm(collection)}
                                             disabled={
                                                 collectionHasFilm(collection) ||
                                                 addFilm.isPending ||
@@ -238,7 +243,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
                                         <IconButton
                                             icon="remove"
                                             label="remove film"
-                                            onClick={() => handleRemoveFilm(collection.id)}
+                                            onClick={() => handleRemoveFilm(collection)}
                                             disabled={
                                                 !collectionHasFilm(collection) ||
                                                 addFilm.isPending ||

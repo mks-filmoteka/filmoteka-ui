@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import "../styles/dialog.css";
 
 type Props = {
@@ -9,13 +9,25 @@ type Props = {
     children: ReactNode;
 };
 
+const openDialogs: symbol[] = [];
+
 export function Dialog(props: Readonly<Props>) {
     const { label, closeLabel = `Close ${label.toLowerCase()}`, className, onClose, children } = props;
     const panelClasses = ["dialog-panel", className].filter(Boolean).join(" ");
 
+    const dialogId = useRef(Symbol(label));
+
+    useEffect(() => {
+        const id = dialogId.current;
+        openDialogs.push(id);
+        return () => {
+            openDialogs.splice(openDialogs.indexOf(id), 1);
+        };
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
+            if (event.key === "Escape" && openDialogs.at(-1) === dialogId.current) {
                 onClose();
             }
         };

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CollectionsPopup } from "./CollectionsPopup.tsx";
 
@@ -8,6 +8,8 @@ type MutationOptions = {
 };
 
 const mocks = vi.hoisted(() => ({
+    toast: vi.fn(),
+    confirm: vi.fn(),
     navigate: vi.fn(),
     useNavigate: vi.fn(),
     onClose: vi.fn(),
@@ -35,6 +37,14 @@ const mocks = vi.hoisted(() => ({
         isLoading: false,
         error: null as Error | null,
     },
+}));
+
+vi.mock("../../../shared/utils/useToast.ts", () => ({
+    useToast: () => mocks.toast,
+}));
+
+vi.mock("../../../shared/utils/useConfirm.ts", () => ({
+    useConfirm: () => mocks.confirm,
 }));
 
 vi.mock("../queries/useCollections.ts", () => ({
@@ -71,10 +81,7 @@ vi.mock("react-router", async () => {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal(
-        "confirm",
-        vi.fn(() => true),
-    );
+    mocks.confirm.mockResolvedValue(true);
     mocks.collectionsQuery = {
         data: [
             { id: 7, name: "Favorites", filmIds: [1, 2] },
@@ -166,7 +173,7 @@ describe("CollectionsPopup", () => {
         };
         const { rerender } = render(<CollectionsPopup onClose={mocks.onClose} />);
 
-        expect(screen.getByRole("heading", { name: "Loading..." })).toBeInTheDocument();
+        expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
 
         mocks.collectionsQuery = {
             data: [],
@@ -216,12 +223,13 @@ describe("CollectionsPopup", () => {
         expect(screen.queryByLabelText("edit collection Favorites")).not.toBeInTheDocument();
     });
 
-    it("deletes a collection after confirmation", () => {
+    it("deletes a collection after confirmation", async () => {
         render(<CollectionsPopup onClose={mocks.onClose} />);
 
         fireEvent.click(screen.getAllByTitle("delete")[1]);
+        await waitFor(() => expect(mocks.deleteCollectionMutate).toHaveBeenCalled());
 
-        expect(globalThis.confirm).toHaveBeenCalledWith("Confirm delete collection?");
+        expect(mocks.confirm).toHaveBeenCalledWith("Confirm delete collection?");
         expect(mocks.deleteCollectionMutate).toHaveBeenCalledWith(
             9,
             expect.objectContaining({
@@ -262,5 +270,21 @@ describe("CollectionsPopup", () => {
                 onError: expect.any(Function),
             }),
         );
+    });
+
+    it("confirms adding and removing a film with a short message", () => {
+        mocks.addFilmMutate.mockImplementation((_variables: unknown, options?: { onSuccess?: () => void }) => {
+            options?.onSuccess?.();
+        });
+        mocks.removeFilmMutate.mockImplementation((_variables: unknown, options?: { onSuccess?: () => void }) => {
+            options?.onSuccess?.();
+        });
+        render(<CollectionsPopup onClose={mocks.onClose} filmId={2} />);
+
+        fireEvent.click(screen.getAllByTitle("add film")[1]);
+        fireEvent.click(screen.getAllByTitle("remove film")[0]);
+
+        expect(mocks.toast).toHaveBeenCalledWith("Added to Watch later");
+        expect(mocks.toast).toHaveBeenCalledWith("Removed from Favorites");
     });
 });
