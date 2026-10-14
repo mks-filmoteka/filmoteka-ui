@@ -8,6 +8,7 @@ import CreateFilmPage from "../../features/film/pages/CreateFilmPage.tsx";
 import EditFilmPage from "../../features/film/pages/EditFilmPage.tsx";
 import { AdminRoute } from "../../auth/AdminRoute.tsx";
 import { AuthRoute } from "../../auth/AuthRoute.tsx";
+import { NotFoundMessage } from "../../shared/components/NotFoundMessage.tsx";
 
 function AppRouter() {
     return (
@@ -29,6 +30,8 @@ function AppRouter() {
                         <Route path="/films/new" element={<CreateFilmPage />} />
                         <Route path="/films/:id/edit" element={<EditFilmPage />} />
                     </Route>
+
+                    <Route path="*" element={<NotFoundMessage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

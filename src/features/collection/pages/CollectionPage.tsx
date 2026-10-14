@@ -7,9 +7,10 @@ import { useFilms } from "../../film/queries/useFilms.ts";
 import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { useFilmApiParams } from "../../film/queries/useFilmApiParams.ts";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
+import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { useState } from "react";
-import { getApiError } from "../../../shared/api/apiError.ts";
+import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import type { ApiError } from "../../../shared/types/ApiError.ts";
 
 function CollectionPage() {
@@ -39,6 +40,9 @@ function CollectionPage() {
 
     if (selectedCollectionQuery.isLoading || activeFilmsQuery.isLoading) {
         return <h1>Loading...</h1>;
+    }
+    if (selectedCollectionQuery.error && isNotFoundError(selectedCollectionQuery.error)) {
+        return <NotFoundMessage />;
     }
     if (selectedCollectionQuery.error) {
         return <ApiErrorMessage error={selectedCollectionQuery.error} message="Error loading collection" />;

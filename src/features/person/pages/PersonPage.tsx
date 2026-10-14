@@ -11,9 +11,10 @@ import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import { useRequiredId } from "../../../shared/utils/useRequiredId.ts";
 import type { PersonRequest } from "../types/personRequest.ts";
 import type { ApiError } from "../../../shared/types/ApiError.ts";
-import { getApiError } from "../../../shared/api/apiError.ts";
+import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
+import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 
 function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
@@ -161,6 +162,7 @@ function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
     );
 
     if (isLoading) return <h1>Loading...</h1>;
+    if (error && isNotFoundError(error)) return <NotFoundMessage />;
     if (error) return <ApiErrorMessage error={error} message={`Error loading ${type}`} />;
     if (!data) return <h1>{type} not found</h1>;
 
