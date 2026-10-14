@@ -15,6 +15,7 @@ import { fillRequest } from "../utils/formState.ts";
 import { PersonNameArrayField, ReleaseYearField, SelectArrayField } from "./FilmFormFields.tsx";
 import { useFilmFormState } from "../queries/useFilmFormState.ts";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 
 export type FilmFormSaveOptions = {
     onSuccess: () => void;
@@ -31,6 +32,7 @@ type Props = {
 };
 
 export function FilmForm(props: Readonly<Props>) {
+    const confirm = useConfirm();
     const { confirmMessage, onCancel, onSave, initialFilm, isPending, isChanged } = props;
     const uploadPoster = useUploadFile();
     const filmForm = useFilmFormState(initialFilm);
@@ -61,10 +63,10 @@ export function FilmForm(props: Readonly<Props>) {
         });
     };
 
-    const handleSubmit = (event: ReactSubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: ReactSubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (saveDisabled) return;
-        if (!confirm(confirmMessage)) return;
+        if (!(await confirm(confirmMessage))) return;
 
         const request = fillRequest(filmForm.requestForm);
         if (!posterFile) {

@@ -56,4 +56,23 @@ describe("Dialog", () => {
 
         expect(onClose).toHaveBeenCalledTimes(1);
     });
+    it("closes only the topmost dialog when Escape is pressed", () => {
+        const closePopup = vi.fn();
+        const closeConfirmation = vi.fn();
+        render(
+            <>
+                <Dialog label="Collections" onClose={closePopup}>
+                    Popup
+                </Dialog>
+                <Dialog label="Confirm" onClose={closeConfirmation}>
+                    Confirmation
+                </Dialog>
+            </>,
+        );
+
+        fireEvent.keyDown(document, { key: "Escape" });
+
+        expect(closeConfirmation).toHaveBeenCalledTimes(1);
+        expect(closePopup).not.toHaveBeenCalled();
+    });
 });

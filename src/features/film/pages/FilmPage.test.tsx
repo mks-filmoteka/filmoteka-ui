@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film";
@@ -13,11 +13,16 @@ type FilmDetailsMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
+    confirm: vi.fn(),
     useFilm: vi.fn(),
     useDeleteFilm: vi.fn(),
     deleteFilmMutate: vi.fn(),
     navigate: vi.fn(),
     authenticated: true,
+}));
+
+vi.mock("../../../shared/utils/useConfirm.ts", () => ({
+    useConfirm: () => mocks.confirm,
 }));
 
 vi.mock("../queries/useFilm.ts", () => ({
@@ -82,10 +87,7 @@ const film: Film = {
 
 beforeEach(() => {
     vi.resetAllMocks();
-    vi.stubGlobal(
-        "confirm",
-        vi.fn(() => true),
-    );
+    mocks.confirm.mockResolvedValue(true);
     mocks.authenticated = true;
 
     mocks.useFilm.mockReturnValue({
@@ -121,10 +123,11 @@ describe("FilmPage", () => {
         expect(mocks.navigate).toHaveBeenCalledWith("/films/1/edit");
     });
 
-    it("navigates back to the film list only after deletion succeeds", () => {
+    it("navigates back to the film list only after deletion succeeds", async () => {
         render(<FilmPage />);
 
         fireEvent.click(screen.getByTitle("Delete"));
+        await waitFor(() => expect(mocks.deleteFilmMutate).toHaveBeenCalled());
 
         expect(mocks.deleteFilmMutate).toHaveBeenCalledWith(1, expect.any(Object));
         expect(mocks.navigate).not.toHaveBeenCalled();
@@ -136,7 +139,7 @@ describe("FilmPage", () => {
     });
 
     it("does not delete when confirmation is cancelled", () => {
-        vi.mocked(globalThis.confirm).mockReturnValue(false);
+        mocks.confirm.mockResolvedValue(false);
         render(<FilmPage />);
 
         fireEvent.click(screen.getByTitle("Delete"));

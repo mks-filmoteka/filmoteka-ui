@@ -15,6 +15,7 @@ import { Dialog } from "../../../shared/components/Dialog.tsx";
 import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
 import type { Collection } from "../types/collection.ts";
 import type { CollectionRequest } from "../types/collectionRequest.ts";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 
 type Props = {
     onClose: () => void;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
+    const confirm = useConfirm();
     const [isCreating, setIsCreating] = useState(false);
     const [collectionName, setCollectionName] = useState("");
     const [editingCollection, setEditingCollection] = useState<Collection>();
@@ -108,8 +110,8 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
         );
     };
 
-    const handleDelete = (collectionId: number) => {
-        if (!confirm("Confirm delete collection?")) return;
+    const handleDelete = async (collectionId: number) => {
+        if (!(await confirm("Confirm delete collection?"))) return;
         setApiError(undefined);
 
         deleteCollection.mutate(collectionId, {

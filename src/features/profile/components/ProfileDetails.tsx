@@ -9,6 +9,7 @@ import { useUpdateProfile } from "../queries/useUpdateProfile.ts";
 import type { UserProfile } from "../types/userProfile.ts";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { keycloak } from "../../../auth/keycloak.ts";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 
 type Props = {
     profile: UserProfile;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function ProfileDetails({ profile, onClose }: Readonly<Props>) {
+    const confirm = useConfirm();
     const [isEditing, setIsEditing] = useState(false);
     const [displayName, setDisplayName] = useState(profile.displayName);
     const [apiError, setApiError] = useState<ApiError | Error>();
@@ -36,9 +38,9 @@ export function ProfileDetails({ profile, onClose }: Readonly<Props>) {
         setIsEditing(false);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!isChanged || isInvalid || updateProfile.isPending) return;
-        if (!confirm("Confirm changes?")) return;
+        if (!(await confirm("Confirm changes?"))) return;
 
         updateProfile.mutate(
             { displayName: trimmedDisplayName },

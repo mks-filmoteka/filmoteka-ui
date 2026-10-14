@@ -11,8 +11,10 @@ import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx"
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 
 function FilmPage() {
+    const confirm = useConfirm();
     const navigate = useNavigate();
     const { authenticated, isAdmin } = useAuth();
     const [collectionsOpen, setCollectionsOpen] = useState(false);
@@ -20,8 +22,8 @@ function FilmPage() {
     const { data, isLoading, error } = useFilm(id);
     const deleteFilm = useDeleteFilm();
 
-    const handleDelete = () => {
-        if (!confirm("Confirm delete film?")) return;
+    const handleDelete = async () => {
+        if (!(await confirm("Confirm delete film?"))) return;
         deleteFilm.mutate(id, {
             onSuccess: () => navigate("/films"),
         });

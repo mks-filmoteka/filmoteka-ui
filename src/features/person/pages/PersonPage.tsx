@@ -16,8 +16,10 @@ import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
+import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 
 function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
+    const confirm = useConfirm();
     const id = useRequiredId();
     const { data, isLoading, error } = usePerson(type, id);
     const isAdmin = useAuth().isAdmin;
@@ -27,8 +29,8 @@ function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
     const isChanged = form.name.trim() !== data?.name.trim();
     const isInvalid = !form.name.trim();
     const [apiError, setApiError] = useState<ApiError | Error>();
-    const handleSave = () => {
-        if (!confirm(`Confirm ${type} update?`)) return;
+    const handleSave = async () => {
+        if (!(await confirm(`Confirm ${type} update?`))) return;
         updatePerson.mutate(
             { id, request: { name: form.name.trim() } },
             {

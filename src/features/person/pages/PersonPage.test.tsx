@@ -32,10 +32,15 @@ type FilmBrowserMockProps = {
 };
 
 const mocks = vi.hoisted(() => ({
+    confirm: vi.fn(),
     usePerson: vi.fn(),
     useUpdatePerson: vi.fn(),
     updatePersonMutate: vi.fn(),
     useFilmSearchParams: vi.fn(),
+}));
+
+vi.mock("../../../shared/utils/useConfirm.ts", () => ({
+    useConfirm: () => mocks.confirm,
 }));
 
 vi.mock("../queries/usePerson.ts", () => ({
@@ -129,10 +134,7 @@ function getSaveButton(container: HTMLElement) {
 
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubGlobal(
-        "confirm",
-        vi.fn(() => true),
-    );
+    mocks.confirm.mockResolvedValue(true);
 
     mocks.usePerson.mockReturnValue({
         data: person,
@@ -150,7 +152,7 @@ beforeEach(() => {
 });
 
 describe("PersonPage", () => {
-    it("trims the edited name before updating the person", () => {
+    it("trims the edited name before updating the person", async () => {
         const { container } = render(<PersonPage type="actor" />);
 
         fireEvent.click(screen.getByTitle("Edit"));
@@ -158,6 +160,7 @@ describe("PersonPage", () => {
             target: { value: "  Updated Test Person  " },
         });
         fireEvent.click(getSaveButton(container));
+        await waitFor(() => expect(mocks.updatePersonMutate).toHaveBeenCalled());
 
         expect(mocks.updatePersonMutate).toHaveBeenCalledWith(
             {

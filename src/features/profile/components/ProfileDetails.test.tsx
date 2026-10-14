@@ -9,10 +9,15 @@ type MutationOptions = {
 };
 
 const mocks = vi.hoisted(() => ({
+    confirm: vi.fn(),
     isPending: false,
     keycloakLogin: vi.fn(),
     useUpdateProfile: vi.fn(),
     updateProfileMutate: vi.fn(),
+}));
+
+vi.mock("../../../shared/utils/useConfirm.ts", () => ({
+    useConfirm: () => mocks.confirm,
 }));
 
 vi.mock("../../../auth/keycloak.ts", () => ({
@@ -38,10 +43,7 @@ beforeEach(() => {
         isPending: mocks.isPending,
         mutate: mocks.updateProfileMutate,
     });
-    vi.stubGlobal(
-        "confirm",
-        vi.fn(() => true),
-    );
+    mocks.confirm.mockResolvedValue(true);
 });
 
 describe("ProfileDetails", () => {
@@ -92,7 +94,7 @@ describe("ProfileDetails", () => {
         expect(mocks.updateProfileMutate).not.toHaveBeenCalled();
     });
 
-    it("trims the edited display name before saving", () => {
+    it("trims the edited display name before saving", async () => {
         mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions) => {
             options?.onSuccess?.({
                 ...profile,
@@ -106,8 +108,9 @@ describe("ProfileDetails", () => {
             target: { value: "  Updated Test User  " },
         });
         fireEvent.click(screen.getByTitle("Save display name"));
+        await waitFor(() => expect(mocks.updateProfileMutate).toHaveBeenCalled());
 
-        expect(globalThis.confirm).toHaveBeenCalledWith("Confirm changes?");
+        expect(mocks.confirm).toHaveBeenCalledWith("Confirm changes?");
         expect(mocks.updateProfileMutate).toHaveBeenCalledWith(
             { displayName: "Updated Test User" },
             expect.any(Object),
