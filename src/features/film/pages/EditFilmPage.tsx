@@ -37,14 +37,14 @@ function EditFilmPage() {
             confirmMessage="Confirm update film?"
             isPending={updateFilm.isPending}
             isChanged={(form, posterFile) => isFormChanged(form, film) || posterFile !== null}
-            onCancel={() => navigate(`/films/${id}`)}
+            onCancel={() => void navigate(`/films/${id}`)}
             onSave={(request, options) => {
                 updateFilm.mutate(
                     { id, request },
                     {
                         onSuccess: (updatedFilm) => {
                             options.onSuccess();
-                            navigate(`/films/${updatedFilm.id}`);
+                            void navigate(`/films/${updatedFilm.id}`);
                         },
                         onError: options.onError,
                     },

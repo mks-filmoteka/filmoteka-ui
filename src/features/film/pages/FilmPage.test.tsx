@@ -1,12 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
-
-type MutationOptions = {
-    onSuccess?: () => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilm, testApiError } from "../../../test/testData";
 
 type FilmDetailsMockProps = {
     data: { id: number; title: string };
@@ -77,18 +74,7 @@ vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
     ),
 }));
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    description: "Test description",
-    posterName: "old.jpg",
-    genres: ["Drama"],
-    actors: [{ id: 1, name: "Test Actor" }],
-    directors: [{ id: 2, name: "Test Director" }],
-};
+const film = testFilm({ posterName: "old.jpg" });
 
 beforeEach(() => {
     vi.resetAllMocks();
@@ -169,7 +155,7 @@ describe("FilmPage", () => {
         mocks.useFilm.mockReturnValue({
             data: undefined,
             isLoading: false,
-            error: Object.assign(new Error("Request failed"), { response: { status: 404 } }),
+            error: testApiError({ status: 404 }),
         });
 
         render(
@@ -188,9 +174,7 @@ describe("FilmPage", () => {
         mocks.useDeleteFilm.mockReturnValue({
             mutate: mocks.deleteFilmMutate,
             isPending: false,
-            error: Object.assign(new Error("Request failed"), {
-                response: { data: { message: "Catalog unavailable" } },
-            }),
+            error: testApiError({ message: "Catalog unavailable" }),
         });
         rerender(<FilmPage />);
 

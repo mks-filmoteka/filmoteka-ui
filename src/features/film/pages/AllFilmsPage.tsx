@@ -26,7 +26,9 @@ function AllFilmsPage() {
             <PageHeader
                 title="Films"
                 controls={
-                    isAdmin && <IconButton icon="create" label="Add new film" onClick={() => navigate("/films/new")} />
+                    isAdmin && (
+                        <IconButton icon="create" label="Add new film" onClick={() => void navigate("/films/new")} />
+                    )
                 }
             />
             <hr />

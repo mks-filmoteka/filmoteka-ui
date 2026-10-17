@@ -1,12 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Person } from "../types/person";
 import { PersonEditForm } from "./PersonEditForm";
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
+import { testPerson, testApiError } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -34,20 +30,14 @@ vi.mock("../../media/api/mediaApi.ts", async (importOriginal) => ({
     deleteFile: mocks.deleteFile,
 }));
 
-const person: Person = {
+const person = testPerson({
     id: 7,
-    name: "Test Person",
     birthDate: "1930-05-31",
-    deathDate: null,
     placeOfBirth: "San Francisco, USA",
     photoName: "old.jpg",
-    actingFilms: [],
-    directingFilms: [],
-};
-
-const saveError = Object.assign(new Error("Save failed"), {
-    response: { data: { message: "Name already exists" } },
 });
+
+const saveError = testApiError({ message: "Name already exists" });
 
 function renderForm(onDone = vi.fn()) {
     const view = render(<PersonEditForm person={person} roles="Actor" onDone={onDone} />);
@@ -71,7 +61,7 @@ beforeEach(() => {
     mocks.useUpdatePerson.mockReturnValue({ mutate: mocks.updatePersonMutate, isPending: false });
     mocks.useUploadFile.mockReturnValue({ mutate: mocks.uploadFileMutate, isPending: false });
     mocks.updatePersonMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.(undefined);
+        options?.onSuccess?.();
     });
     mocks.uploadFileMutate.mockImplementation((_file: File, options?: MutationOptions<{ fileName: string }>) => {
         options?.onSuccess?.({ fileName: "new.jpg" });

@@ -11,14 +11,14 @@ function CreateFilmPage() {
             confirmMessage="Confirm create film?"
             isPending={createFilm.isPending}
             isChanged={() => true}
-            onCancel={() => navigate("/films")}
+            onCancel={() => void navigate("/films")}
             onSave={(request, options) =>
                 createFilm.mutate(
                     { request },
                     {
                         onSuccess: () => {
                             options.onSuccess();
-                            navigate("/films");
+                            void navigate("/films");
                         },
                         onError: options.onError,
                     },

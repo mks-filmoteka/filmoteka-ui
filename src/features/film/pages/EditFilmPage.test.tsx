@@ -5,6 +5,8 @@ import type { Film } from "../types/film.ts";
 import type { FilmRequest } from "../types/filmRequest.ts";
 import { fillForm } from "../utils/formState.ts";
 import EditFilmPage from "./EditFilmPage.tsx";
+import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilm } from "../../../test/testData";
 
 type FilmFormProps = {
     initialFilm?: Film;
@@ -13,11 +15,6 @@ type FilmFormProps = {
     isChanged: (form: FilmRequest, posterFile: File | null) => boolean;
     onCancel: () => void;
     onSave: (request: FilmRequest, options: FilmFormSaveOptions) => void;
-};
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
 };
 
 const mocks = vi.hoisted(() => ({
@@ -57,18 +54,7 @@ vi.mock("../components/FilmForm.tsx", () => ({
     },
 }));
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    description: "Test description",
-    posterName: "old.jpg",
-    genres: ["Drama"],
-    actors: [{ id: 1, name: "Test Actor" }],
-    directors: [{ id: 2, name: "Test Director" }],
-};
+const film = testFilm({ posterName: "old.jpg" });
 
 const request: FilmRequest = {
     title: "Updated Title",

@@ -3,28 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FilmBasic } from "../types/filmBasic";
 import type { Page } from "../types/page";
 import AllFilmsPage from "./AllFilmsPage.tsx";
-
-type SearchParamsReturn = {
-    title?: string;
-    pageParam: number;
-    view: string;
-    yearFrom?: number;
-    yearTo?: number;
-    minYear?: number;
-    maxYear?: number;
-    genres: string[];
-    countries: string[];
-    sort: string[];
-    sortParams: { by?: string; dir?: string }[];
-    setPage: (page: number) => void;
-    setView: (view: string) => void;
-    setGenres: (genres: string[]) => void;
-    setYearFrom: (year?: number) => void;
-    setYearTo: (year?: number) => void;
-    resetYears: () => void;
-    setCountries: (countries: string[]) => void;
-    setSort: (sort: { by?: string; dir?: string }[]) => void;
-};
+import { testFilmSearchParams } from "../../../test/filmSearchParams";
 
 type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
@@ -75,33 +54,10 @@ const emptyPage: Page<FilmBasic> = {
     page: 0,
 };
 
-const createSearchParams = (overrides: Partial<SearchParamsReturn> = {}): SearchParamsReturn => ({
-    title: undefined,
-    pageParam: 1,
-    view: "grid",
-    yearFrom: undefined,
-    yearTo: undefined,
-    minYear: undefined,
-    maxYear: undefined,
-    genres: [],
-    countries: [],
-    sort: [],
-    sortParams: [],
-    setPage: vi.fn(),
-    setView: vi.fn(),
-    setGenres: vi.fn(),
-    setYearFrom: vi.fn(),
-    setYearTo: vi.fn(),
-    resetYears: vi.fn(),
-    setCountries: vi.fn(),
-    setSort: vi.fn(),
-    ...overrides,
-});
-
 beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
+    mocks.useFilmSearchParams.mockReturnValue(testFilmSearchParams());
     mocks.useFilms.mockReturnValue({
         data: emptyPage,
         isLoading: false,
@@ -113,7 +69,7 @@ describe("AllFilmsPage", () => {
     it("transforms URL filter values before querying films", () => {
         const sort = ["title,asc"];
         mocks.useFilmSearchParams.mockReturnValue(
-            createSearchParams({
+            testFilmSearchParams({
                 title: "test title",
                 pageParam: 3,
                 minYear: 1990,

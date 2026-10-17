@@ -4,11 +4,9 @@ import type { Collection } from "../types/collection.ts";
 import type { FilmBasic } from "../../film/types/filmBasic.ts";
 import type { Page } from "../../film/types/page.ts";
 import CollectionPage from "./CollectionPage.tsx";
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilmBasic } from "../../../test/testData";
+import { testFilmSearchParams } from "../../../test/filmSearchParams";
 
 type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
@@ -103,23 +101,15 @@ const emptyPage: Page<FilmBasic> = {
     page: 0,
 };
 
-const film: FilmBasic = {
-    id: 1,
-    title: "Collection Film",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    posterName: null,
-    genres: ["Drama"],
-};
+const film = testFilmBasic({ title: "Collection Film" });
 
-const outsideFilm: FilmBasic = {
+const outsideFilm = testFilmBasic({
     id: 3,
     title: "Outside Film",
     releaseYear: 2005,
     countries: ["France"],
-    posterName: null,
     genres: ["Action"],
-};
+});
 
 const collection: Collection = {
     id: 7,
@@ -127,33 +117,11 @@ const collection: Collection = {
     filmIds: [1, 2],
 };
 
-const createSearchParams = () => ({
-    title: undefined,
-    pageParam: 1,
-    view: "list",
-    yearFrom: undefined,
-    yearTo: undefined,
-    minYear: undefined,
-    maxYear: undefined,
-    genres: [],
-    countries: [],
-    sort: [],
-    sortParams: [],
-    setPage: vi.fn(),
-    setView: vi.fn(),
-    setGenres: vi.fn(),
-    setYearFrom: vi.fn(),
-    setYearTo: vi.fn(),
-    resetYears: vi.fn(),
-    setCountries: vi.fn(),
-    setSort: vi.fn(),
-});
-
 beforeEach(() => {
     vi.clearAllMocks();
 
     mocks.useParams.mockReturnValue({ id: "7" });
-    mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
+    mocks.useFilmSearchParams.mockReturnValue(testFilmSearchParams());
     mocks.useCollection.mockReturnValue({
         data: collection,
         isLoading: false,

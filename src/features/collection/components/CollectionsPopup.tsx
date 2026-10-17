@@ -65,7 +65,7 @@ export function CollectionsPopup({ onClose, filmId }: Readonly<Props>) {
 
     const navigateToCollection = (collectionId: number) => {
         closePopup();
-        navigate(`/collections/${collectionId}`);
+        void navigate(`/collections/${collectionId}`);
     };
 
     const startCreating = () => {

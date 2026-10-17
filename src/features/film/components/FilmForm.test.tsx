@@ -3,11 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film.ts";
 import type { FilmRequest } from "../types/filmRequest.ts";
 import { FilmForm } from "./FilmForm.tsx";
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilm, testApiError } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -29,18 +26,7 @@ vi.mock("../../media/api/mediaApi.ts", async (importOriginal) => ({
     deleteFile: mocks.deleteFile,
 }));
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    description: "Test description",
-    posterName: "old.jpg",
-    genres: ["Drama"],
-    actors: [{ id: 1, name: "Test Actor" }],
-    directors: [{ id: 2, name: "Test Director" }],
-};
+const film = testFilm({ posterName: "old.jpg" });
 
 const validRequest: FilmRequest = {
     title: "Test Title",
@@ -53,13 +39,9 @@ const validRequest: FilmRequest = {
     directors: [{ name: "Test Director" }],
 };
 
-const apiError = Object.assign(new Error("Save failed"), {
-    response: {
-        data: {
-            message: "Validation failed",
-            errorDetails: [{ field: "title", message: "Required" }],
-        },
-    },
+const apiError = testApiError({
+    message: "Validation failed",
+    errorDetails: [{ field: "title", message: "Required" }],
 });
 
 function renderFilmForm(
