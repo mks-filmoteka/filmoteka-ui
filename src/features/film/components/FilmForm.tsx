@@ -4,7 +4,7 @@ import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx"
 import type { ApiError } from "../../../shared/types/ApiError.ts";
 import { getApiError } from "../../../shared/api/apiError.ts";
 import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
-import PosterUpload from "../../media/components/PosterUpload.tsx";
+import ImageUpload from "../../media/components/ImageUpload.tsx";
 import { useUploadFile } from "../../media/queries/useUploadFile.ts";
 import { deleteFile } from "../../media/api/mediaApi.ts";
 import { COUNTRIES } from "../types/country.ts";
@@ -121,12 +121,13 @@ export function FilmForm(props: Readonly<Props>) {
 
             <div className="main-grid">
                 <div>
-                    <PosterUpload
+                    <ImageUpload
                         value={filmForm.form.posterName}
                         alt={filmForm.form.title || "Film poster"}
                         onChange={filmForm.setPosterName}
-                        posterFile={posterFile}
-                        setPosterFile={setPosterFile}
+                        file={posterFile}
+                        setFile={setPosterFile}
+                        removeLabel="Remove poster"
                         disabled={pending}
                     />
                 </div>

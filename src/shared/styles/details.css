@@ -87,3 +87,63 @@
         justify-self: center;
     }
 }
+
+.person-card {
+    display: flex;
+    gap: 20px;
+    width: 70%;
+    margin: 20px auto 10px;
+}
+
+.person-photo {
+    flex: 0 0 120px;
+}
+
+.person-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.person-info h1 {
+    margin: 0;
+}
+
+.person-info h1 input {
+    width: 100%;
+    font: inherit;
+    text-align: center;
+    color: var(--accent);
+    background: var(--text-color);
+}
+
+.person-info .details-column input {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    padding: 0 4px;
+    font: var(--font-m) var(--sans);
+    color: var(--accent);
+    background: var(--text-color);
+}
+
+.person-info span {
+    min-width: 90px;
+    color: var(--text-color-f);
+}
+
+.person-controls {
+    display: flex;
+    gap: 4px;
+    margin-top: auto;
+    align-self: flex-end;
+}
+
+.section-title {
+    margin: 20px 0 0;
+    text-align: center;
+    font-size: var(--font-m);
+    color: var(--text-color-f);
+}

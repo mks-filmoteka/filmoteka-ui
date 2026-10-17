@@ -48,6 +48,15 @@
     min-width: 22px;
 }
 
+.role-switch {
+    gap: 20px;
+}
+
+.role-switch > button {
+    width: 120px;
+    text-align: center;
+}
+
 .pagination {
     bottom: 0;
     padding: 10px 0;
@@ -85,7 +94,8 @@
     }
 
     .item-list,
-    .navigation {
+    .navigation,
+    .person-card {
         width: 80%;
     }
 }
@@ -96,7 +106,8 @@
     }
 
     .item-list,
-    .navigation {
+    .navigation,
+    .person-card {
         width: 90%;
     }
 }
@@ -108,7 +119,8 @@
     }
 
     .item-list,
-    .navigation {
+    .navigation,
+    .person-card {
         width: 100%;
     }
 

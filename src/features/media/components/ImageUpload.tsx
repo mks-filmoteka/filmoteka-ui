@@ -7,9 +7,10 @@ import { IconButton } from "../../../shared/components/IconButton.tsx";
 type Props = {
     value?: string | null;
     alt: string;
-    onChange: (posterName: string | null) => void;
-    posterFile: File | null;
-    setPosterFile: (file: File | null) => void;
+    onChange: (fileName: string | null) => void;
+    file: File | null;
+    setFile: (file: File | null) => void;
+    removeLabel: string;
     disabled?: boolean;
 };
 
@@ -18,8 +19,8 @@ type Preview = {
     url: string;
 };
 
-function PosterUpload(props: Readonly<Props>) {
-    const { value, alt, onChange, posterFile, setPosterFile, disabled } = props;
+function ImageUpload(props: Readonly<Props>) {
+    const { value, alt, onChange, file, setFile, removeLabel, disabled } = props;
     const [dragOver, setDragOver] = useState(false);
     const [preview, setPreview] = useState<Preview | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
@@ -43,11 +44,11 @@ function PosterUpload(props: Readonly<Props>) {
         previewRef.current = null;
     };
 
-    const setPreviewFile = (file: File) => {
+    const setPreviewFile = (previewFile: File) => {
         revokePreview();
         const nextPreview = {
-            file,
-            url: URL.createObjectURL(file),
+            file: previewFile,
+            url: URL.createObjectURL(previewFile),
         };
         previewRef.current = nextPreview;
         setPreview(nextPreview);
@@ -58,34 +59,34 @@ function PosterUpload(props: Readonly<Props>) {
         setPreview(null);
     };
 
-    const previewUrl = preview?.file === posterFile ? preview.url : null;
-    const savedPosterUrl = value ? getFileUrl(value) : null;
-    const posterUrl = posterFile && previewUrl ? previewUrl : savedPosterUrl;
+    const previewUrl = preview?.file === file ? preview.url : null;
+    const savedUrl = value ? getFileUrl(value) : null;
+    const imageUrl = file && previewUrl ? previewUrl : savedUrl;
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) {
+        const newFile = event.target.files?.[0];
+        if (!newFile) {
             return;
         }
-        setPreviewFile(file);
-        setPosterFile(file);
+        setPreviewFile(newFile);
+        setFile(newFile);
         event.target.value = "";
     };
 
     const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
         event.preventDefault();
         setDragOver(false);
-        const file = event.dataTransfer.files?.[0];
-        if (!file) {
+        const newFile = event.dataTransfer.files?.[0];
+        if (!newFile) {
             return;
         }
-        setPreviewFile(file);
-        setPosterFile(file);
+        setPreviewFile(newFile);
+        setFile(newFile);
     };
 
     const handleRemove = () => {
         clearPreview();
-        setPosterFile(null);
+        setFile(null);
         onChange(null);
         if (inputRef.current) {
             inputRef.current.value = "";
@@ -95,7 +96,7 @@ function PosterUpload(props: Readonly<Props>) {
     return (
         <>
             <div className="poster-upload">
-                {posterUrl && <Poster src={posterUrl} alt={alt} />}
+                {imageUrl && <Poster src={imageUrl} alt={alt} />}
                 <button
                     type="button"
                     className={`poster-wrapper poster-upload-button ${dragOver ? "poster-upload-button-drag-over" : ""}`}
@@ -117,10 +118,10 @@ function PosterUpload(props: Readonly<Props>) {
                     </div>
                 </button>
 
-                {(value || posterFile) && (
+                {(value || file) && (
                     <IconButton
                         icon="delete"
-                        label="Remove poster"
+                        label={removeLabel}
                         className="poster-remove-button"
                         onClick={handleRemove}
                         disabled={disabled}
@@ -139,4 +140,4 @@ function PosterUpload(props: Readonly<Props>) {
     );
 }
 
-export default PosterUpload;
+export default ImageUpload;

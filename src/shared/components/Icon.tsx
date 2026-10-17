@@ -23,6 +23,7 @@ const ICONS = {
     sortAsc: "↑",
     sortDesc: "↓",
     film: "🎬",
+    person: "👤",
 } as const;
 
 export type IconName = keyof typeof ICONS;
