@@ -119,6 +119,16 @@
     background: var(--text-color);
 }
 
+.person-info .details-column input {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    padding: 0 4px;
+    font: var(--font-m) var(--sans);
+    color: var(--accent);
+    background: var(--text-color);
+}
+
 .person-info span {
     min-width: 90px;
     color: var(--text-color-f);

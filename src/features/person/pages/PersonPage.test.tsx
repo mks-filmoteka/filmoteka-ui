@@ -35,8 +35,10 @@ type FilmBrowserMockProps = {
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
     usePerson: vi.fn(),
-    useUpdatePerson: vi.fn(),
-    updatePersonMutate: vi.fn(),
+    useDeletePerson: vi.fn(),
+    deletePersonMutate: vi.fn(),
+    toast: vi.fn(),
+    navigate: vi.fn(),
     useFilmSearchParams: vi.fn(),
 }));
 
@@ -48,8 +50,21 @@ vi.mock("../queries/usePerson.ts", () => ({
     usePerson: mocks.usePerson,
 }));
 
-vi.mock("../queries/useUpdatePerson.ts", () => ({
-    useUpdatePerson: mocks.useUpdatePerson,
+vi.mock("../queries/useDeletePerson.ts", () => ({
+    useDeletePerson: mocks.useDeletePerson,
+}));
+
+vi.mock("../../../shared/utils/useToast.ts", () => ({
+    useToast: () => mocks.toast,
+}));
+
+vi.mock("react-router", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("react-router")>()),
+    useNavigate: () => mocks.navigate,
+}));
+
+vi.mock("../components/PersonEditForm.tsx", () => ({
+    PersonEditForm: ({ person }: { person: Person }) => <p>edit form for {person.name}</p>,
 }));
 
 vi.mock("../../../auth/useAuth.ts", () => ({
@@ -144,12 +159,9 @@ beforeEach(() => {
     vi.setSystemTime(new Date(2026, 9, 17));
     mocks.confirm.mockResolvedValue(true);
     givenPerson(actor);
-    mocks.useUpdatePerson.mockReturnValue({
-        mutate: mocks.updatePersonMutate,
-        isPending: false,
-    });
     mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
-    mocks.updatePersonMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
+    mocks.useDeletePerson.mockReturnValue({ mutate: mocks.deletePersonMutate, isPending: false, error: null });
+    mocks.deletePersonMutate.mockImplementation((_id: number, options?: MutationOptions) => {
         options?.onSuccess?.();
     });
 });
@@ -237,58 +249,25 @@ describe("PersonPage", () => {
         expect(filmTitles()).toEqual(["Directed Film"]);
     });
 
-    it("keeps the other details when only the name is edited", async () => {
-        givenPerson({ ...actor, photoName: "photo.jpg" });
+    it("opens the edit form", () => {
         renderPage();
 
         fireEvent.click(screen.getByTitle("Edit"));
-        fireEvent.change(screen.getByLabelText("edit name"), {
-            target: { value: "  Updated Test Person  " },
-        });
-        fireEvent.click(screen.getByTitle("Save"));
-        await waitFor(() => expect(mocks.updatePersonMutate).toHaveBeenCalled());
 
-        expect(mocks.updatePersonMutate).toHaveBeenCalledWith(
-            {
-                id: 7,
-                request: {
-                    name: "Updated Test Person",
-                    birthDate: "1930-05-31",
-                    deathDate: null,
-                    placeOfBirth: "San Francisco, USA",
-                    photoName: "photo.jpg",
-                },
-            },
-            expect.any(Object),
-        );
+        expect(screen.getByText("edit form for Test Person")).toBeInTheDocument();
+        expect(screen.queryByTitle("Edit")).not.toBeInTheDocument();
     });
 
-    it("keeps edit mode open and shows the API error when update fails", async () => {
-        const error = Object.assign(new Error("Update failed"), {
-            response: {
-                data: {
-                    message: "Name already exists",
-                    errorDetails: [{ field: "name", message: "Must be unique" }],
-                },
-            },
-        });
-        mocks.updatePersonMutate.mockImplementation((_variables: unknown, options?: MutationOptions) => {
-            options?.onError?.(error);
-        });
+    it("deletes the person after confirmation", async () => {
         renderPage();
 
-        fireEvent.click(screen.getByTitle("Edit"));
-        fireEvent.change(screen.getByLabelText("edit name"), {
-            target: { value: "Duplicate Test Person" },
-        });
-        fireEvent.click(screen.getByTitle("Save"));
+        fireEvent.click(screen.getByTitle("Delete"));
 
-        await waitFor(() => {
-            expect(screen.getByText("Name already exists")).toBeInTheDocument();
-        });
-        expect(screen.getByLabelText("edit name")).toBeInTheDocument();
+        await waitFor(() => expect(mocks.deletePersonMutate).toHaveBeenCalledWith(7, expect.any(Object)));
+        expect(mocks.confirm).toHaveBeenCalledWith("Confirm delete person?");
+        expect(mocks.toast).toHaveBeenCalledWith("Person deleted");
+        expect(mocks.navigate).toHaveBeenCalledWith("/films");
     });
-
     it("filters and sorts the person's films before rendering the list", () => {
         mocks.useFilmSearchParams.mockReturnValue(
             createSearchParams({

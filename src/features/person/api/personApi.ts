@@ -11,3 +11,7 @@ export async function updatePerson(id: number, request: PersonRequest) {
     const response = await catalogClient.put<Person>(`/people/${id}`, request);
     return response.data;
 }
+
+export async function deletePerson(id: number) {
+    await catalogClient.delete(`/people/${id}`);
+}

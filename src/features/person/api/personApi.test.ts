@@ -2,18 +2,20 @@ import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { catalogClient } from "../../../shared/api/client";
 import type { Person } from "../types/person";
 import type { PersonRequest } from "../types/personRequest";
-import { getPersonById, updatePerson } from "./personApi";
+import { deletePerson, getPersonById, updatePerson } from "./personApi";
 
 vi.mock("../../../shared/api/client", () => ({
     catalogClient: {
         get: vi.fn(),
         put: vi.fn(),
+        delete: vi.fn(),
     },
 }));
 
 const mockedApiClient = catalogClient as unknown as {
     get: Mock;
     put: Mock;
+    delete: Mock;
 };
 
 const person: Person = {
@@ -54,5 +56,13 @@ describe("personApi", () => {
         await expect(updatePerson(1, request)).resolves.toBe(person);
 
         expect(mockedApiClient.put).toHaveBeenCalledWith("/people/1", request);
+    });
+
+    it("deletes a person through the people endpoint", async () => {
+        mockedApiClient.delete.mockResolvedValue({});
+
+        await deletePerson(1);
+
+        expect(mockedApiClient.delete).toHaveBeenCalledWith("/people/1");
     });
 });

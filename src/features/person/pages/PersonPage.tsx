@@ -1,6 +1,6 @@
 import { usePerson } from "../queries/usePerson.ts";
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { PersonDetails } from "../components/PersonDetails.tsx";
 import { RoleSwitch, type Role } from "../components/RoleSwitch.tsx";
 import { useFilmSearchParams } from "../../film/queries/useFilmSearchParams.ts";
@@ -8,12 +8,10 @@ import { FilmBrowser } from "../../film/components/FilmBrowser.tsx";
 import type { FilmBasic } from "../../film/types/filmBasic.ts";
 import { SORT_BY, SORT_DIR } from "../../film/constants/constants.ts";
 import { useAuth } from "../../../auth/useAuth.ts";
-import { useUpdatePerson } from "../queries/useUpdatePerson.ts";
-import { TextInput } from "../../../shared/components/TextInput.tsx";
-import { INPUT_RULES } from "../../../shared/utils/inputValidation.ts";
+import { useDeletePerson } from "../queries/useDeletePerson.ts";
+import { PersonEditForm } from "../components/PersonEditForm.tsx";
+import { useToast } from "../../../shared/utils/useToast.ts";
 import { useRequiredId } from "../../../shared/utils/useRequiredId.ts";
-import type { PersonRequest } from "../types/personRequest.ts";
-import type { ApiError } from "../../../shared/types/ApiError.ts";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
@@ -28,31 +26,18 @@ function PersonPage() {
     const isAdmin = useAuth().isAdmin;
     const [searchParams, setSearchParams] = useSearchParams();
     const [isEditing, setIsEditing] = useState(false);
-    const [name, setName] = useState("");
-    const updatePerson = useUpdatePerson();
-    const isChanged = name.trim() !== data?.name.trim();
-    const isInvalid = !name.trim();
-    const [apiError, setApiError] = useState<ApiError | Error>();
-    const handleSave = async () => {
-        if (!data || !(await confirm("Confirm person update?"))) return;
-        const request: PersonRequest = {
-            name: name.trim(),
-            birthDate: data.birthDate,
-            deathDate: data.deathDate,
-            placeOfBirth: data.placeOfBirth,
-            photoName: data.photoName,
-        };
-        updatePerson.mutate(
-            { id, request },
-            {
-                onSuccess: () => setIsEditing(false),
-                onError: (error: Error) => {
-                    setApiError(getApiError(error));
-                },
+    const toast = useToast();
+    const navigate = useNavigate();
+    const deletePerson = useDeletePerson();
+    const handleDelete = async () => {
+        if (!(await confirm("Confirm delete person?"))) return;
+        deletePerson.mutate(id, {
+            onSuccess: () => {
+                toast("Person deleted");
+                void navigate("/films");
             },
-        );
+        });
     };
-
     /* URL STATE */
     const {
         view,
@@ -98,7 +83,9 @@ function PersonPage() {
         actingFilms.length === 0 || (directingFilms.length > 0 && searchParams.get("role") === "director")
             ? "director"
             : "actor";
-    const roleNames = [actingFilms.length > 0 && "Actor", directingFilms.length > 0 && "Director"].filter(Boolean);
+    const roles = [actingFilms.length > 0 && "Actor", directingFilms.length > 0 && "Director"]
+        .filter(Boolean)
+        .join(", ");
     const selectRole = (selected: Role) => {
         setSearchParams(
             (params) => {
@@ -130,49 +117,11 @@ function PersonPage() {
         setFilterOpen,
     };
 
-    const nameField = isEditing ? (
-        <TextInput
-            id={"name-edit"}
-            ariaLabel="edit name"
-            value={name}
-            maxLength={100}
-            onChange={setName}
-            regex={INPUT_RULES.name}
-            placeholder="Edit name"
-        />
-    ) : (
-        data?.name
-    );
-
-    const controls = isEditing ? (
+    const controls = isAdmin && (
         <>
-            <IconButton
-                icon="accept"
-                label="Save"
-                onClick={handleSave}
-                disabled={!isChanged || updatePerson.isPending || isInvalid}
-            />
-            <IconButton
-                icon="cancel"
-                label="Cancel"
-                onClick={() => {
-                    setIsEditing(false);
-                    setName(data?.name ?? "");
-                }}
-            />
+            <IconButton icon="edit" label="Edit" onClick={() => setIsEditing(true)} />
+            <IconButton icon="delete" label="Delete" onClick={handleDelete} disabled={deletePerson.isPending} />
         </>
-    ) : (
-        isAdmin &&
-        data && (
-            <IconButton
-                icon="edit"
-                label="Edit"
-                onClick={() => {
-                    setIsEditing(true);
-                    setName(data.name);
-                }}
-            />
-        )
     );
     if (isLoading) return <LoadingIndicator />;
     if (error && isNotFoundError(error)) return <NotFoundMessage />;
@@ -181,9 +130,16 @@ function PersonPage() {
 
     return (
         <div>
-            <PersonDetails person={data} name={nameField} roles={roleNames.join(", ")} controls={controls}>
-                {isEditing && <ApiErrorMessage error={apiError} />}
-            </PersonDetails>
+            {isEditing ? (
+                <PersonEditForm person={data} roles={roles} onDone={() => setIsEditing(false)} />
+            ) : (
+                <PersonDetails person={data} roles={roles} controls={controls}>
+                    <ApiErrorMessage
+                        error={deletePerson.error ? getApiError(deletePerson.error) : undefined}
+                        message="Could not delete person"
+                    />
+                </PersonDetails>
+            )}{" "}
             <h2 className="section-title">Filmography</h2>
             <RoleSwitch
                 role={role}

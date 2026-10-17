@@ -3,33 +3,33 @@ import Poster from "../../media/components/Poster.tsx";
 import { getFileUrl } from "../../media/api/mediaApi.ts";
 import type { Person } from "../types/person.ts";
 import { formatDate, getAge } from "../utils/lifespan.ts";
+import { PersonCard } from "./PersonCard.tsx";
 
 type Props = {
     person: Person;
-    name: ReactNode;
     roles: string;
     controls?: ReactNode;
     children?: ReactNode;
 };
 
-export function PersonDetails({ person, name, roles, controls, children }: Readonly<Props>) {
+export function PersonDetails({ person, roles, controls, children }: Readonly<Props>) {
     const { birthDate, deathDate, placeOfBirth } = person;
     const lifespanNote = deathDate ? `, died in ${deathDate.slice(0, 4)}` : "";
     const born =
         birthDate && `${formatDate(birthDate)} (age ${getAge(birthDate, deathDate ?? undefined)}${lifespanNote})`;
 
     return (
-        <section className="person-card">
-            <div className="person-photo">
+        <PersonCard
+            photo={
                 <Poster
                     src={person.photoName ? getFileUrl(person.photoName) : null}
                     alt={person.name}
                     placeholderIcon="person"
                 />
-            </div>
-            <div className="person-info">
-                <h1>{name}</h1>
-                <div className="details-column">
+            }
+            name={person.name}
+            details={
+                <>
                     {roles && (
                         <div>
                             <span>Roles</span>
@@ -48,10 +48,11 @@ export function PersonDetails({ person, name, roles, controls, children }: Reado
                             {placeOfBirth}
                         </div>
                     )}
-                </div>
-                {children}
-                <div className="person-controls">{controls}</div>
-            </div>
-        </section>
+                </>
+            }
+            controls={controls}
+        >
+            {children}
+        </PersonCard>
     );
 }
