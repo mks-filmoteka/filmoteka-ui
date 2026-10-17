@@ -6,24 +6,7 @@ import type { Person } from "../types/person";
 import PersonPage from "./PersonPage";
 import type { MutationOptions } from "../../../test/mutationOptions";
 import { testFilmBasic, testPerson } from "../../../test/testData";
-
-type SearchParamsReturn = {
-    view: string;
-    yearFrom?: number;
-    yearTo?: number;
-    minYear?: number;
-    maxYear?: number;
-    genres: string[];
-    countries: string[];
-    sortParams: { by?: string; dir?: string }[];
-    setView: (view: string) => void;
-    setGenres: (genres: string[]) => void;
-    setYearFrom: (year?: number) => void;
-    setYearTo: (year?: number) => void;
-    resetYears: () => void;
-    setCountries: (countries: string[]) => void;
-    setSort: (sort: { by?: string; dir?: string }[]) => void;
-};
+import { testFilmSearchParams } from "../../../test/filmSearchParams";
 
 type FilmBrowserMockProps = {
     films: FilmBasic[];
@@ -102,25 +85,6 @@ const actorAndDirector: Person = {
     directingFilms: [testFilmBasic({ id: 4, title: "Directed Film", releaseYear: 2005, genres: ["Drama"] })],
 };
 
-const createSearchParams = (overrides: Partial<SearchParamsReturn> = {}): SearchParamsReturn => ({
-    view: "list",
-    yearFrom: undefined,
-    yearTo: undefined,
-    minYear: undefined,
-    maxYear: undefined,
-    genres: [],
-    countries: [],
-    sortParams: [],
-    setView: vi.fn(),
-    setGenres: vi.fn(),
-    setYearFrom: vi.fn(),
-    setYearTo: vi.fn(),
-    resetYears: vi.fn(),
-    setCountries: vi.fn(),
-    setSort: vi.fn(),
-    ...overrides,
-});
-
 function givenPerson(person: Person) {
     mocks.usePerson.mockReturnValue({ data: person, isLoading: false, error: null });
 }
@@ -143,7 +107,7 @@ beforeEach(() => {
     vi.setSystemTime(new Date(2026, 9, 17));
     mocks.confirm.mockResolvedValue(true);
     givenPerson(actor);
-    mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
+    mocks.useFilmSearchParams.mockReturnValue(testFilmSearchParams());
     mocks.useDeletePerson.mockReturnValue({ mutate: mocks.deletePersonMutate, isPending: false, error: null });
     mocks.deletePersonMutate.mockImplementation((_id: number, options?: MutationOptions) => {
         options?.onSuccess?.();
@@ -254,7 +218,7 @@ describe("PersonPage", () => {
     });
     it("filters and sorts the person's films before rendering the list", () => {
         mocks.useFilmSearchParams.mockReturnValue(
-            createSearchParams({
+            testFilmSearchParams({
                 genres: ["Drama"],
                 sortParams: [{ by: "releaseYear", dir: "desc" }],
             }),

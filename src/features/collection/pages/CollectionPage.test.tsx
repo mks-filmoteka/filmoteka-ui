@@ -6,6 +6,7 @@ import type { Page } from "../../film/types/page.ts";
 import CollectionPage from "./CollectionPage.tsx";
 import type { MutationOptions } from "../../../test/mutationOptions";
 import { testFilmBasic } from "../../../test/testData";
+import { testFilmSearchParams } from "../../../test/filmSearchParams";
 
 type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
@@ -116,33 +117,11 @@ const collection: Collection = {
     filmIds: [1, 2],
 };
 
-const createSearchParams = () => ({
-    title: undefined,
-    pageParam: 1,
-    view: "list",
-    yearFrom: undefined,
-    yearTo: undefined,
-    minYear: undefined,
-    maxYear: undefined,
-    genres: [],
-    countries: [],
-    sort: [],
-    sortParams: [],
-    setPage: vi.fn(),
-    setView: vi.fn(),
-    setGenres: vi.fn(),
-    setYearFrom: vi.fn(),
-    setYearTo: vi.fn(),
-    resetYears: vi.fn(),
-    setCountries: vi.fn(),
-    setSort: vi.fn(),
-});
-
 beforeEach(() => {
     vi.clearAllMocks();
 
     mocks.useParams.mockReturnValue({ id: "7" });
-    mocks.useFilmSearchParams.mockReturnValue(createSearchParams());
+    mocks.useFilmSearchParams.mockReturnValue(testFilmSearchParams());
     mocks.useCollection.mockReturnValue({
         data: collection,
         isLoading: false,
