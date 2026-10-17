@@ -1,5 +1,8 @@
 import { usePerson } from "../queries/usePerson.ts";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
+import { PersonDetails } from "../components/PersonDetails.tsx";
+import { RoleSwitch, type Role } from "../components/RoleSwitch.tsx";
 import { useFilmSearchParams } from "../../film/queries/useFilmSearchParams.ts";
 import { FilmBrowser } from "../../film/components/FilmBrowser.tsx";
 import type { FilmBasic } from "../../film/types/filmBasic.ts";
@@ -12,28 +15,35 @@ import { useRequiredId } from "../../../shared/utils/useRequiredId.ts";
 import type { PersonRequest } from "../types/personRequest.ts";
 import type { ApiError } from "../../../shared/types/ApiError.ts";
 import { getApiError, isNotFoundError } from "../../../shared/api/apiError.ts";
-import { PageHeader } from "../../../shared/components/PageHeader.tsx";
 import { ApiErrorMessage } from "../../../shared/components/ApiErrorMessage.tsx";
 import { NotFoundMessage } from "../../../shared/components/NotFoundMessage.tsx";
 import { IconButton } from "../../../shared/components/IconButton.tsx";
 import { useConfirm } from "../../../shared/utils/useConfirm.ts";
 import { LoadingIndicator } from "../../../shared/components/LoadingIndicator.tsx";
 
-function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
+function PersonPage() {
     const confirm = useConfirm();
     const id = useRequiredId();
-    const { data, isLoading, error } = usePerson(type, id);
+    const { data, isLoading, error } = usePerson(id);
     const isAdmin = useAuth().isAdmin;
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isEditing, setIsEditing] = useState(false);
-    const [form, setForm] = useState<PersonRequest>({ name: "" });
-    const updatePerson = useUpdatePerson(type);
-    const isChanged = form.name.trim() !== data?.name.trim();
-    const isInvalid = !form.name.trim();
+    const [name, setName] = useState("");
+    const updatePerson = useUpdatePerson();
+    const isChanged = name.trim() !== data?.name.trim();
+    const isInvalid = !name.trim();
     const [apiError, setApiError] = useState<ApiError | Error>();
     const handleSave = async () => {
-        if (!(await confirm(`Confirm ${type} update?`))) return;
+        if (!data || !(await confirm("Confirm person update?"))) return;
+        const request: PersonRequest = {
+            name: name.trim(),
+            birthDate: data.birthDate,
+            deathDate: data.deathDate,
+            placeOfBirth: data.placeOfBirth,
+            photoName: data.photoName,
+        };
         updatePerson.mutate(
-            { id, request: { name: form.name.trim() } },
+            { id, request },
             {
                 onSuccess: () => setIsEditing(false),
                 onError: (error: Error) => {
@@ -82,7 +92,23 @@ function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
         }
         return a.releaseYear - b.releaseYear;
     };
-    const films = (data?.films ?? []).filter(filtering).sort(sorting);
+    const actingFilms = data?.actingFilms ?? [];
+    const directingFilms = data?.directingFilms ?? [];
+    const role: Role =
+        actingFilms.length === 0 || (directingFilms.length > 0 && searchParams.get("role") === "director")
+            ? "director"
+            : "actor";
+    const roleNames = [actingFilms.length > 0 && "Actor", directingFilms.length > 0 && "Director"].filter(Boolean);
+    const selectRole = (selected: Role) => {
+        setSearchParams(
+            (params) => {
+                params.set("role", selected);
+                return params;
+            },
+            { replace: true },
+        );
+    };
+    const films = (role === "actor" ? actingFilms : directingFilms).filter(filtering).sort(sorting);
 
     const browserSearch = {
         pageParam: 1,
@@ -104,75 +130,67 @@ function PersonPage({ type }: Readonly<{ type: "actor" | "director" }>) {
         setFilterOpen,
     };
 
-    const pageHeader = (
-        <PageHeader
-            title={
-                isEditing ? (
-                    <TextInput
-                        id={"name-edit"}
-                        ariaLabel="edit name"
-                        value={form.name}
-                        maxLength={100}
-                        onChange={(value) =>
-                            setForm((prev) => ({
-                                ...prev,
-                                name: value,
-                            }))
-                        }
-                        regex={INPUT_RULES.name}
-                        placeholder="Edit name"
-                    />
-                ) : (
-                    data?.name
-                )
-            }
-            meta={type}
-            controls={
-                isEditing ? (
-                    <>
-                        <IconButton
-                            icon="accept"
-                            label="Save"
-                            onClick={handleSave}
-                            disabled={!isChanged || updatePerson.isPending || isInvalid}
-                        />
-                        <IconButton
-                            icon="cancel"
-                            label="Cancel"
-                            onClick={() => {
-                                setIsEditing(false);
-                                setForm({ name: data?.name ?? "" });
-                            }}
-                        />
-                    </>
-                ) : (
-                    isAdmin &&
-                    data && (
-                        <IconButton
-                            icon="edit"
-                            label="Edit"
-                            onClick={() => {
-                                setIsEditing(true);
-                                setForm({ name: data.name });
-                            }}
-                        />
-                    )
-                )
-            }
-        >
-            {isEditing && <ApiErrorMessage error={apiError} />}
-        </PageHeader>
+    const nameField = isEditing ? (
+        <TextInput
+            id={"name-edit"}
+            ariaLabel="edit name"
+            value={name}
+            maxLength={100}
+            onChange={setName}
+            regex={INPUT_RULES.name}
+            placeholder="Edit name"
+        />
+    ) : (
+        data?.name
     );
 
+    const controls = isEditing ? (
+        <>
+            <IconButton
+                icon="accept"
+                label="Save"
+                onClick={handleSave}
+                disabled={!isChanged || updatePerson.isPending || isInvalid}
+            />
+            <IconButton
+                icon="cancel"
+                label="Cancel"
+                onClick={() => {
+                    setIsEditing(false);
+                    setName(data?.name ?? "");
+                }}
+            />
+        </>
+    ) : (
+        isAdmin &&
+        data && (
+            <IconButton
+                icon="edit"
+                label="Edit"
+                onClick={() => {
+                    setIsEditing(true);
+                    setName(data.name);
+                }}
+            />
+        )
+    );
     if (isLoading) return <LoadingIndicator />;
     if (error && isNotFoundError(error)) return <NotFoundMessage />;
-    if (error) return <ApiErrorMessage error={error} message={`Error loading ${type}`} />;
-    if (!data) return <h1>{type} not found</h1>;
+    if (error) return <ApiErrorMessage error={error} message="Error loading person" />;
+    if (!data) return <NotFoundMessage />;
 
     return (
         <div>
-            {pageHeader}
-            <hr />
+            <PersonDetails person={data} name={nameField} roles={roleNames.join(", ")} controls={controls}>
+                {isEditing && <ApiErrorMessage error={apiError} />}
+            </PersonDetails>
+            <h2 className="section-title">Filmography</h2>
+            <RoleSwitch
+                role={role}
+                actingCount={actingFilms.length}
+                directingCount={directingFilms.length}
+                onSelect={selectRole}
+            />
             <FilmBrowser films={films} search={browserSearch} />
         </div>
     );

@@ -19,20 +19,20 @@ const mockedApiClient = catalogClient as unknown as {
 const person: Person = {
     id: 1,
     name: "Test Person",
-    films: [
-        {
-            id: 1,
-            title: "Test Title",
-            releaseYear: 2000,
-            countries: ["Poland"],
-            posterName: null,
-            genres: ["Drama"],
-        },
-    ],
+    birthDate: null,
+    deathDate: null,
+    placeOfBirth: null,
+    photoName: null,
+    actingFilms: [],
+    directingFilms: [],
 };
 
 const request: PersonRequest = {
     name: "Updated Test Person",
+    birthDate: null,
+    deathDate: null,
+    placeOfBirth: null,
+    photoName: null,
 };
 
 beforeEach(() => {
@@ -40,21 +40,19 @@ beforeEach(() => {
 });
 
 describe("personApi", () => {
-    it("unwraps actor and director responses from the expected endpoints", async () => {
+    it("loads a person from the people endpoint", async () => {
         mockedApiClient.get.mockResolvedValue({ data: person });
 
-        await expect(getPersonById("actor", 1)).resolves.toBe(person);
-        await expect(getPersonById("director", 1)).resolves.toBe(person);
+        await expect(getPersonById(1)).resolves.toBe(person);
 
-        expect(mockedApiClient.get).toHaveBeenNthCalledWith(1, "/actors/1");
-        expect(mockedApiClient.get).toHaveBeenNthCalledWith(2, "/directors/1");
+        expect(mockedApiClient.get).toHaveBeenCalledWith("/people/1");
     });
 
-    it("sends update requests to the expected person endpoint", async () => {
+    it("sends update requests to the people endpoint", async () => {
         mockedApiClient.put.mockResolvedValue({ data: person });
 
-        await expect(updatePerson("actor", 1, request)).resolves.toBe(person);
+        await expect(updatePerson(1, request)).resolves.toBe(person);
 
-        expect(mockedApiClient.put).toHaveBeenCalledWith("/actors/1", request);
+        expect(mockedApiClient.put).toHaveBeenCalledWith("/people/1", request);
     });
 });

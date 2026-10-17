@@ -19,8 +19,7 @@ function AppRouter() {
 
                     <Route path="/films" element={<AllFilmsPage />} />
                     <Route path="/films/:id" element={<FilmPage />} />
-                    <Route path="/people/actor/:id" element={<PersonPage type="actor" />} />
-                    <Route path="/people/director/:id" element={<PersonPage type="director" />} />
+                    <Route path="/people/:id" element={<PersonPage />} />
 
                     <Route element={<AuthRoute />}>
                         <Route path="/collections/:id" element={<CollectionPage />} />

@@ -35,7 +35,7 @@ export function FilmDetails(props: Readonly<Props>) {
                         {data.directors.map((director) => (
                             <Link
                                 key={director.id}
-                                to={`/people/director/${director.id}`}
+                                to={`/people/${director.id}`}
                                 className="person-link person-link-line"
                             >
                                 {director.name}
@@ -50,7 +50,7 @@ export function FilmDetails(props: Readonly<Props>) {
                 </p>
                 <div className="people-column">
                     {data.actors.map((actor) => (
-                        <Link key={actor.id} to={`/people/actor/${actor.id}`} className="person-link">
+                        <Link key={actor.id} to={`/people/${actor.id}`} className="person-link">
                             {actor.name}
                         </Link>
                     ))}
