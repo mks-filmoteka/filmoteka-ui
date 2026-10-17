@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
-import PosterUpload from "./PosterUpload";
+import ImageUpload from "./ImageUpload";
 
 const originalCreateObjectURL = URL.createObjectURL;
 const originalRevokeObjectURL = URL.revokeObjectURL;
@@ -43,7 +43,7 @@ afterEach(() => {
     });
 });
 
-describe("PosterUpload", () => {
+describe("ImageUpload", () => {
     const getFileInput = (container: HTMLElement) => {
         const input = container.querySelector<HTMLInputElement>('input[type="file"]');
         if (!input) {
@@ -53,30 +53,32 @@ describe("PosterUpload", () => {
         return input;
     };
 
-    it("revokes preview URLs when the selected poster file changes and on unmount", async () => {
+    it("revokes preview URLs when the selected file changes and on unmount", async () => {
         const firstFile = new File(["first"], "first.jpg", { type: "image/jpeg" });
         const secondFile = new File(["second"], "second.png", { type: "image/png" });
         const onChange = vi.fn();
-        const setPosterFile = vi.fn();
+        const setFile = vi.fn();
 
         const { container, rerender, unmount } = render(
-            <PosterUpload
+            <ImageUpload
                 value={null}
                 alt="Poster"
                 onChange={onChange}
-                posterFile={null}
-                setPosterFile={setPosterFile}
+                file={null}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
         fireEvent.change(getFileInput(container), { target: { files: [firstFile] } });
         rerender(
-            <PosterUpload
+            <ImageUpload
                 value={null}
                 alt="Poster"
                 onChange={onChange}
-                posterFile={firstFile}
-                setPosterFile={setPosterFile}
+                file={firstFile}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
@@ -86,17 +88,18 @@ describe("PosterUpload", () => {
 
         fireEvent.change(getFileInput(container), { target: { files: [secondFile] } });
         rerender(
-            <PosterUpload
+            <ImageUpload
                 value={null}
                 alt="Poster"
                 onChange={onChange}
-                posterFile={secondFile}
-                setPosterFile={setPosterFile}
+                file={secondFile}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
-        expect(setPosterFile).toHaveBeenCalledWith(firstFile);
-        expect(setPosterFile).toHaveBeenCalledWith(secondFile);
+        expect(setFile).toHaveBeenCalledWith(firstFile);
+        expect(setFile).toHaveBeenCalledWith(secondFile);
         expect(revokeObjectURL).toHaveBeenCalledWith("blob:first.jpg");
         await waitFor(() => {
             expect(screen.getByAltText("Poster")).toHaveAttribute("src", "blob:second.png");
@@ -109,29 +112,31 @@ describe("PosterUpload", () => {
         expect(revokeObjectURL).toHaveBeenCalledWith("blob:second.png");
     });
 
-    it("returns to the saved poster URL after clearing an unsaved poster file", async () => {
+    it("returns to the saved image URL after clearing an unsaved file", async () => {
         const file = new File(["draft"], "draft.jpg", { type: "image/jpeg" });
         const onChange = vi.fn();
-        const setPosterFile = vi.fn();
+        const setFile = vi.fn();
 
         const { container, rerender } = render(
-            <PosterUpload
+            <ImageUpload
                 value="saved.jpg"
                 alt="Poster"
                 onChange={onChange}
-                posterFile={null}
-                setPosterFile={setPosterFile}
+                file={null}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
         fireEvent.change(getFileInput(container), { target: { files: [file] } });
         rerender(
-            <PosterUpload
+            <ImageUpload
                 value="saved.jpg"
                 alt="Poster"
                 onChange={onChange}
-                posterFile={file}
-                setPosterFile={setPosterFile}
+                file={file}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
@@ -139,23 +144,19 @@ describe("PosterUpload", () => {
             expect(screen.getByAltText("Poster")).toHaveAttribute("src", "blob:draft.jpg");
         });
 
-        const removeButton = container.querySelector<HTMLButtonElement>(".poster-remove-button");
-        if (!removeButton) {
-            throw new Error("Remove button not found");
-        }
-
-        fireEvent.click(removeButton);
+        fireEvent.click(screen.getByRole("button", { name: "Remove poster" }));
         rerender(
-            <PosterUpload
+            <ImageUpload
                 value="saved.jpg"
                 alt="Poster"
                 onChange={onChange}
-                posterFile={null}
-                setPosterFile={setPosterFile}
+                file={null}
+                setFile={setFile}
+                removeLabel="Remove poster"
             />,
         );
 
-        expect(setPosterFile).toHaveBeenCalledWith(null);
+        expect(setFile).toHaveBeenCalledWith(null);
         expect(onChange).toHaveBeenCalledWith(null);
         expect(revokeObjectURL).toHaveBeenCalledWith("blob:draft.jpg");
         expect(screen.getByAltText("Poster")).toHaveAttribute(
