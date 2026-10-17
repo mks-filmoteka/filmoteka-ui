@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Person } from "../types/person";
 import { PersonEditForm } from "./PersonEditForm";
 import type { MutationOptions } from "../../../test/mutationOptions";
+import { testPerson } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -30,16 +30,12 @@ vi.mock("../../media/api/mediaApi.ts", async (importOriginal) => ({
     deleteFile: mocks.deleteFile,
 }));
 
-const person: Person = {
+const person = testPerson({
     id: 7,
-    name: "Test Person",
     birthDate: "1930-05-31",
-    deathDate: null,
     placeOfBirth: "San Francisco, USA",
     photoName: "old.jpg",
-    actingFilms: [],
-    directingFilms: [],
-};
+});
 
 const saveError = Object.assign(new Error("Save failed"), {
     response: { data: { message: "Name already exists" } },

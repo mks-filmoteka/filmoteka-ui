@@ -5,6 +5,7 @@ import type { FilmBasic } from "../../film/types/filmBasic";
 import type { Person } from "../types/person";
 import PersonPage from "./PersonPage";
 import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilmBasic, testPerson } from "../../../test/testData";
 
 type SearchParamsReturn = {
     view: string;
@@ -85,33 +86,20 @@ vi.mock("../../film/components/FilmBrowser.tsx", () => ({
     ),
 }));
 
-const film = (id: number, title: string, releaseYear: number, genres: string[]): FilmBasic => ({
-    id,
-    title,
-    releaseYear,
-    countries: ["Poland"],
-    posterName: null,
-    genres,
-});
-
-const actor: Person = {
+const actor = testPerson({
     id: 7,
-    name: "Test Person",
     birthDate: "1930-05-31",
-    deathDate: null,
     placeOfBirth: "San Francisco, USA",
-    photoName: null,
     actingFilms: [
-        film(1, "Test Film 1", 2000, ["Drama"]),
-        film(2, "Test Film 2", 1995, ["Action"]),
-        film(3, "Test Film 3", 2010, ["Drama"]),
+        testFilmBasic({ id: 1, title: "Test Film 1", releaseYear: 2000, genres: ["Drama"] }),
+        testFilmBasic({ id: 2, title: "Test Film 2", releaseYear: 1995, genres: ["Action"] }),
+        testFilmBasic({ id: 3, title: "Test Film 3", releaseYear: 2010, genres: ["Drama"] }),
     ],
-    directingFilms: [],
-};
+});
 
 const actorAndDirector: Person = {
     ...actor,
-    directingFilms: [film(4, "Directed Film", 2005, ["Drama"])],
+    directingFilms: [testFilmBasic({ id: 4, title: "Directed Film", releaseYear: 2005, genres: ["Drama"] })],
 };
 
 const createSearchParams = (overrides: Partial<SearchParamsReturn> = {}): SearchParamsReturn => ({

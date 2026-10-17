@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import { catalogClient } from "../../../shared/api/client";
-import type { Film } from "../types/film";
 import type { FilmRequest } from "../types/filmRequest";
 import { createFilm, deleteFilm, getCollectionFilms, getFilmById, getFilms, updateFilm } from "./filmApi";
+import { testFilm } from "../../../test/testData";
 
 vi.mock("../../../shared/api/client", () => ({
     catalogClient: {
@@ -20,18 +20,7 @@ const mockedApiClient = catalogClient as unknown as {
     delete: Mock;
 };
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
-    countries: ["Poland", "France"],
-    description: "Test description",
-    posterName: null,
-    genres: ["Drama", "Action"],
-    actors: [{ id: 1, name: "Test Actor" }],
-    directors: [{ id: 2, name: "Test Director" }],
-};
+const film = testFilm({ countries: ["Poland", "France"], genres: ["Drama", "Action"] });
 
 const request: FilmRequest = {
     title: film.title,

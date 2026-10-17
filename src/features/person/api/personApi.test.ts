@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { catalogClient } from "../../../shared/api/client";
-import type { Person } from "../types/person";
 import type { PersonRequest } from "../types/personRequest";
 import { deletePerson, getPersonById, updatePerson } from "./personApi";
+import { testPerson } from "../../../test/testData";
 
 vi.mock("../../../shared/api/client", () => ({
     catalogClient: {
@@ -18,16 +18,7 @@ const mockedApiClient = catalogClient as unknown as {
     delete: Mock;
 };
 
-const person: Person = {
-    id: 1,
-    name: "Test Person",
-    birthDate: null,
-    deathDate: null,
-    placeOfBirth: null,
-    photoName: null,
-    actingFilms: [],
-    directingFilms: [],
-};
+const person = testPerson();
 
 const request: PersonRequest = {
     name: "Updated Test Person",

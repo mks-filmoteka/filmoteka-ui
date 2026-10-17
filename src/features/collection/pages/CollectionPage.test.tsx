@@ -5,6 +5,7 @@ import type { FilmBasic } from "../../film/types/filmBasic.ts";
 import type { Page } from "../../film/types/page.ts";
 import CollectionPage from "./CollectionPage.tsx";
 import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilmBasic } from "../../../test/testData";
 
 type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
@@ -99,23 +100,15 @@ const emptyPage: Page<FilmBasic> = {
     page: 0,
 };
 
-const film: FilmBasic = {
-    id: 1,
-    title: "Collection Film",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    posterName: null,
-    genres: ["Drama"],
-};
+const film = testFilmBasic({ title: "Collection Film" });
 
-const outsideFilm: FilmBasic = {
+const outsideFilm = testFilmBasic({
     id: 3,
     title: "Outside Film",
     releaseYear: 2005,
     countries: ["France"],
-    posterName: null,
     genres: ["Action"],
-};
+});
 
 const collection: Collection = {
     id: 7,

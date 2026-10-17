@@ -5,15 +5,9 @@ import type { ReactElement } from "react";
 import type { FilmBasic } from "../types/filmBasic.ts";
 import type { Page } from "../types/page.ts";
 import { FilmBrowser, type FilmBrowserSearchState } from "./FilmBrowser.tsx";
+import { testFilmBasic } from "../../../test/testData";
 
-const film: FilmBasic = {
-    id: 1,
-    title: "Test Film",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    posterName: null,
-    genres: ["Drama"],
-};
+const film = testFilmBasic();
 
 const filmsData: Page<FilmBasic> = {
     content: [film],

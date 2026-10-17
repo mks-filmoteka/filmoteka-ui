@@ -1,15 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { Film } from "../types/film";
 import type { FilmRequest } from "../types/filmRequest";
 import { fillForm, fillRequest, isFormChanged } from "./formState";
+import { testFilm } from "../../../test/testData";
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
+const film = testFilm({
     countries: ["Poland", "France"],
-    description: "Test description",
     posterName: "test-poster.jpg",
     genres: ["Drama", "Action"],
     actors: [
@@ -17,7 +12,7 @@ const film: Film = {
         { id: 2, name: "Second Test Actor" },
     ],
     directors: [{ id: 3, name: "Test Director" }],
-};
+});
 
 describe("formState", () => {
     it("fills an empty form when no film data is available", () => {

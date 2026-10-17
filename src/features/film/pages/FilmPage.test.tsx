@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
 import type { MutationOptions } from "../../../test/mutationOptions";
+import { testFilm } from "../../../test/testData";
 
 type FilmDetailsMockProps = {
     data: { id: number; title: string };
@@ -74,18 +74,7 @@ vi.mock("../../collection/components/CollectionsPopup.tsx", () => ({
     ),
 }));
 
-const film: Film = {
-    version: 0,
-    id: 1,
-    title: "Test Title",
-    releaseYear: 2000,
-    countries: ["Poland"],
-    description: "Test description",
-    posterName: "old.jpg",
-    genres: ["Drama"],
-    actors: [{ id: 1, name: "Test Actor" }],
-    directors: [{ id: 2, name: "Test Director" }],
-};
+const film = testFilm({ posterName: "old.jpg" });
 
 beforeEach(() => {
     vi.resetAllMocks();
