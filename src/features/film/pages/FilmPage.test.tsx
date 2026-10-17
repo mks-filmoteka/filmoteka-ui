@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import FilmPage from "./FilmPage";
 import type { MutationOptions } from "../../../test/mutationOptions";
-import { testFilm } from "../../../test/testData";
+import { testFilm, testApiError } from "../../../test/testData";
 
 type FilmDetailsMockProps = {
     data: { id: number; title: string };
@@ -155,7 +155,7 @@ describe("FilmPage", () => {
         mocks.useFilm.mockReturnValue({
             data: undefined,
             isLoading: false,
-            error: Object.assign(new Error("Request failed"), { response: { status: 404 } }),
+            error: testApiError({ status: 404 }),
         });
 
         render(
@@ -174,9 +174,7 @@ describe("FilmPage", () => {
         mocks.useDeleteFilm.mockReturnValue({
             mutate: mocks.deleteFilmMutate,
             isPending: false,
-            error: Object.assign(new Error("Request failed"), {
-                response: { data: { message: "Catalog unavailable" } },
-            }),
+            error: testApiError({ message: "Catalog unavailable" }),
         });
         rerender(<FilmPage />);
 

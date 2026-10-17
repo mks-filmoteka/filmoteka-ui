@@ -1,6 +1,7 @@
 import type { Film } from "../features/film/types/film.ts";
 import type { FilmBasic } from "../features/film/types/filmBasic.ts";
 import type { Person } from "../features/person/types/person.ts";
+import type { ApiErrorDetail } from "../shared/types/ApiErrorDetail.ts";
 
 export function testFilm(overrides: Partial<Film> = {}): Film {
     return {
@@ -42,4 +43,17 @@ export function testPerson(overrides: Partial<Person> = {}): Person {
         directingFilms: [],
         ...overrides,
     };
+}
+
+type ApiErrorResponse = {
+    status?: number;
+    message?: string;
+    errorDetails?: ApiErrorDetail[];
+};
+
+// The shape axios gives a failed request: an Error with the server's response attached.
+export function testApiError({ status, message, errorDetails }: ApiErrorResponse) {
+    return Object.assign(new Error("Request failed"), {
+        response: { status, data: { message, errorDetails } },
+    });
 }

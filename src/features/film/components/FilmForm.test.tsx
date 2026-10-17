@@ -4,7 +4,7 @@ import type { Film } from "../types/film.ts";
 import type { FilmRequest } from "../types/filmRequest.ts";
 import { FilmForm } from "./FilmForm.tsx";
 import type { MutationOptions } from "../../../test/mutationOptions";
-import { testFilm } from "../../../test/testData";
+import { testFilm, testApiError } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -39,13 +39,9 @@ const validRequest: FilmRequest = {
     directors: [{ name: "Test Director" }],
 };
 
-const apiError = Object.assign(new Error("Save failed"), {
-    response: {
-        data: {
-            message: "Validation failed",
-            errorDetails: [{ field: "title", message: "Required" }],
-        },
-    },
+const apiError = testApiError({
+    message: "Validation failed",
+    errorDetails: [{ field: "title", message: "Required" }],
 });
 
 function renderFilmForm(

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PersonEditForm } from "./PersonEditForm";
 import type { MutationOptions } from "../../../test/mutationOptions";
-import { testPerson } from "../../../test/testData";
+import { testPerson, testApiError } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -37,9 +37,7 @@ const person = testPerson({
     photoName: "old.jpg",
 });
 
-const saveError = Object.assign(new Error("Save failed"), {
-    response: { data: { message: "Name already exists" } },
-});
+const saveError = testApiError({ message: "Name already exists" });
 
 function renderForm(onDone = vi.fn()) {
     const view = render(<PersonEditForm person={person} roles="Actor" onDone={onDone} />);

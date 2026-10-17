@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserProfile } from "../types/userProfile.ts";
 import { ProfileDetails } from "./ProfileDetails.tsx";
 import type { MutationOptions } from "../../../test/mutationOptions";
+import { testApiError } from "../../../test/testData";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -115,13 +116,9 @@ describe("ProfileDetails", () => {
     });
 
     it("keeps edit mode open and shows the API error when update fails", async () => {
-        const error = Object.assign(new Error("Update failed"), {
-            response: {
-                data: {
-                    message: "Display name already exists",
-                    errorDetails: [{ field: "displayName", message: "Must be unique" }],
-                },
-            },
+        const error = testApiError({
+            message: "Display name already exists",
+            errorDetails: [{ field: "displayName", message: "Must be unique" }],
         });
         mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions<UserProfile>) => {
             options?.onError?.(error);
