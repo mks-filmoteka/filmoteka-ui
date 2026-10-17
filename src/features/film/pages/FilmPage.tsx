@@ -30,7 +30,7 @@ function FilmPage() {
         deleteFilm.mutate(id, {
             onSuccess: () => {
                 toast("Film deleted");
-                navigate("/films");
+                void navigate("/films");
             },
         });
     };
@@ -56,7 +56,11 @@ function FilmPage() {
                         )}
                         {isAdmin && (
                             <>
-                                <IconButton icon="edit" label="Edit" onClick={() => navigate(`/films/${id}/edit`)} />
+                                <IconButton
+                                    icon="edit"
+                                    label="Edit"
+                                    onClick={() => void navigate(`/films/${id}/edit`)}
+                                />
                                 <IconButton
                                     icon="delete"
                                     label="Delete"

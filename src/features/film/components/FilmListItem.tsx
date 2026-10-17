@@ -37,7 +37,7 @@ function FilmListItem({ film, index, checked, onCheckedChange, selectionDisabled
     }
 
     return (
-        <button onClick={() => navigate(`/films/${film.id}`)} className="list-item-button">
+        <button onClick={() => void navigate(`/films/${film.id}`)} className="list-item-button">
             {content}
         </button>
     );

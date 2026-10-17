@@ -48,7 +48,7 @@ export function AppLayout() {
             <header className={showHeader ? "" : "header-hidden"}>
                 <div className="header-content">
                     <div className="header-left">
-                        <button onClick={() => navigate("/films")} title="Home">
+                        <button onClick={() => void navigate("/films")} title="Home">
                             <img src="/favicon.svg" alt="Home" className="home-button-img" />
                         </button>
                         {authenticated && (
@@ -76,7 +76,7 @@ export function AppLayout() {
                                 if (view) {
                                     params.set("view", view);
                                 }
-                                navigate(`/films?${params}`);
+                                void navigate(`/films?${params}`);
                                 setSearch("");
                             }}
                         />
