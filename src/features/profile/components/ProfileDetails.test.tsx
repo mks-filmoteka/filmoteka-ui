@@ -2,11 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserProfile } from "../types/userProfile.ts";
 import { ProfileDetails } from "./ProfileDetails.tsx";
-
-type MutationOptions = {
-    onSuccess?: (profile: UserProfile) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),
@@ -95,7 +91,7 @@ describe("ProfileDetails", () => {
     });
 
     it("trims the edited display name before saving", async () => {
-        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions) => {
+        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions<UserProfile>) => {
             options?.onSuccess?.({
                 ...profile,
                 displayName: "Updated Test User",
@@ -127,7 +123,7 @@ describe("ProfileDetails", () => {
                 },
             },
         });
-        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions) => {
+        mocks.updateProfileMutate.mockImplementation((_request: unknown, options?: MutationOptions<UserProfile>) => {
             options?.onError?.(error);
         });
         render(<ProfileDetails profile={profile} onClose={vi.fn()} />);

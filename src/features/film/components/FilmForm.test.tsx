@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film.ts";
 import type { FilmRequest } from "../types/filmRequest.ts";
 import { FilmForm } from "./FilmForm.tsx";
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 const mocks = vi.hoisted(() => ({
     confirm: vi.fn(),

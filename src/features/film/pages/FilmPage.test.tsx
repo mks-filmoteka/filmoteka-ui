@@ -3,10 +3,7 @@ import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Film } from "../types/film";
 import FilmPage from "./FilmPage";
-
-type MutationOptions = {
-    onSuccess?: () => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 type FilmDetailsMockProps = {
     data: { id: number; title: string };

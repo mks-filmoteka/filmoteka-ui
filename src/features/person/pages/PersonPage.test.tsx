@@ -4,11 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FilmBasic } from "../../film/types/filmBasic";
 import type { Person } from "../types/person";
 import PersonPage from "./PersonPage";
-
-type MutationOptions = {
-    onSuccess?: () => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 type SearchParamsReturn = {
     view: string;

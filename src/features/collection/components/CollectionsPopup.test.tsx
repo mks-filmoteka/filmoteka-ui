@@ -1,11 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CollectionsPopup } from "./CollectionsPopup.tsx";
-
-type MutationOptions = {
-    onSuccess?: () => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 const mocks = vi.hoisted(() => ({
     toast: vi.fn(),

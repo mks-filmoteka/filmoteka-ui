@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FilmFormSaveOptions } from "../components/FilmForm.tsx";
 import type { FilmRequest } from "../types/filmRequest.ts";
 import CreateFilmPage from "./CreateFilmPage.tsx";
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 type FilmFormProps = {
     confirmMessage: string;
@@ -10,11 +11,6 @@ type FilmFormProps = {
     isChanged: (form: FilmRequest, posterFile: File | null) => boolean;
     onCancel: () => void;
     onSave: (request: FilmRequest, options: FilmFormSaveOptions) => void;
-};
-
-type MutationOptions = {
-    onSuccess?: () => void;
-    onError?: (error: Error) => void;
 };
 
 const mocks = vi.hoisted(() => ({

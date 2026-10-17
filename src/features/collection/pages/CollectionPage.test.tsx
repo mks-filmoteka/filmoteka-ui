@@ -4,11 +4,7 @@ import type { Collection } from "../types/collection.ts";
 import type { FilmBasic } from "../../film/types/filmBasic.ts";
 import type { Page } from "../../film/types/page.ts";
 import CollectionPage from "./CollectionPage.tsx";
-
-type MutationOptions<TData = unknown> = {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: Error) => void;
-};
+import type { MutationOptions } from "../../../test/mutationOptions";
 
 type FilmBrowserMockProps = {
     filmsData?: Page<FilmBasic>;
